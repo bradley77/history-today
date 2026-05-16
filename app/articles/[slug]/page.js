@@ -53,15 +53,17 @@ export default async function ArticlePage({ params }) {
         </div>
       </header>
 
-      {/* Document Image Placeholder */}
+      {/* Document Image */}
       <div className="px-8 py-8" style={{maxWidth: '1152px', margin: '0 auto'}}>
-        <div className="bg-gray-100 rounded-sm w-full max-w-2xl aspect-video flex items-center justify-center relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm"></div>
-          <div className="relative text-center">
-            <p className="text-gray-400 text-xs uppercase tracking-widest mb-1">Primary Source</p>
-            <p className="text-gray-500 text-sm">Senate Roll Call · May 16, 1868</p>
-            <p className="text-gray-400 text-xs mt-1">National Archives</p>
-          </div>
+        <div className="w-full max-w-sm relative">
+          <img
+            src="/images/AJohnson.jpg"
+            alt="Portrait of President Andrew Johnson"
+            className="rounded-sm w-full object-cover shadow-md"
+          />
+          <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
+            President Andrew Johnson · Library of Congress
+          </p>
         </div>
       </div>
 
