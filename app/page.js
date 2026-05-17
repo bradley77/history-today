@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { getAllArticles } from './lib/articles'
 
 export default async function Home() {
-  const realArticles = getAllArticles()
-  const featured = realArticles[0]
-  const rest = realArticles.slice(1)
+  const allArticles = getAllArticles()
+  const featured = allArticles[0]
+  const rest = allArticles.slice(1)
 
   return (
     <main className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
@@ -36,14 +36,21 @@ export default async function Home() {
         </nav>
       </header>
 
-      <div className="bg-gray-900 text-white px-8 py-2">
+      <div className="bg-gray-900 text-white px-8 py-2 overflow-hidden">
         <div style={{maxWidth: '1152px', margin: '0 auto'}} className="flex items-center gap-4">
           <span className="bg-red-700 text-white text-xs font-bold px-2 py-0.5 uppercase tracking-wider shrink-0">
-            On This Day
+            Latest
           </span>
-          <span className="text-sm text-gray-300">
-            November 9, 1989 — The Berlin Wall falls · July 20, 1969 — Apollo 11 lands on the moon · October 29, 1929 — Black Tuesday · June 6, 1944 — D-Day begins
-          </span>
+          <div className="overflow-hidden flex-1">
+            <div className="ticker-content text-sm text-gray-300 whitespace-nowrap">
+              {allArticles.map((article, i) => (
+                <span key={article.slug}>
+                  {article.date} — {article.title}
+                  {i < allArticles.length - 1 && <span className="mx-4">·</span>}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -55,12 +62,13 @@ export default async function Home() {
             <div className="accent-line"></div>
             <p className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-medium">Featured Story</p>
             <Link href={`/articles/${featured.slug}`} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center article-card cursor-pointer group">
-              <div className="bg-gray-100 aspect-video rounded-sm flex items-center justify-center overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300"></div>
-                <div className="relative text-center px-8">
-                  <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Primary Source</p>
-                  <p className="text-gray-500 text-sm">Historical document image</p>
-                </div>
+              <div className="aspect-video rounded-sm overflow-hidden relative bg-gray-100">
+                <img
+                  src={`/images/${featured.slug}.jpg`}
+                  alt={featured.title}
+                  className="w-full h-full object-cover"
+                  style={{objectPosition: '50% 15%'}}
+                />
                 <div className="absolute bottom-3 left-3 bg-red-700 text-white text-xs px-2 py-1 uppercase tracking-wider font-bold">
                   {featured.tag}
                 </div>
@@ -100,8 +108,12 @@ export default async function Home() {
                   href={`/articles/${article.slug}`}
                   className="article-card cursor-pointer group border-t-2 border-gray-100 hover:border-red-700 pt-4 transition-all duration-200"
                 >
-                  <div className="bg-gray-100 aspect-video rounded-sm mb-4 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 group-hover:from-gray-200 group-hover:to-gray-300 transition-all duration-300"></div>
+                  <div className="aspect-video rounded-sm mb-4 relative overflow-hidden bg-gray-100">
+                    <img
+                      src={`/images/${article.slug}.jpg`}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                    />
                     <div className="absolute bottom-2 left-2 bg-red-700 text-white text-xs px-2 py-0.5 uppercase tracking-wider font-bold">
                       {article.tag}
                     </div>

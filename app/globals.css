@@ -113,3 +113,17 @@ a {
   color: #111111;
   font-weight: 600;
 }
+/* Ticker animation */
+.ticker-content {
+  display: inline-block;
+  animation: ticker 20s linear infinite;
+}
+
+.ticker-content:hover {
+  animation-play-state: paused;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
