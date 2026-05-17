@@ -143,6 +143,8 @@ export default async function Home() {
             <input
               type="email"
               placeholder="your@email.com"
+              autoComplete="off"
+              suppressHydrationWarning={true}
               className="flex-1 border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:border-gray-900 transition-colors"
             />
             <button className="bg-gray-900 text-white px-6 py-2.5 text-sm font-medium hover:bg-red-700 transition-colors duration-200 uppercase tracking-wider">
