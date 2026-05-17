@@ -5,8 +5,9 @@ category: "Civil Rights"
 tag: "Supreme Court"
 readTime: "7 min read"
 slug: "brown-v-board-1954"
-publishDate: "2026-05-17 04:00"
+publishDate: "2026-05-17 08:00"
 excerpt: "On this day in 1954, nine Supreme Court justices agreed on nine words that dismantled sixty years of legalized segregation: Separate educational facilities are inherently unequal."
+sourceUrl: "https://www.archives.gov/milestone-documents/brown-v-board-of-education"
 ---
 
 The courtroom was quiet when Chief Justice Earl Warren began reading. It was May 17, 1954, and the nine justices of the United States Supreme Court had been wrestling for months with a question that had divided America since the end of the Civil War: could a nation founded on equality continue to separate its children by the color of their skin?

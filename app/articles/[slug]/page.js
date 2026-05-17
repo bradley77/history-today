@@ -101,7 +101,7 @@ export default async function ArticlePage({ params }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-red-700 text-white text-sm font-bold uppercase tracking-widest px-6 py-3 hover:bg-red-800 transition-colors duration-200 shadow-md"
             >
-              Read the Full Opinion →
+              {article.sourceName || 'Read the Full Document'} →
             </a>
           </div>
         </div>
