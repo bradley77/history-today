@@ -1,4 +1,5 @@
 import { getArticleBySlug, getAllArticles } from '../../lib/articles'
+import LightboxImage from './LightboxImage'
 
 export async function generateStaticParams() {
   const articles = getAllArticles()
@@ -19,7 +20,6 @@ export async function generateMetadata({ params }) {
 export default async function ArticlePage({ params }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
-
   return (
     <main className="min-h-screen bg-white text-gray-900">
 
@@ -84,12 +84,7 @@ export default async function ArticlePage({ params }) {
 
       <div className="px-8 py-4" style={{maxWidth: '1152px', margin: '0 auto'}}>
         <div className="w-full max-w-2xl relative">
-          <img
-            src="/images/senate-vote-1868.png"
-            alt="Congressional Globe page 415 showing the Senate impeachment vote"
-            className="rounded-sm w-full object-cover shadow-md border border-gray-200"
-            style={{transform: 'rotate(0.5deg)'}}
-          />
+          <LightboxImage src="/images/senate-vote-1868.png" alt="Congressional Globe page 415 showing the Senate impeachment vote" />
           <div className="mt-2 text-center">
             <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">
               The Congressional Globe · Page 415 · May 16, 1868 · The actual Senate vote record
