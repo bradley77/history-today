@@ -1,13 +1,14 @@
 ---
-title: "Nine Words That Changed America"
+title: "Six Words That Changed America"
 date: "May 17, 1954"
 category: "Civil Rights"
 tag: "Supreme Court"
 readTime: "7 min read"
 slug: "brown-v-board-1954"
 publishDate: "2026-05-17 08:00"
-excerpt: "On this day in 1954, nine Supreme Court justices agreed on nine words that dismantled sixty years of legalized segregation: Separate educational facilities are inherently unequal."
-sourceUrl: "https://www.archives.gov/milestone-documents/brown-v-board-of-education"
+excerpt: "On this day in 1954, nine Supreme Court justices agreed on six words that dismantled sixty years of legalized segregation: Separate educational facilities are inherently unequal."
+sourceUrl: "https://www.archives.gov/milestone-documents/brown-v-board-of-education#transcript"
+sourceName: "Read the Full Opinion"
 ---
 
 The courtroom was quiet when Chief Justice Earl Warren began reading. It was May 17, 1954, and the nine justices of the United States Supreme Court had been wrestling for months with a question that had divided America since the end of the Civil War: could a nation founded on equality continue to separate its children by the color of their skin?
@@ -16,7 +17,7 @@ Warren read for about an hour. Near the end, he reached the sentence that would 
 
 We conclude that in the field of public education the doctrine of separate but equal has no place. Separate educational facilities are inherently unequal.
 
-Nine words. Sixty years of legalized segregation, dismantled in a single sentence.
+Six words. Sixty years of legalized segregation, dismantled in a single sentence.
 
 ## The Road to Topeka
 
@@ -48,7 +49,7 @@ But on May 17, 1954, in cities and towns across Black America, people wept. Thur
 
 More than seventy years later, the questions Brown tried to answer remain unresolved. Studies consistently show that American schools are more racially and economically segregated today than they were in the 1980s — not because of law, but because of geography, housing policy, and school district boundaries drawn in ways that reproduce the separations Brown sought to eliminate.
 
-The nine words Warren read that morning in 1954 were not an ending. They were a beginning — and an argument America is still having with itself.
+The six words Warren read that morning in 1954 were not an ending. They were a beginning — and an argument America is still having with itself.
 
 ## The Document
 
