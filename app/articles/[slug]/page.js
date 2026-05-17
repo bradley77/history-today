@@ -86,7 +86,7 @@ export default async function ArticlePage({ params }) {
           />
           <div className="mt-2 text-center">
             <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">
-              Primary Source Document · {article.date}
+              Segregated Rail Car · {article.date}
             </p>
           </div>
         </div>
