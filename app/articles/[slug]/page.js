@@ -53,53 +53,59 @@ export default async function ArticlePage({ params }) {
         </div>
       </header>
 
+      {/* Primary Source Image */}
       <div className="px-8 py-8" style={{maxWidth: '1152px', margin: '0 auto'}}>
         <div className="flex flex-col md:flex-row gap-8 items-start max-w-2xl">
-          {/* Portrait */}
-          <div className="w-48 shrink-0">
-            <img
-              src="/images/AJohnson.jpg"
-              alt="Portrait of President Andrew Johnson"
-              className="rounded-sm w-full object-cover shadow-md"
+          <div className="w-72 shrink-0">
+            <LightboxImage
+              src={`/images/${article.slug}.jpg`}
+              alt={`Primary source image for ${article.title}`}
             />
             <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
-              Library of Congress
+              {article.category} · {article.date}
             </p>
           </div>
-          {/* Caption Block */}
           <div className="flex flex-col justify-center">
             <div className="accent-line"></div>
             <h3 style={{fontFamily: 'var(--font-playfair)'}} className="text-xl font-bold mb-3">
-              Andrew Johnson
+              {article.category}
             </h3>
             <p className="text-gray-500 text-sm leading-relaxed mb-3">
-              17th President of the United States. A Southern Democrat who inherited the presidency after Lincoln&apos;s assassination in 1865, Johnson clashed repeatedly with a Republican-controlled Congress over Reconstruction policy.
-            </p>
-            <p className="text-gray-500 text-sm leading-relaxed">
-              His removal of Secretary of War Edwin Stanton in February 1868 triggered the impeachment that would define his presidency — and American constitutional law — forever.
+              {article.excerpt}
             </p>
           </div>
         </div>
       </div>
 
+      {/* Primary Source Document */}
       <div className="px-8 py-4" style={{maxWidth: '1152px', margin: '0 auto'}}>
         <div className="w-full max-w-2xl relative">
-          <LightboxImage src="/images/senate-vote-1868.png" alt="Congressional Globe page 415 showing the Senate impeachment vote" />
+          <LightboxImage
+            src={`/images/${article.slug}-document.jpg`}
+            alt={`Primary source document for ${article.title}`}
+          />
           <div className="mt-2 text-center">
             <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">
-              The Congressional Globe · Page 415 · May 16, 1868 · The actual Senate vote record
+              Primary Source Document · {article.date}
             </p>
-            <a
-              href="https://congress.gov/congressional-globe/congress-40-session-2-The-Impeachment-Trial-of-President-Andrew-Johnson.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-red-700 text-white text-sm font-bold uppercase tracking-widest px-6 py-3 hover:bg-red-800 transition-colors duration-200 mt-2 shadow-md"
-            >
-              Read the Full Congressional Record →
-            </a>
           </div>
         </div>
       </div>
+
+      {article.sourceUrl && (
+        <div className="px-8 py-4" style={{maxWidth: '1152px', margin: '0 auto'}}>
+          <div className="max-w-2xl">
+            <a
+              href={article.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-red-700 text-white text-sm font-bold uppercase tracking-widest px-6 py-3 hover:bg-red-800 transition-colors duration-200 shadow-md"
+            >
+              Read the Full Opinion →
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Article Body */}
       <article className="px-8 pb-16" style={{maxWidth: '1152px', margin: '0 auto'}}>

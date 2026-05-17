@@ -58,7 +58,7 @@ export default function ArchivePage() {
 
             {/* Articles for this year */}
             <div className="space-y-0">
-              {groupedByYear[year].map((article, index) => (
+              {groupedByYear[year].map((article) => (
                 <Link
                   key={article.slug}
                   href={`/articles/${article.slug}`}

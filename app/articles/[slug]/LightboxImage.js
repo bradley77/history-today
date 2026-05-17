@@ -31,7 +31,7 @@ export default function LightboxImage({ src, alt }) {
               Close ✕
             </button>
             <p className="text-gray-400 text-xs uppercase tracking-widest mt-3 text-center">
-              Click anywhere to close · The Congressional Globe · Page 415 · May 16, 1868
+              Click anywhere to close
             </p>
           </div>
         </div>
