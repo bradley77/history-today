@@ -27,7 +27,7 @@ export default async function Home() {
           {['Home', 'Archive', 'Documents', 'On This Day', 'Newsletter'].map(item => (
             <a
               key={item}
-              href="#"
+              href={item === 'Archive' ? '/archive' : '#'}
               className="hover:text-red-700 transition-colors duration-200 pb-1 border-b-2 border-transparent hover:border-red-700"
             >
               {item}
