@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getArticleBySlug, getAllArticles } from '../../lib/articles'
 import LightboxImage from './LightboxImage'
 
@@ -20,6 +21,7 @@ export async function generateMetadata({ params }) {
 export default async function ArticlePage({ params }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
+  const relatedArticles = getAllArticles().filter(a => a.slug !== slug).slice(0, 3)
   return (
     <main className="min-h-screen bg-white text-gray-900">
 
@@ -114,6 +116,38 @@ export default async function ArticlePage({ params }) {
           dangerouslySetInnerHTML={{ __html: article.contentHtml }}
         />
       </article>
+
+      {/* Continue Reading */}
+      {relatedArticles.length > 0 && (
+        <section className="px-8 py-12 border-t border-gray-200" style={{maxWidth: '1152px', margin: '0 auto'}}>
+          <div className="accent-line"></div>
+          <h2 style={{fontFamily: 'var(--font-playfair)', fontSize: '1.5rem', fontWeight: '700'}} className="mb-8">Continue Reading</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {relatedArticles.map(related => (
+              <Link
+                key={related.slug}
+                href={`/articles/${related.slug}`}
+                className="group border-t-2 border-gray-100 hover:border-red-700 pt-4 transition-all duration-200"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-red-700 text-xs font-bold uppercase tracking-widest">{related.category}</span>
+                  <span className="text-gray-300 text-xs">·</span>
+                  <span className="text-gray-400 text-xs">{related.date}</span>
+                </div>
+                <h3 style={{fontFamily: 'var(--font-playfair)'}} className="text-xl font-bold mb-2 leading-snug group-hover:text-red-700 transition-colors duration-200">
+                  {related.title}
+                </h3>
+                <p className="text-gray-500 text-sm leading-relaxed mb-3">
+                  {related.excerpt}
+                </p>
+                <span className="text-xs font-medium text-gray-900 border-b border-gray-900 pb-0.5 group-hover:text-red-700 group-hover:border-red-700 transition-colors duration-200">
+                  Read More
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-gray-200 px-8 py-8">

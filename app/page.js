@@ -45,7 +45,7 @@ export default async function Home() {
             <div className="ticker-content text-sm text-gray-300 whitespace-nowrap">
               {allArticles.map((article, i) => (
                 <span key={article.slug}>
-                  {article.date} — {article.title}
+                  &nbsp;&nbsp;{article.date} — {article.title}&nbsp;&nbsp;
                   {i < allArticles.length - 1 && <span className="mx-4">·</span>}
                 </span>
               ))}
