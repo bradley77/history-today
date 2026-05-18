@@ -44,6 +44,7 @@ export async function getArticleBySlug(slug) {
 
   return {
     slug,
+    content,
     contentHtml,
     ...data,
   }
