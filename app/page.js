@@ -24,10 +24,10 @@ export default async function Home() {
           </p>
         </div>
         <nav className="flex items-center justify-center gap-8 pb-4 text-sm font-medium">
-          {['Home', 'Archive', 'Documents', 'On This Day', 'Newsletter'].map(item => (
+          {['Home', 'Archive', 'Documents', 'On This Day', 'Newsletter', 'About'].map(item => (
             <a
               key={item}
-              href={item === 'Archive' ? '/archive' : '#'}
+              href={item === 'Archive' ? '/archive' : item === 'About' ? '/about' : '#'}
               className="hover:text-red-700 transition-colors duration-200 pb-1 border-b-2 border-transparent hover:border-red-700"
             >
               {item}
