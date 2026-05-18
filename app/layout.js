@@ -15,8 +15,29 @@ const inter = Inter({
 })
 
 export const metadata = {
-  title: 'Echo & Chronicle',
-  description: 'History meets today. Every day.',
+  metadataBase: new URL('https://echoandchronicle.today'),
+  title: {
+    default: 'Echo & Chronicle',
+    template: '%s | Echo & Chronicle',
+  },
+  description: 'One historical story, every day. Echo & Chronicle connects the moments that shaped America to the news of today. Primary sources. No ads.',
+  openGraph: {
+    title: 'Echo & Chronicle',
+    description: 'One historical story, every day. Echo & Chronicle connects the moments that shaped America to the news of today. Primary sources. No ads.',
+    url: 'https://echoandchronicle.today',
+    siteName: 'Echo & Chronicle',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Echo & Chronicle',
+    description: 'One historical story, every day. Echo & Chronicle connects the moments that shaped America to the news of today. Primary sources. No ads.',
+    site: '@EchoChronicle',
+  },
+  alternates: {
+    canonical: 'https://echoandchronicle.today',
+  },
 }
 
 export default function RootLayout({ children }) {
