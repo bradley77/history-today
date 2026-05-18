@@ -34,7 +34,7 @@ export default async function ArticlePage({ params }) {
         <a href="/" className="hover:text-gray-900 transition-colors">
           ← Back to Echo and Chronicle
         </a>
-        <span>{article.readTime}</span>
+        <span>{readingTime} min read</span>
       </div>
 
       {/* Header */}

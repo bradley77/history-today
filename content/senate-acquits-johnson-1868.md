@@ -3,10 +3,10 @@ title: "The Day a Single Senator Saved the Presidency"
 date: "May 16, 1868"
 category: "Politics"
 tag: "Primary Source"
-readTime: "6 min read"
 slug: "senate-acquits-johnson-1868"
 excerpt: "On this day 158 years ago, the Senate fell exactly one vote short of removing a sitting American president — and quietly set the rules for every impeachment that would follow."
 sourceUrl: "https://congress.gov/congressional-globe/congress-40-session-2-The-Impeachment-Trial-of-President-Andrew-Johnson.pdf"
+sourceName: "Read the Congressional Globe"
 ---
 
 The Senate galleries were packed. Tickets had been printed and distributed daily to control the crowds. As the vote approached, the chamber fell into breathless silence.
