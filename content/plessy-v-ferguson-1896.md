@@ -53,7 +53,7 @@ Homer Plessy himself paid a $25 fine and returned to his life in New Orleans. He
 
 ## The Overturning
 
-On May 17, 1954 — 58 years and one day after Plessy — the Supreme Court issued its unanimous ruling in Brown v. Board of Education. Chief Justice Earl Warren's opinion directly repudiated the reasoning of Plessy. Separate educational facilities, he wrote, are inherently unequal.
+On May 17, 1954 — 58 years and one day after Plessy — the Supreme Court issued its unanimous ruling in [Brown v. Board](/articles/brown-v-board-1954) of Education. Chief Justice Earl Warren's opinion directly repudiated the reasoning of Plessy. Separate educational facilities, he wrote, are inherently unequal.
 
 Justice Harlan's lone dissent had finally become the law of the land.
 

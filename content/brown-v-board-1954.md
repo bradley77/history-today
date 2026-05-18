@@ -27,7 +27,7 @@ At the center of the Kansas case was a seven-year-old girl named Linda Brown. Ev
 
 Her father, Oliver Brown, attempted to enroll Linda at Sumner in the fall of 1950. He was turned away. He joined a class-action lawsuit organized by the Topeka chapter of the NAACP, and the case began its long journey toward the Supreme Court.
 
-The legal architect of the challenge was Thurgood Marshall, the NAACPs chief counsel. Marshall had spent years dismantling segregation case by case, chipping away at the doctrine established in the 1896 Plessy v. Ferguson ruling — which had held that separate but equal facilities did not violate the Constitution. Marshalls strategy was to prove not just that Black schools were unequal in resources, but that segregation itself caused psychological harm to Black children, regardless of physical conditions.
+The legal architect of the challenge was Thurgood Marshall, the NAACPs chief counsel. Marshall had spent years dismantling segregation case by case, chipping away at the doctrine established in the 1896 [Plessy v. Ferguson](/articles/plessy-v-ferguson-1896) ruling — which had held that separate but equal facilities did not violate the Constitution. Marshalls strategy was to prove not just that Black schools were unequal in resources, but that segregation itself caused psychological harm to Black children, regardless of physical conditions.
 
 He brought in social scientists. He introduced studies showing that Black children, when presented with both Black and white dolls, consistently chose the white doll as the nice one — internalizing the message that their own race was inferior. It was a radical argument for a courtroom, and it worked.
 
