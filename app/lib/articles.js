@@ -28,7 +28,7 @@ export function getAllArticles() {
       return new Date(article.publishDate) <= now
     })
 
-  return articles.sort((a, b) => new Date(b.date) - new Date(a.date))
+  return articles.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate))
 }
 
 export async function getArticleBySlug(slug) {
