@@ -1,6 +1,9 @@
+import fs from 'fs'
+import path from 'path'
 import Link from 'next/link'
 import { getArticleBySlug, getAllArticles } from '../../lib/articles'
 import LightboxImage from './LightboxImage'
+import DocImage from '@/components/DocImage'
 
 export async function generateStaticParams() {
   const articles = getAllArticles()
@@ -23,6 +26,8 @@ export default async function ArticlePage({ params }) {
   const article = await getArticleBySlug(slug)
   const relatedArticles = getAllArticles().filter(a => a.slug !== slug).slice(0, 3)
   const readingTime = Math.ceil(article.content.split(/\s+/).filter(Boolean).length / 200)
+  const docImagePath = path.join(process.cwd(), 'public', 'images', `${article.slug}-document.jpg`)
+  const hasDocImage = fs.existsSync(docImagePath)
   const shareBase = `https://echoandchronicle.today/articles/${article.slug}`
   const shareTitle = encodeURIComponent(article.title)
   const shareUrl = encodeURIComponent(shareBase)
@@ -87,33 +92,33 @@ export default async function ArticlePage({ params }) {
 
       {/* Primary Source Document */}
       <div className="px-8 py-4" style={{maxWidth: '1152px', margin: '0 auto'}}>
-        <div className="w-full max-w-2xl relative">
-          <LightboxImage
-            src={`/images/${article.slug}-document.jpg`}
-            alt={`Primary source document for ${article.title}`}
-          />
-          <div className="mt-2 text-center">
-            <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">
-              Segregated Rail Car · {article.date}
+        <div className="max-w-2xl">
+          {hasDocImage && (
+            <DocImage
+              src={`/images/${article.slug}-document.jpg`}
+              alt={`Primary source document for ${article.title}`}
+              className="w-full object-cover"
+            />
+          )}
+          {article.documentCaption && (
+            <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
+              {article.documentCaption}
             </p>
-          </div>
+          )}
+          {article.sourceUrl && (
+            <div className="mt-4">
+              <a
+                href={article.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-red-700 text-white text-sm font-bold uppercase tracking-widest px-6 py-3 hover:bg-red-800 transition-colors duration-200 shadow-md"
+              >
+                {article.sourceName || 'Read the Full Document'} →
+              </a>
+            </div>
+          )}
         </div>
       </div>
-
-      {article.sourceUrl && (
-        <div className="px-8 py-4" style={{maxWidth: '1152px', margin: '0 auto'}}>
-          <div className="max-w-2xl">
-            <a
-              href={article.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-red-700 text-white text-sm font-bold uppercase tracking-widest px-6 py-3 hover:bg-red-800 transition-colors duration-200 shadow-md"
-            >
-              {article.sourceName || 'Read the Full Document'} →
-            </a>
-          </div>
-        </div>
-      )}
 
       {/* Article Body */}
       <article className="px-8 pb-16" style={{maxWidth: '1152px', margin: '0 auto'}}>
