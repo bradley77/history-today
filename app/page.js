@@ -15,13 +15,8 @@ export default async function Home() {
       </div>
 
       <header style={{maxWidth: '1152px', margin: '0 auto'}} className="border-b border-gray-900 px-8">
-        <div className="py-8 text-center">
-          <h1 style={{fontFamily: 'var(--font-playfair)', fontSize: '3.5rem', fontWeight: '700', letterSpacing: '-0.02em', lineHeight: 1}}>
-            Echo and Chronicle
-          </h1>
-          <p className="text-xs tracking-widest uppercase text-gray-400 mt-2">
-            The historical moment behind todays news
-          </p>
+        <div className="py-6 text-center">
+          <img src="/logo.png" alt="Echo and Chronicle" style={{height: '180px', width: 'auto', margin: '0 auto', display: 'block'}} />
         </div>
         <nav className="flex items-center justify-center gap-8 pb-4 text-sm font-medium">
           {['Home', 'Archive', 'Documents', 'On This Day', 'Newsletter', 'About'].map(item => (
@@ -36,9 +31,9 @@ export default async function Home() {
         </nav>
       </header>
 
-      <div className="bg-gray-900 text-white px-8 py-2 overflow-hidden">
-        <div style={{maxWidth: '1152px', margin: '0 auto'}} className="flex items-center gap-4">
-          <span className="bg-red-700 text-white text-xs font-bold px-2 py-0.5 uppercase tracking-wider shrink-0">
+      <div className="bg-gray-900 text-white py-2 overflow-hidden">
+        <div className="flex items-center gap-4">
+          <span className="bg-red-700 text-white text-xs font-bold px-3 py-0.5 uppercase tracking-wider shrink-0 ml-4">
             Latest
           </span>
           <div className="overflow-hidden flex-1">

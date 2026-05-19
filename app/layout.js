@@ -32,7 +32,7 @@ export const metadata = {
     siteName: 'Echo & Chronicle',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/logo.png', width: 1080, height: 1080 }],
+    images: [{ url: '/logo.png', width: 500, height: 500 }],
   },
   twitter: {
     card: 'summary',
