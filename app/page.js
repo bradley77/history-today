@@ -9,7 +9,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
 
-      <div style={{maxWidth: '1152px', margin: '0 auto'}} className="border-b border-gray-200 px-8 py-2 flex items-center justify-between text-xs text-gray-400">
+      <div style={{maxWidth: '1152px', margin: '0 auto'}} className="border-b border-gray-200 px-8 py-2 flex items-center justify-between text-sm text-gray-400">
         <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
         <span>History meets today</span>
       </div>
