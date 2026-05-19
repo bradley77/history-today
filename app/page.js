@@ -22,7 +22,7 @@ export default async function Home() {
           {['Home', 'Archive', 'Documents', 'On This Day', 'Newsletter', 'About'].map(item => (
             <a
               key={item}
-              href={item === 'Archive' ? '/archive' : item === 'About' ? '/about' : '#'}
+              href={item === 'Archive' ? '/archive' : item === 'About' ? '/about' : item === 'Newsletter' ? '#newsletter' : '#'}
               className="hover:text-red-700 transition-colors duration-200 pb-1 border-b-2 border-transparent hover:border-red-700"
             >
               {item}
@@ -138,7 +138,7 @@ export default async function Home() {
         <hr className="section-divider mt-12" />
 
         {/* Newsletter */}
-        <section className="py-12 text-center max-w-xl mx-auto">
+        <section id="newsletter" className="py-12 text-center max-w-xl mx-auto">
           <div className="accent-line mx-auto"></div>
           <h3 style={{fontFamily: 'var(--font-playfair)'}} className="text-3xl font-bold mb-3">
             History in your inbox
@@ -152,9 +152,7 @@ export default async function Home() {
               data-test-id="beehiiv-embed"
               width="100%"
               height="52"
-              frameBorder="0"
-              scrolling="no"
-              style={{margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', display: 'block'}}
+              style={{margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', display: 'block', border: 'none', overflow: 'hidden'}}
             />
           </div>
         </section>
