@@ -127,3 +127,27 @@ a {
   0% { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
 }
+
+.beehiiv-embed-container .beehiiv-form-title,
+.beehiiv-embed-container .beehiiv-form-subtitle,
+[data-beehiiv-form] h1,
+[data-beehiiv-form] h2,
+[data-beehiiv-form] p {
+  display: none !important;
+}
+
+[data-beehiiv-form] {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  max-width: 28rem !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #000000 !important;
+}

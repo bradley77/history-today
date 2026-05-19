@@ -151,17 +151,16 @@ export default async function Home() {
           <p className="text-gray-500 text-sm mb-6">
             One story. One original document. Every morning. Free forever.
           </p>
-          <div className="flex gap-2 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              autoComplete="off"
-              suppressHydrationWarning={true}
-              className="flex-1 border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:border-gray-900 transition-colors"
+          <div className="max-w-md mx-auto mt-6">
+            <iframe
+              src="https://embeds.beehiiv.com/f41d0e84-f2f8-458d-841c-ea56681b1e10?slim=true"
+              data-test-id="beehiiv-embed"
+              width="100%"
+              height="52"
+              frameBorder="0"
+              scrolling="no"
+              style={{margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', display: 'block'}}
             />
-            <button className="bg-gray-900 text-white px-6 py-2.5 text-sm font-medium hover:bg-red-700 transition-colors duration-200 uppercase tracking-wider">
-              Subscribe
-            </button>
           </div>
         </section>
 
