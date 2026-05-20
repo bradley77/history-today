@@ -19,7 +19,7 @@ export default async function Home() {
           <img src="/logo.png" alt="Echo and Chronicle" style={{height: '180px', width: 'auto', margin: '0 auto', display: 'block'}} />
         </div>
         <nav className="flex items-center justify-center gap-8 pb-4 text-sm font-medium">
-          {['Home', 'Archive', 'Documents', 'On This Day', 'Newsletter', 'About'].map(item => (
+          {['Home', 'Archive', 'Newsletter', 'About'].map(item => (
             <a
               key={item}
               href={item === 'Archive' ? '/archive' : item === 'About' ? '/about' : item === 'Newsletter' ? '#newsletter' : '#'}
