@@ -5,7 +5,7 @@ category: "Civil Rights"
 tag: "Supreme Court"
 slug: "plessy-v-ferguson-1896"
 publishDate: "2026-05-18 00:00"
-excerpt: "On this day in 1896, the Supreme Court ruled that separate but equal was constitutional — a decision that would legally sanctify racial segregation for the next 58 years, until a seven-year-old girl named Linda Brown walked six blocks to a bus stop in Topeka, Kansas."
+excerpt: "On this day in 1896, the Supreme Court ruled that separate but equal was constitutional, a decision that would legally sanctify racial segregation for the next 58 years, until a seven-year-old girl named Linda Brown walked six blocks to a bus stop in Topeka, Kansas."
 sourceUrl: "https://www.archives.gov/milestone-documents/plessy-v-ferguson#transcript"
 sourceName: "Read the Full Opinion"
 ---
@@ -46,7 +46,7 @@ He was right about everything.
 
 The equal in separate but equal was a fiction from the beginning. Black schools received a fraction of the funding of white schools. Black hospital wards were understaffed and undersupplied. Black railroad cars were older, dirtier, and more crowded. The law said equal. The reality was anything but.
 
-For 58 years Plessy v. Ferguson stood as the law of the land. It was the legal foundation upon which Jim Crow was built — the vast system of racial apartheid that defined life in the American South for generations. Lynchings, disenfranchisement, economic exclusion — all of it flourished under the constitutional umbrella Plessy provided.
+For 58 years Plessy v. Ferguson stood as the law of the land. It was the legal foundation upon which Jim Crow was built — the vast system of racial apartheid that defined life in the American South for generations. Lynchings, disenfranchisement, economic exclusion: all of it flourished under the constitutional umbrella Plessy provided.
 
 Homer Plessy himself paid a $25 fine and returned to his life in New Orleans. He died in 1925, 29 years before the Court finally overturned the decision that bore his name.
 
