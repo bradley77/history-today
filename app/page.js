@@ -146,13 +146,15 @@ export default async function Home() {
           <p className="text-gray-500 text-sm mb-6">
             One story. One original document. Every morning. Free forever.
           </p>
-          <div className="max-w-md mx-auto mt-6">
+          <div style={{maxWidth: '400px', margin: '0 auto'}}>
             <iframe
               src="https://embeds.beehiiv.com/f41d0e84-f2f8-458d-841c-ea56681b1e10?slim=true"
               data-test-id="beehiiv-embed"
-              width="100%"
+              width="400"
               height="52"
-              style={{margin: '0 auto', borderRadius: '0px', backgroundColor: 'transparent', display: 'block', border: 'none', overflow: 'hidden'}}
+              frameBorder="0"
+              scrolling="no"
+              style={{margin: '0 auto', display: 'block', backgroundColor: 'transparent', border: 'none'}}
             />
           </div>
         </section>
