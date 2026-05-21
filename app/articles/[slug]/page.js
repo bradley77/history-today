@@ -97,7 +97,8 @@ export default async function ArticlePage({ params }) {
             <DocImage
               src={`/images/${article.slug}-document.jpg`}
               alt={`Primary source document for ${article.title}`}
-              className="w-full object-cover"
+              className="object-cover"
+              style={{maxWidth: '200px'}}
             />
           )}
           {article.documentCaption && (
