@@ -128,6 +128,24 @@ export default async function ArticlePage({ params }) {
         />
       </article>
 
+      {/* Newsletter CTA */}
+      <div style={{maxWidth: '1152px', margin: '0 auto', padding: '2rem 2rem', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9f9f7'}}>
+        <div style={{maxWidth: '600px'}}>
+          <p style={{fontSize: '0.75rem', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '0.5rem', fontWeight: '600', textTransform: 'uppercase'}}>Free Daily Newsletter</p>
+          <h3 style={{fontFamily: 'var(--font-playfair)', fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem'}}>Enjoyed this story?</h3>
+          <p style={{color: '#6b7280', fontSize: '0.95rem', marginBottom: '1.25rem'}}>Get one like it every morning. One historical story, grounded in primary sources. No ads. Free forever.</p>
+          <iframe
+            src="https://embeds.beehiiv.com/f41d0e84-f2f8-458d-841c-ea56681b1e10?slim=true"
+            data-test-id="beehiiv-embed"
+            width="400"
+            height="52"
+            frameBorder="0"
+            scrolling="no"
+            style={{display: 'block', backgroundColor: 'transparent', border: 'none'}}
+          />
+        </div>
+      </div>
+
       {/* Share Buttons */}
       <div style={{maxWidth: '1152px', margin: '0 auto', padding: '2rem 2rem', borderTop: '1px solid #e5e7eb'}}>
         <p style={{fontSize: '0.75rem', letterSpacing: '0.1em', color: '#9ca3af', marginBottom: '1rem', fontWeight: '600', textTransform: 'uppercase'}}>Share This Article</p>
