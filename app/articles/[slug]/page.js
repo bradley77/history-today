@@ -15,9 +15,22 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
+  const heroImageUrl = `https://echoandchronicle.today/images/${slug}.jpg`
   return {
     title: `${article.title} | Echo and Chronicle`,
     description: article.excerpt,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      url: `https://echoandchronicle.today/articles/${slug}`,
+      images: [{ url: heroImageUrl }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt,
+      images: [heroImageUrl],
+    },
   }
 }
 
