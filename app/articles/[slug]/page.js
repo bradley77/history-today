@@ -94,12 +94,17 @@ export default async function ArticlePage({ params }) {
       <div className="px-8 py-4" style={{maxWidth: '1152px', margin: '0 auto'}}>
         <div className="max-w-2xl">
           {hasDocImage && (
-            <DocImage
+            <LightboxImage
               src={`/images/${article.slug}-document.jpg`}
               alt={`Primary source document for ${article.title}`}
-              className="object-cover"
-              style={{maxWidth: '200px'}}
-            />
+            >
+              <DocImage
+                src={`/images/${article.slug}-document.jpg`}
+                alt={`Primary source document for ${article.title}`}
+                className="object-cover"
+                style={{maxWidth: '200px'}}
+              />
+            </LightboxImage>
           )}
           {article.documentCaption && (
             <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
