@@ -87,18 +87,22 @@ export default async function ArticlePage({ params }) {
               src={`/images/${article.slug}.jpg`}
               alt={`Primary source image for ${article.title}`}
             />
-            <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
-              {article.category} · {article.date}
-            </p>
+            {article.caption && (
+              <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
+                {article.caption}
+              </p>
+            )}
           </div>
           <div className="flex flex-col justify-center">
             <div className="accent-line"></div>
             <h3 style={{fontFamily: 'var(--font-playfair)'}} className="text-xl font-bold mb-3">
               {article.category}
             </h3>
-            <p className="text-gray-500 text-sm leading-relaxed mb-3">
-              {article.excerpt}
-            </p>
+            {article.caption && (
+              <p className="text-gray-500 text-sm leading-relaxed mb-3">
+                {article.caption}
+              </p>
+            )}
           </div>
         </div>
       </div>

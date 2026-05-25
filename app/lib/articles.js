@@ -37,7 +37,7 @@ export async function getArticleBySlug(slug) {
   const { data, content } = matter(fileContents)
 
   const processedContent = await remark()
-    .use(html)
+    .use(html, { sanitize: false })
     .process(content)
   
   const contentHtml = processedContent.toString()
