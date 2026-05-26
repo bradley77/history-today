@@ -82,7 +82,7 @@ export default async function ArticlePage({ params }) {
       {/* Primary Source Image */}
       <div className="px-8 py-8" style={{maxWidth: '1152px', margin: '0 auto'}}>
         <div className="flex flex-col md:flex-row gap-8 items-start max-w-2xl">
-          <div className="w-72 shrink-0">
+          <div className="w-96 shrink-0">
             <LightboxImage
               src={`/images/${article.slug}.jpg`}
               alt={`Primary source image for ${article.title}`}
@@ -98,11 +98,9 @@ export default async function ArticlePage({ params }) {
             <h3 style={{fontFamily: 'var(--font-playfair)'}} className="text-xl font-bold mb-3">
               {article.category}
             </h3>
-            {article.caption && (
-              <p className="text-gray-500 text-sm leading-relaxed mb-3">
-                {article.caption}
-              </p>
-            )}
+            <p className="text-gray-500 text-sm leading-relaxed mb-3">
+              {article.excerpt}
+            </p>
           </div>
         </div>
       </div>
@@ -124,7 +122,7 @@ export default async function ArticlePage({ params }) {
             </LightboxImage>
           )}
           {article.documentCaption && (
-            <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
+            <p className="text-gray-400 text-xs uppercase tracking-widest mt-6 text-center">
               {article.documentCaption}
             </p>
           )}
