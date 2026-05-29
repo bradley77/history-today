@@ -1,0 +1,16 @@
+{
+  "name": "history-today-remotion",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "preview": "remotion studio src/index.jsx",
+    "render": "remotion render src/index.jsx ArticleVideo --output out/video.mp4",
+    "voiceover": "node generate-voiceover.js"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.0"
+  }
+}
