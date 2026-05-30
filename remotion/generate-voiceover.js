@@ -1,8 +1,20 @@
-// ─── Voiceover script — edit this block for each new article ─────────────────
-const VOICEOVER_TEXT = `
-Paste your article voiceover script here.
-Each paragraph will be read naturally by the narrator.
-Replace this entire string with your article text.
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
+
+// ─── VOICEOVER SCRIPT — edit this block for each new article ─────────────────
+const VOICEOVER_TEXT = `Most people walk past this wall without stopping.
+It has four thousand, forty-eight gold stars on it. Each one represents 100 Americans killed in World War II. That is 400,000 dead, sitting in plain sight on the National Mall in Washington.
+The inscription beneath the stars reads: Here we mark the price of freedom.
+The memorial that contains that wall was dedicated on May 29, 2004. By the time it opened, the men it was built to honor were dying at a rate of more than 1,000 every single day.
+It did not have to take that long.
+The story starts in 1987. A World War II veteran named Roger Durbin walked into a town hall meeting in Ohio and asked his congresswoman a single question. Why was there no memorial on the National Mall for the Americans who fought in World War II?
+She did not have a good answer. She introduced a bill that year. It never came to a vote. She introduced it again in 1989. Nothing. Again in 1991. Nothing.
+It took six years just to get the law signed. Then came the fights over where to put it, what it should look like, and who should pay for it. Critics called the design overbearing. Legal challenges had to be dismissed by Congress. The location between the Lincoln Memorial and the Washington Monument, the most prominent spot on the entire Mall, was contested for years.
+Congress eventually passed a law exempting the memorial from further review. The reason they gave was simple. Veterans were dying faster than the process was moving.
+Ground was broken in November 2000. Fifty five years after the war ended.
+Sixteen million Americans served in World War II. By the time the memorial opened in 2004, fewer than four million were still alive. The men who stormed Normandy, who fought at Iwo Jima, who survived the Battle of the Bulge, were in their late seventies and eighties. Many came to the dedication in wheelchairs.
+Roger Durbin, the veteran who asked the question that started all of it, died in 2000. He never saw it open.
+Today fewer than 100,000 of those 16 million veterans remain.
+The wall has 4,048 stars. Most people walk right past them.
 `.trim();
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -16,20 +28,12 @@ const MODEL_ID = 'eleven_multilingual_v2';
 
 const OUTPUT_DIR = path.join(__dirname, 'public', 'audio');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'voiceover.mp3');
-const ENV_FILE = path.join(__dirname, '.env');
 
-// ── Read API key from remotion/.env ──────────────────────────────────────────
-if (!fs.existsSync(ENV_FILE)) {
-  console.error('Missing remotion/.env — create it with ELEVENLABS_API_KEY=your_key');
-  process.exit(1);
-}
+// ── Read API key loaded by dotenv from remotion/.env ─────────────────────────
+const apiKey = process.env.ELEVENLABS_API_KEY;
 
-const envContent = fs.readFileSync(ENV_FILE, 'utf8');
-const apiKeyMatch = envContent.match(/^ELEVENLABS_API_KEY=(.+)$/m);
-const apiKey = apiKeyMatch?.[1]?.trim();
-
-if (!apiKey || apiKey === 'your_key_here') {
-  console.error('Set a real ELEVENLABS_API_KEY value in remotion/.env');
+if (!apiKey) {
+  console.error('Missing ELEVENLABS_API_KEY — add it to remotion/.env');
   process.exit(1);
 }
 
