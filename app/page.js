@@ -57,12 +57,12 @@ export default async function Home() {
             <div className="accent-line"></div>
             <p className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-medium">Featured Story</p>
             <Link href={`/articles/${featured.slug}`} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center article-card cursor-pointer group">
-              <div className="aspect-video rounded-sm overflow-hidden relative bg-gray-100">
+              <div className="aspect-[3/4] rounded-sm overflow-hidden relative bg-gray-100">
                 <img
                   src={`/images/${featured.slug}.jpg`}
                   alt={featured.title}
                   className="w-full h-full object-cover"
-                  style={{objectPosition: '50% 15%'}}
+                  style={{objectPosition: 'top'}}
                 />
                 <div className="absolute bottom-3 left-3 bg-red-700 text-white text-xs px-2 py-1 uppercase tracking-wider font-bold">
                   {featured.tag}
