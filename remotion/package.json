@@ -6,7 +6,9 @@
     "dev": "remotion studio src/index.jsx",
     "preview": "remotion studio src/index.jsx",
     "render": "remotion render src/index.jsx ArticleVideo --output out/video.mp4",
-    "voiceover": "node generate-voiceover.js"
+    "voiceover": "node scripts/generateVoiceover.js",
+    "voiceover:wwii": "node generate-voiceover.js",
+    "voiceover:kokoro": "node scripts/generateVoiceover-kokoro.js"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",

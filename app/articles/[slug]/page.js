@@ -39,8 +39,10 @@ export default async function ArticlePage({ params }) {
   const article = await getArticleBySlug(slug)
   const relatedArticles = getAllArticles().filter(a => a.slug !== slug).slice(0, 3)
   const readingTime = Math.ceil(article.content.split(/\s+/).filter(Boolean).length / 200)
-  const docImagePath = path.join(process.cwd(), 'public', 'images', `${article.slug}-document.jpg`)
-  const hasDocImage = fs.existsSync(docImagePath)
+  const docImageExt = ['jpg', 'png'].find(ext =>
+    fs.existsSync(path.join(process.cwd(), 'public', 'images', `${article.slug}-document.${ext}`))
+  )
+  const hasDocImage = !!docImageExt
   const shareBase = `https://echoandchronicle.today/articles/${article.slug}`
   const shareTitle = encodeURIComponent(article.title)
   const shareUrl = encodeURIComponent(shareBase)
@@ -110,11 +112,11 @@ export default async function ArticlePage({ params }) {
         <div className="max-w-2xl">
           {hasDocImage && (
             <LightboxImage
-              src={`/images/${article.slug}-document.jpg`}
+              src={`/images/${article.slug}-document.${docImageExt}`}
               alt={`Primary source document for ${article.title}`}
             >
               <DocImage
-                src={`/images/${article.slug}-document.jpg`}
+                src={`/images/${article.slug}-document.${docImageExt}`}
                 alt={`Primary source document for ${article.title}`}
                 className="object-cover"
                 style={{maxWidth: '200px'}}
