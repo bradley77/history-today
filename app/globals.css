@@ -103,7 +103,7 @@ a {
 /* Ticker animation */
 .ticker-content {
   display: inline-block;
-  animation: ticker 20s linear infinite;
+  animation: ticker 60s linear infinite;
 }
 
 .ticker-content:hover {
