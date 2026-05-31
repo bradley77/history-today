@@ -8,7 +8,8 @@
     "render": "remotion render src/index.jsx ArticleVideo --output out/video.mp4",
     "voiceover": "node scripts/generateVoiceover.js",
     "voiceover:wwii": "node generate-voiceover.js",
-    "voiceover:kokoro": "node scripts/generateVoiceover-kokoro.js"
+    "voiceover:kokoro": "node scripts/generateVoiceover-kokoro.js",
+    "voiceover:hiss": "node scripts/generateVoiceover-hiss.js"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",
