@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getArticleBySlug, getAllArticles } from '../../lib/articles'
 import LightboxImage from './LightboxImage'
 import DocImage from '@/components/DocImage'
+import ProseContent from './ProseContent'
 
 export async function generateStaticParams() {
   const articles = getAllArticles()
@@ -145,10 +146,7 @@ export default async function ArticlePage({ params }) {
 
       {/* Article Body */}
       <article className="px-8 pb-16" style={{maxWidth: '1152px', margin: '0 auto'}}>
-        <div
-          className="max-w-2xl prose-content"
-          dangerouslySetInnerHTML={{ __html: article.contentHtml }}
-        />
+        <ProseContent html={article.contentHtml} />
       </article>
 
       {/* Newsletter CTA */}
