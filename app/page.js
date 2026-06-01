@@ -4,7 +4,7 @@ import { getAllArticles } from './lib/articles'
 export default async function Home() {
   const allArticles = getAllArticles()
   const featured = allArticles[0]
-  const rest = allArticles.slice(1)
+  const rest = allArticles.slice(1, 7)
 
   return (
     <main className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
