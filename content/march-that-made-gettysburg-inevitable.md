@@ -7,7 +7,7 @@ slug: "march-that-made-gettysburg-inevitable"
 publishDate: "2026-06-03 08:00"
 excerpt: "On June 3, 1863, Robert E. Lee quietly slipped 75,000 men out of Fredericksburg and aimed them north. Nobody in Washington knew the invasion had begun. Twenty-eight days later, the Civil War would never be the same."
 caption: "General Robert E. Lee, photographed by Mathew Brady, circa 1863. Library of Congress."
-sourceUrl: "https://www.nps.gov/gett/learn/historyculture/lee-report.htm"
+sourceUrl: "/documents/march-that-made-gettysburg-inevitable.pdf"
 sourceName: "Official Report of General Robert E. Lee, National Park Service, Gettysburg National Military Park"
 documentCaption: "Lee's official after-action report, filed July 31, 1863, in which he describes his own reasoning for setting the army in motion on June 3."
 ---
