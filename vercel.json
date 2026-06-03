@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/revalidate",
-      "schedule": "0 8 * * *"
+      "path": "/api/revalidate?token=ht-cron-x9k2m7p4q8",
+      "schedule": "5 8 * * *"
     }
   ]
 }
