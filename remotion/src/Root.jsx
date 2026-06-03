@@ -4,6 +4,7 @@ import { totalDuration } from './data/config';
 import KorematsuVideo from './videos/KorematsuVideo';
 import HissVideo from './videos/HissVideo';
 import MadisonVideo from './videos/MadisonVideo';
+import McVeighVideo from './videos/McVeighVideo';
 import { totalDuration as korematsuDuration, FPS } from './data/korematsu';
 
 export const RemotionRoot = () => {
@@ -37,6 +38,14 @@ export const RemotionRoot = () => {
         id="MadisonVideo"
         component={MadisonVideo}
         durationInFrames={1215}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="McVeighVideo"
+        component={McVeighVideo}
+        durationInFrames={1347}
         fps={30}
         width={1080}
         height={1920}
