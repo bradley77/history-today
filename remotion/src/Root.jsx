@@ -5,7 +5,9 @@ import KorematsuVideo from './videos/KorematsuVideo';
 import HissVideo from './videos/HissVideo';
 import MadisonVideo from './videos/MadisonVideo';
 import McVeighVideo from './videos/McVeighVideo';
+import GettysburgVideo from './videos/GettysburgVideo';
 import { totalDuration as korematsuDuration, FPS } from './data/korematsu';
+import { totalDuration as gettysburgDuration } from './data/gettysburg';
 
 export const RemotionRoot = () => {
   return (
@@ -46,6 +48,14 @@ export const RemotionRoot = () => {
         id="McVeighVideo"
         component={McVeighVideo}
         durationInFrames={1347}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GettysburgVideo"
+        component={GettysburgVideo}
+        durationInFrames={gettysburgDuration}
         fps={30}
         width={1080}
         height={1920}
