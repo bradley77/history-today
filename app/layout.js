@@ -22,8 +22,8 @@ export const metadata = {
   },
   description: 'One historical story, every day. Echo & Chronicle connects the moments that shaped America to the news of today. Primary sources. No ads.',
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/images/ec-logo.png',
+    apple: '/images/ec-logo.png',
   },
   openGraph: {
     title: 'Echo & Chronicle',
@@ -32,7 +32,7 @@ export const metadata = {
     siteName: 'Echo & Chronicle',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/logo.png', width: 500, height: 500 }],
+    images: [{ url: '/images/ec-logo.png', width: 500, height: 500 }],
   },
   twitter: {
     card: 'summary',
