@@ -7,6 +7,9 @@ import MadisonVideo from './videos/MadisonVideo';
 import McVeighVideo from './videos/McVeighVideo';
 import GettysburgVideo from './videos/GettysburgVideo';
 import ClarkVideo from './videos/ClarkVideo';
+import SnowdenVideo from './videos/SnowdenVideo';
+import { totalDuration as snowdenDuration } from './data/snowden';
+import { DDayMap } from './compositions/DDayMap';
 import { totalDuration as korematsuDuration, FPS } from './data/korematsu';
 import { totalDuration as gettysburgDuration } from './data/gettysburg';
 import { totalDuration as clarkDuration } from './data/clark';
@@ -66,6 +69,22 @@ export const RemotionRoot = () => {
         id="ClarkVideo"
         component={ClarkVideo}
         durationInFrames={clarkDuration}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="SnowdenVideo"
+        component={SnowdenVideo}
+        durationInFrames={snowdenDuration}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="DDayMap"
+        component={DDayMap}
+        durationInFrames={520}
         fps={30}
         width={1080}
         height={1920}
