@@ -5,17 +5,18 @@ import { StatCallout } from '../components/StatCallout';
 import { DDAYDATA } from '../data/dday-coordinates';
 import { debugCoordinates } from '../utils/mapProjection';
 
-const WIDE_MAP = { center: [-1.2, 50.1], zoom: 8.5, width: 1216, height: 1920 };
+const WIDE_MAP = { center: [-1.0, 50.2], zoom: 8.2, width: 1216, height: 1920, yOffset: -380 };
 
 const TIMING = {
   titleIn: 0,
-  airborneStart: 40,
-  fleetsStart: 100,
-  assemblyPoint: 130,
-  beachesStart: 260,
+  titleOut: 90,
+  airborneStart: 70,
+  fleetsStart: 110,
+  assemblyPoint: 160,
+  beachesStart: 280,
   statsStart: 360,
-  zoomStart: 320,
-  outroStart: 460,
+  zoomStart: 340,
+  outroStart: 470,
 };
 
 export function DDayMap() {
@@ -26,12 +27,28 @@ export function DDayMap() {
     extrapolateRight: 'clamp',
   });
 
-  const fadeOut = interpolate(frame, [460, 490], [1, 0], {
+  const fadeOut = interpolate(frame, [470, 510], [1, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
   const opacity = Math.min(fadeIn, fadeOut);
+
+  // Ken Burns zoom into Normandy beaches
+  const mapScale = interpolate(
+    frame,
+    [TIMING.zoomStart, TIMING.outroStart],
+    [1, 1.7],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+
+  // Title fade out
+  const titleOpacity = interpolate(
+    frame,
+    [60, 90],
+    [1, 0],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
 
   return (
     <div style={{
@@ -44,65 +61,32 @@ export function DDayMap() {
     }}>
 
       {/* === BASE MAP === */}
-      <Img
-        src={staticFile('images/dday-map-wide.jpg')}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          transformOrigin: '52% 58%',
-          transform: `scale(${interpolate(frame, [TIMING.zoomStart, TIMING.outroStart], [1, 1.6], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })})`,
-        }}
-      />
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        transformOrigin: '50% 62%',
+        transform: `scale(${mapScale})`,
+      }}>
+        <Img
+          src={staticFile('images/dday-map-wide.jpg')}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+          }}
+        />
+      </div>
 
       {/* === DARK OVERLAY === */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.1), rgba(0,0,0,0.4))',
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.05) 70%, rgba(0,0,0,0.55) 100%)',
+        pointerEvents: 'none',
       }} />
-
-      {/* === TITLE CARD === */}
-      {frame < 60 && (
-        <div style={{
-          position: 'absolute',
-          top: 120,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          padding: '0 40px',
-        }}>
-          <div style={{
-            fontFamily: 'Bebas Neue',
-            fontSize: 72,
-            color: '#FFD700',
-            letterSpacing: 6,
-            textShadow: '0 0 30px rgba(255,215,0,0.6)',
-            lineHeight: 1.1,
-          }}>
-            JUNE 6, 1944
-          </div>
-          <div style={{
-            width: 300,
-            height: 3,
-            backgroundColor: '#FFD700',
-            margin: '20px auto',
-            boxShadow: '0 0 12px rgba(255,215,0,0.8)',
-          }} />
-          <div style={{
-            fontFamily: 'Bebas Neue',
-            fontSize: 42,
-            color: 'white',
-            letterSpacing: 4,
-            lineHeight: 1.2,
-          }}>
-            THE LARGEST SEABORNE{'\n'}INVASION IN HISTORY
-          </div>
-        </div>
-      )}
 
       {/* === NAVAL ROUTES === */}
       <AnimatedRoute
@@ -110,7 +94,7 @@ export function DDayMap() {
         color="#4A9EFF"
         strokeWidth={7}
         startFrame={TIMING.fleetsStart}
-        durationFrames={140}
+        durationFrames={150}
         mapConfig={WIDE_MAP}
         glowIntensity={12}
         animated
@@ -119,8 +103,8 @@ export function DDayMap() {
         waypoints={DDAYDATA.navalRoutes.omaha_route}
         color="#4A9EFF"
         strokeWidth={7}
-        startFrame={TIMING.fleetsStart + 10}
-        durationFrames={140}
+        startFrame={TIMING.fleetsStart + 12}
+        durationFrames={150}
         mapConfig={WIDE_MAP}
         glowIntensity={12}
         animated
@@ -129,8 +113,8 @@ export function DDayMap() {
         waypoints={DDAYDATA.navalRoutes.gold_route}
         color="#FF4444"
         strokeWidth={7}
-        startFrame={TIMING.fleetsStart + 20}
-        durationFrames={140}
+        startFrame={TIMING.fleetsStart + 24}
+        durationFrames={150}
         mapConfig={WIDE_MAP}
         glowIntensity={12}
         animated
@@ -139,8 +123,8 @@ export function DDayMap() {
         waypoints={DDAYDATA.navalRoutes.juno_route}
         color="#FF4444"
         strokeWidth={7}
-        startFrame={TIMING.fleetsStart + 30}
-        durationFrames={140}
+        startFrame={TIMING.fleetsStart + 36}
+        durationFrames={150}
         mapConfig={WIDE_MAP}
         glowIntensity={12}
         animated
@@ -149,8 +133,8 @@ export function DDayMap() {
         waypoints={DDAYDATA.navalRoutes.sword_route}
         color="#FF4444"
         strokeWidth={7}
-        startFrame={TIMING.fleetsStart + 40}
-        durationFrames={140}
+        startFrame={TIMING.fleetsStart + 48}
+        durationFrames={150}
         mapConfig={WIDE_MAP}
         glowIntensity={12}
         animated
@@ -164,64 +148,157 @@ export function DDayMap() {
         appearFrame={TIMING.assemblyPoint}
         type="pulse"
         mapConfig={WIDE_MAP}
+        labelOffset={{ x: 18, y: -8 }}
       />
 
       {/* === BEACH MARKERS === */}
       <MapMarker lngLat={DDAYDATA.beaches.utah} label="UTAH" color="#4A9EFF"
-        appearFrame={TIMING.beachesStart} type="pulse" mapConfig={WIDE_MAP} />
+        appearFrame={TIMING.beachesStart} type="pulse" mapConfig={WIDE_MAP}
+        labelOffset={{ x: -55, y: -26 }} />
       <MapMarker lngLat={DDAYDATA.beaches.omaha} label="OMAHA" color="#4A9EFF"
-        appearFrame={TIMING.beachesStart + 15} type="pulse" mapConfig={WIDE_MAP} />
+        appearFrame={TIMING.beachesStart + 18} type="pulse" mapConfig={WIDE_MAP}
+        labelOffset={{ x: -65, y: 18 }} />
       <MapMarker lngLat={DDAYDATA.beaches.gold} label="GOLD" color="#FF4444"
-        appearFrame={TIMING.beachesStart + 25} type="pulse" mapConfig={WIDE_MAP} />
+        appearFrame={TIMING.beachesStart + 28} type="pulse" mapConfig={WIDE_MAP}
+        labelOffset={{ x: 18, y: -26 }} />
       <MapMarker lngLat={DDAYDATA.beaches.juno} label="JUNO" color="#FF4444"
-        appearFrame={TIMING.beachesStart + 35} type="pulse" mapConfig={WIDE_MAP} />
+        appearFrame={TIMING.beachesStart + 38} type="pulse" mapConfig={WIDE_MAP}
+        labelOffset={{ x: 18, y: -8 }} />
       <MapMarker lngLat={DDAYDATA.beaches.sword} label="SWORD" color="#FF4444"
-        appearFrame={TIMING.beachesStart + 45} type="pulse" mapConfig={WIDE_MAP} />
+        appearFrame={TIMING.beachesStart + 48} type="pulse" mapConfig={WIDE_MAP}
+        labelOffset={{ x: 18, y: 18 }} />
 
       {/* === AIRBORNE === */}
-      <MapMarker lngLat={DDAYDATA.airborne.zone_82nd_A} label="82nd AIRBORNE" color="#FFD700"
-        appearFrame={TIMING.airborneStart} type="pulse" mapConfig={WIDE_MAP} />
-      <MapMarker lngLat={DDAYDATA.airborne.zone_101_A} label="101st AIRBORNE" color="#FFD700"
-        appearFrame={TIMING.airborneStart + 20} type="pulse" mapConfig={WIDE_MAP} />
-      <MapMarker lngLat={DDAYDATA.airborne.pegasusbridge} label="PEGASUS BRIDGE" color="#FF4444"
-        appearFrame={TIMING.airborneStart + 40} type="pulse" mapConfig={WIDE_MAP} />
+      <MapMarker lngLat={DDAYDATA.airborne.zone_82nd_A} label="82nd AIRBORNE"
+        color="#FFD700" appearFrame={TIMING.airborneStart} type="pulse"
+        mapConfig={WIDE_MAP} labelOffset={{ x: -105, y: -26 }} />
+      <MapMarker lngLat={DDAYDATA.airborne.zone_101_A} label="101st AIRBORNE"
+        color="#FFD700" appearFrame={TIMING.airborneStart + 20} type="pulse"
+        mapConfig={WIDE_MAP} labelOffset={{ x: -110, y: 18 }} />
+      <MapMarker lngLat={DDAYDATA.airborne.pegasusbridge} label="PEGASUS BRIDGE"
+        color="#FF8C00" appearFrame={TIMING.airborneStart + 40} type="pulse"
+        mapConfig={WIDE_MAP} labelOffset={{ x: 18, y: -26 }} />
 
-      {/* === STATS === */}
+      {/* === STATS — appear after routes complete === */}
       <StatCallout stat="156,000" label="ALLIED TROOPS"
         appearFrame={TIMING.statsStart}
-        position={{ x: 608, y: 1600 }}
-        color="#FFD700"
-      />
-      <StatCallout stat="6,900+" label="VESSELS"
-        appearFrame={TIMING.statsStart + 45}
-        position={{ x: 608, y: 1780 }}
+        position={{ x: 608, y: 1720 }}
         color="#FFD700"
       />
 
-      {/* === LEGEND === */}
-      {frame >= TIMING.beachesStart && (
+      {/* === TITLE CARD === */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 140,
+        opacity: titleOpacity,
+        pointerEvents: 'none',
+      }}>
+        <div style={{
+          fontFamily: 'Bebas Neue',
+          fontSize: 96,
+          color: '#FFD700',
+          letterSpacing: 8,
+          textShadow: '0 0 40px rgba(255,215,0,0.7), 0 2px 4px rgba(0,0,0,0.9)',
+          lineHeight: 1,
+        }}>
+          JUNE 6
+        </div>
+        <div style={{
+          fontFamily: 'Bebas Neue',
+          fontSize: 96,
+          color: '#FFD700',
+          letterSpacing: 8,
+          textShadow: '0 0 40px rgba(255,215,0,0.7), 0 2px 4px rgba(0,0,0,0.9)',
+          lineHeight: 1,
+          marginBottom: 24,
+        }}>
+          1944
+        </div>
+        <div style={{
+          width: 320,
+          height: 3,
+          backgroundColor: '#FFD700',
+          boxShadow: '0 0 16px rgba(255,215,0,0.9)',
+          marginBottom: 28,
+        }} />
+        <div style={{
+          fontFamily: 'Bebas Neue',
+          fontSize: 44,
+          color: 'white',
+          letterSpacing: 5,
+          textAlign: 'center',
+          lineHeight: 1.3,
+          textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+          padding: '0 60px',
+        }}>
+          THE LARGEST SEABORNE INVASION IN HISTORY
+        </div>
+      </div>
+
+      {/* === LEGEND — bottom left, never clipped === */}
+      {frame >= TIMING.fleetsStart && (
         <div style={{
           position: 'absolute',
-          top: 60,
-          right: 40,
+          bottom: 100,
+          left: 40,
           display: 'flex',
           flexDirection: 'column',
           gap: 14,
-          backgroundColor: 'rgba(0,0,0,0.6)',
-          padding: '16px 20px',
+          backgroundColor: 'rgba(0,0,0,0.72)',
+          padding: '18px 24px',
           borderLeft: '3px solid #FFD700',
+          boxShadow: '0 0 20px rgba(0,0,0,0.5)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 28, height: 4, backgroundColor: '#4A9EFF', borderRadius: 2, boxShadow: '0 0 6px #4A9EFF' }} />
             <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, color: 'white', letterSpacing: 2 }}>US FORCES</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 28, height: 4, backgroundColor: '#FF4444', borderRadius: 2, boxShadow: '0 0 6px #FF4444' }} />
             <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, color: 'white', letterSpacing: 2 }}>BRITISH / CANADIAN</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 28, height: 4, backgroundColor: '#FFD700', borderRadius: 2, boxShadow: '0 0 6px #FFD700' }} />
             <div style={{ fontFamily: 'Bebas Neue', fontSize: 22, color: 'white', letterSpacing: 2 }}>AIRBORNE</div>
+          </div>
+        </div>
+      )}
+
+      {/* === OUTRO TITLE === */}
+      {frame >= TIMING.outroStart && (
+        <div style={{
+          position: 'absolute',
+          bottom: 160,
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          opacity: interpolate(frame, [TIMING.outroStart, TIMING.outroStart + 30], [0, 1], { extrapolateRight: 'clamp' }),
+        }}>
+          <div style={{
+            fontFamily: 'Bebas Neue',
+            fontSize: 52,
+            color: '#FFD700',
+            letterSpacing: 5,
+            textShadow: '0 0 20px rgba(255,215,0,0.6)',
+          }}>
+            THE BEGINNING OF THE END
+          </div>
+          <div style={{
+            fontFamily: 'Bebas Neue',
+            fontSize: 30,
+            color: 'white',
+            letterSpacing: 3,
+            marginTop: 8,
+          }}>
+            FOR NAZI GERMANY
           </div>
         </div>
       )}
