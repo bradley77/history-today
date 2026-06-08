@@ -9,8 +9,10 @@ import GettysburgVideo from './videos/GettysburgVideo';
 import ClarkVideo from './videos/ClarkVideo';
 import SnowdenVideo from './videos/SnowdenVideo';
 import EisenhowerVideo from './videos/EisenhowerVideo';
+import MidwayVideo from './videos/MidwayVideo';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
+import { totalDuration as midwayDuration } from './data/midway';
 import { DDayMap } from './compositions/DDayMap';
 import { totalDuration as korematsuDuration, FPS } from './data/korematsu';
 import { totalDuration as gettysburgDuration } from './data/gettysburg';
@@ -87,6 +89,14 @@ export const RemotionRoot = () => {
         id="EisenhowerVideo"
         component={EisenhowerVideo}
         durationInFrames={eisenhowerDuration}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="MidwayVideo"
+        component={MidwayVideo}
+        durationInFrames={midwayDuration}
         fps={30}
         width={1080}
         height={1920}
