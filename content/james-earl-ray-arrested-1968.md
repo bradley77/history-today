@@ -8,7 +8,7 @@ publishDate: "2026-06-08 08:00"
 excerpt: "On June 8, 1968, James Earl Ray was arrested at London's Heathrow Airport for the assassination of Dr. Martin Luther King Jr. He had been on the run for 65 days, moving across three countries under fake names. Eleven years later, a congressional committee concluded he probably hadn't acted alone."
 caption: "Room 306 at the Lorraine Motel in Memphis, Tennessee, where Dr. Martin Luther King Jr. was fatally shot on April 4, 1968. A white wreath marks the spot on the balcony where he stood."
 sourceUrl: "https://www.archives.gov/files/research/mlk/releases/2025/0721/44-wfo-703_742153_09-03-part_3_of_5.pdf"
-sourceName: "FBI MURKIN Investigation File — WFO 44-703"
+sourceName: "FBI MURKIN Investigation File - WFO 44-703"
 documentCaption: "Declassified FBI MURKIN investigation file, 2025 release under Executive Order 14176. The MURKIN designation stood for Murder-King, the official FBI case name for the assassination investigation."
 ---
 
