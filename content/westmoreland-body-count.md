@@ -10,6 +10,7 @@ caption: "General William Westmoreland and President Lyndon B. Johnson at the Wh
 sourceUrl: "/documents/westmoreland-body-count.pdf"
 sourceName: "Pentagon Papers, Part IV-C-6-c: U.S. Ground Strategy and Force Deployments, 1965-1967, Volume III (NARA)"
 documentCaption: "Reporter's question card submitted to General Westmoreland at the National Press Club, November 21, 1967. The handwritten question reads: 'None of the phases you outline mentions surrender by North Vietnam. What is the significance of this omission?' Held by the National Archives and the LBJ Presidential Library."
+heroPosition: "center"
 ---
 
 On June 10, 1968, General William Childs Westmoreland stood before reporters in Saigon and defended the strategy that had effectively ended his Vietnam command.

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export default function LightboxImage({ src, alt, children, errorText }) {
+export default function LightboxImage({ src, alt, children, errorText, objectPosition }) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imgError, setImgError] = useState(false)
 
@@ -24,6 +24,7 @@ export default function LightboxImage({ src, alt, children, errorText }) {
           src={src}
           alt={alt}
           className="rounded-sm w-full object-cover shadow-md border border-gray-200 cursor-zoom-in hover:opacity-90 transition-opacity duration-200"
+          style={{ objectPosition: objectPosition || 'center' }}
           onClick={() => setLightboxOpen(true)}
           onError={errorText ? () => setImgError(true) : undefined}
         />

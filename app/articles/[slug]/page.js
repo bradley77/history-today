@@ -91,6 +91,7 @@ export default async function ArticlePage({ params }) {
               src={`/images/${article.slug}.jpg`}
               alt={`Primary source image for ${article.title}`}
               errorText={`Hero image missing: check /images/${article.slug}.jpg`}
+              objectPosition={article.heroPosition || 'center'}
             />
             {article.caption && (
               <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
