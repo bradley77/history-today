@@ -44,3 +44,7 @@ next-env.d.ts
 remotion/node_modules/
 remotion/out/
 remotion/public/audio/*.mp3
+  
+verify-*.png  
+*.tmp.jpg  
+diff-output.txt 
