@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 
-export default function LightboxImage({ src, alt, children }) {
+export default function LightboxImage({ src, alt, children, errorText }) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   return (
     <>
@@ -14,12 +15,17 @@ export default function LightboxImage({ src, alt, children }) {
         >
           {children}
         </div>
+      ) : imgError ? (
+        <div style={{color: 'red', padding: '1rem', border: '1px solid red', backgroundColor: '#fff5f5', borderRadius: '4px', fontSize: '0.875rem'}}>
+          {errorText || `Image missing: ${src}`}
+        </div>
       ) : (
         <img
           src={src}
           alt={alt}
           className="rounded-sm w-full object-cover shadow-md border border-gray-200 cursor-zoom-in hover:opacity-90 transition-opacity duration-200"
           onClick={() => setLightboxOpen(true)}
+          onError={errorText ? () => setImgError(true) : undefined}
         />
       )}
       {lightboxOpen && (

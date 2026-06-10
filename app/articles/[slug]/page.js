@@ -47,6 +47,7 @@ export default async function ArticlePage({ params }) {
   const shareBase = `https://echoandchronicle.today/articles/${article.slug}`
   const shareTitle = encodeURIComponent(article.title)
   const shareUrl = encodeURIComponent(shareBase)
+  const bodyHtml = article.contentHtml.replace(/<img\b[^>]*\bsrc="[^"]*-document\.[a-z]+"[^>]*\/?>/gi, '')
   return (
     <main className="min-h-screen bg-white text-gray-900">
 
@@ -89,6 +90,7 @@ export default async function ArticlePage({ params }) {
             <LightboxImage
               src={`/images/${article.slug}.jpg`}
               alt={`Primary source image for ${article.title}`}
+              errorText={`Hero image missing: check /images/${article.slug}.jpg`}
             />
             {article.caption && (
               <p className="text-gray-400 text-xs uppercase tracking-widest mt-2 text-center">
@@ -146,7 +148,7 @@ export default async function ArticlePage({ params }) {
 
       {/* Article Body */}
       <article className="px-8 pb-16" style={{maxWidth: '1152px', margin: '0 auto'}}>
-        <ProseContent html={article.contentHtml} />
+        <ProseContent html={bodyHtml} />
       </article>
 
       {/* Newsletter CTA */}
