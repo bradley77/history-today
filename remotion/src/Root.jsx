@@ -11,6 +11,8 @@ import SnowdenVideo from './videos/SnowdenVideo';
 import EisenhowerVideo from './videos/EisenhowerVideo';
 import MidwayVideo from './videos/MidwayVideo';
 import JamesEarlRayVideo from './videos/JamesEarlRayVideo';
+import NorthwoodsVideo from './videos/NorthwoodsVideo';
+import StuartRide, { totalDuration as stuartRideDuration, FPS as stuartRideFPS } from './compositions/StuartRide';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -19,6 +21,7 @@ import { totalDuration as korematsuDuration, FPS } from './data/korematsu';
 import { totalDuration as gettysburgDuration } from './data/gettysburg';
 import { totalDuration as clarkDuration } from './data/clark';
 import { totalDuration as jamesEarlRayDuration } from './data/jamesEarlRay';
+import { totalDuration as northwoodsDuration } from './data/northwoods';
 
 export const RemotionRoot = () => {
   return (
@@ -116,6 +119,22 @@ export const RemotionRoot = () => {
         component={DDayMap}
         durationInFrames={540}
         fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="NorthwoodsVideo"
+        component={NorthwoodsVideo}
+        durationInFrames={northwoodsDuration}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="StuartRide"
+        component={StuartRide}
+        durationInFrames={stuartRideDuration}
+        fps={stuartRideFPS}
         width={1080}
         height={1920}
       />
