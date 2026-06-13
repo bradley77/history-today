@@ -21,6 +21,8 @@ export function getAllArticles() {
       return {
         slug,
         ...data,
+        date: data.date ? String(data.date) : data.date,
+        publishDate: data.publishDate ? String(data.publishDate) : data.publishDate,
       }
     })
     .filter(article => {
@@ -47,5 +49,7 @@ export async function getArticleBySlug(slug) {
     content,
     contentHtml,
     ...data,
+    date: data.date ? String(data.date) : data.date,
+    publishDate: data.publishDate ? String(data.publishDate) : data.publishDate,
   }
 }

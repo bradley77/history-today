@@ -20,28 +20,28 @@ const OSWALD_URL = 'https://fonts.googleapis.com/css2?family=Oswald:wght@700&dis
 // Total: 1277 frames = 42.6s
 const slides = [
   {
-    image: 'images/stuart-ride-around-mcclellan.jpg',
+    image: 'slides/Stuart/01-stuart-portrait.jpg',
     duration: 120,
     motionType: 'zoomIn',
     overlayText: 'The general sent to stop him was his own father-in-law.',
     overlayDelay: 10,
   },
   {
-    image: 'images/stuart-ride-around-mcclellan-inline-1.jpg',
+    image: 'slides/Stuart/02-mcclellan-portrait.jpg',
     duration: 135,
     motionType: 'panLeft',
     overlayText: 'Richmond, Virginia. June 1862.',
     overlayDelay: 18,
   },
   {
-    image: 'images/stuart-ride-around-mcclellan-inline-1.jpg',
+    image: 'slides/Stuart/05-lee-portrait.jpg',
     duration: 120,
     motionType: 'zoomOut',
     overlayText: 'Lee had one order: go out and come back.',
     overlayDelay: 18,
   },
   {
-    image: 'images/stuart-ride-around-mcclellan-inline-3.jpg',
+    image: 'slides/Stuart/06-stuart-cavalry-raid.jpg',
     duration: 105,
     motionType: 'panRight',
     overlayText: 'Stuart kept going.',
@@ -57,21 +57,21 @@ const slides = [
     overlayDelay: 18,
   },
   {
-    image: 'images/stuart-ride-around-mcclellan-inline-2.jpg',
+    image: 'slides/Stuart/03-cooke-portrait.jpg',
     duration: 150,
     motionType: 'zoomIn',
     overlayText: 'The Union officer ordered to chase him: his father-in-law.',
     overlayDelay: 18,
   },
   {
-    image: 'images/stuart-ride-around-mcclellan-inline-1.jpg',
+    image: 'slides/Stuart/07-harrison-landing-retreat.jpg',
     duration: 135,
     motionType: 'panLeft',
     overlayText: 'Two weeks later, Lee drove McClellan from Richmond.',
     overlayDelay: 18,
   },
   {
-    image: 'images/stuart-ride-around-mcclellan.jpg',
+    image: 'slides/Stuart/01-stuart-portrait.jpg',
     duration: 316,
     motionType: 'zoomOut',
     overlayText: 'Cooke filed a report. What he wrote is extraordinary.',
@@ -95,15 +95,15 @@ const getKenBurnsTransform = (motionType, localFrame, duration) => {
     }
     case 'panLeft': {
       const tx = interpolate(localFrame, [0, duration], [0, -4], { extrapolateRight: 'clamp' });
-      return `translateX(${tx}%)`;
+      return `scale(1.05) translateX(${tx}%)`;
     }
     case 'panRight': {
       const tx = interpolate(localFrame, [0, duration], [0, 4], { extrapolateRight: 'clamp' });
-      return `translateX(${tx}%)`;
+      return `scale(1.05) translateX(${tx}%)`;
     }
     case 'zoomIn':
     default: {
-      const scale = interpolate(localFrame, [0, duration], [1.0, 1.08], { extrapolateRight: 'clamp' });
+      const scale = interpolate(localFrame, [0, duration], [1.05, 1.08], { extrapolateRight: 'clamp' });
       return `scale(${scale})`;
     }
   }
@@ -133,8 +133,8 @@ export default function StuartRide() {
     ? 'none'
     : getKenBurnsTransform(activeSlide.motionType, localFrame, activeSlide.duration);
 
-  // 4-frame hard cut — slide 1 opens at full opacity (cold open)
-  const cutOpacity = activeSlideIndex === 0
+  // 4-frame hard cut — slide 1 and video slides open at full opacity
+  const cutOpacity = (activeSlideIndex === 0 || isVideoSlide)
     ? 1
     : interpolate(localFrame, [0, 4], [0, 1], {
         extrapolateLeft: 'clamp',
@@ -180,25 +180,25 @@ export default function StuartRide() {
       />
       <style>{`@import url('${OSWALD_URL}');`}</style>
 
-      {/* Media layer — image or video */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          overflow: 'hidden',
-          opacity: finalOpacity,
-        }}
-      >
-        {isVideoSlide ? (
-          <Sequence from={activeSlide.from} durationInFrames={activeSlide.duration}>
+      {/* Video layer */}
+      {isVideoSlide && (
+        <Sequence from={activeSlide.from} durationInFrames={activeSlide.duration}>
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+              opacity: finalOpacity,
+            }}
+          >
             <OffthreadVideo
               src={staticFile(activeSlide.video)}
-              startFrom={activeSlide.startFrom}
+              startFrom={activeSlide.startFrom ?? 0}
               endAt={activeSlide.endAt}
-              playbackRate={activeSlide.playbackRate}
+              playbackRate={activeSlide.playbackRate ?? 1}
               volume={0}
               style={{
                 position: 'absolute',
@@ -208,8 +208,23 @@ export default function StuartRide() {
                 objectPosition: 'center center',
               }}
             />
-          </Sequence>
-        ) : (
+          </div>
+        </Sequence>
+      )}
+
+      {/* Image layer — only shown on non-video slides */}
+      {!isVideoSlide && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+            opacity: finalOpacity,
+          }}
+        >
           <Img
             src={staticFile(activeSlide.image)}
             style={{
@@ -220,10 +235,12 @@ export default function StuartRide() {
               objectPosition: 'center center',
               transform,
               transformOrigin: 'center center',
+              minWidth: '100%',
+              minHeight: '100%',
             }}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Vignette */}
       <div
@@ -311,6 +328,7 @@ export default function StuartRide() {
           />
         </div>
       )}
+
     </AbsoluteFill>
   );
 }
