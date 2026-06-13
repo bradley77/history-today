@@ -1,6 +1,6 @@
 ---
 title: "He Signed a Paper Saying He Knew His Rights. No One Had Informed Him of Them."
-date: "2026-06-13"
+date: "June 13, 1966"
 publishDate: "2026-06-13 08:00"
 category: "Legal History"
 tag: "Supreme Court"

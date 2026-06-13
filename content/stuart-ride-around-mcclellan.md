@@ -1,6 +1,6 @@
 ---
 title: "He Rode Around 100,000 Men. The General Sent to Stop Him Was His Father-in-Law."
-date: "2026-06-12"
+date: "June 12, 1862"
 category: "Civil War"
 tag: "Civil War"
 slug: "stuart-ride-around-mcclellan"

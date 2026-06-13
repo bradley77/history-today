@@ -1,6 +1,6 @@
 ---
 title: "The Day Wallace Forced Kennedy's Hand"
-date: "2026-06-11"
+date: "June 11, 1963"
 category: "Civil Rights"
 tag: "Civil Rights"
 slug: "the-day-wallace-forced-kennedys-hand"
