@@ -13,6 +13,7 @@ import MidwayVideo from './videos/MidwayVideo';
 import JamesEarlRayVideo from './videos/JamesEarlRayVideo';
 import NorthwoodsVideo from './videos/NorthwoodsVideo';
 import StuartRide, { totalDuration as stuartRideDuration, FPS as stuartRideFPS } from './compositions/StuartRide';
+import DraftLotteryVideo, { totalDuration as draftLotteryDuration, FPS as draftLotteryFPS } from './compositions/DraftLotteryVideo';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -135,6 +136,14 @@ export const RemotionRoot = () => {
         component={StuartRide}
         durationInFrames={stuartRideDuration}
         fps={stuartRideFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="DraftLotteryVideo"
+        component={DraftLotteryVideo}
+        durationInFrames={draftLotteryDuration}
+        fps={draftLotteryFPS}
         width={1080}
         height={1920}
       />
