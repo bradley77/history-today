@@ -85,8 +85,8 @@ export default async function ArticlePage({ params }) {
 
       {/* Primary Source Image */}
       <div className="px-8 py-8" style={{maxWidth: '1152px', margin: '0 auto'}}>
-        <div className="flex flex-col md:flex-row gap-8 items-start max-w-2xl">
-          <div className="w-96 shrink-0">
+        <div className="flex flex-col md:flex-row gap-8 items-start max-w-3xl">
+          <div className="w-[28rem] shrink-0">
             <LightboxImage
               src={`/images/${article.slug}.jpg`}
               alt={`Primary source image for ${article.title}`}
