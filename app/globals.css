@@ -80,6 +80,15 @@ a {
   color: #111111;
 }
 
+.prose-content h3 {
+  font-family: var(--font-playfair);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: #111111;
+}
+
 .prose-content p {
   margin-bottom: 1.5rem;
   line-height: 1.8;
@@ -112,7 +121,7 @@ a {
 /* Ticker animation */
 .ticker-content {
   display: inline-block;
-  animation: ticker 60s linear infinite;
+  animation: ticker 120s linear infinite;
 }
 
 .ticker-content:hover {

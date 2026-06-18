@@ -10,6 +10,7 @@ caption: "Abraham Lincoln, photographed in Urbana, Illinois, just two months bef
 sourceUrl: "/documents/lincoln-house-divided-speech-full-text.pdf"
 sourceName: "Voices of Democracy, University of Maryland"
 documentCaption: "The opening of Lincoln's House Divided speech, June 16, 1858."
+heroPosition: top
 ---
 
 On the evening of June 16, 1858, Abraham Lincoln stood before the Illinois Republican State Convention in Springfield and delivered a line that would follow him for the rest of his life. "A house divided against itself cannot stand," he told the assembled delegates. "I believe this government cannot endure, permanently half slave and half free."
@@ -20,7 +21,7 @@ Most people encounter the line stripped of context: a confident prophecy from a 
 
 According to later recollections, the answer was not the one Lincoln might have hoped for.
 
-## An Unusual Nomination
+### An Unusual Nomination
 
 To understand why the speech mattered so much, it helps to understand how unusual the day already was. In 1858, U.S. senators were chosen by state legislatures, not by popular vote, and candidates typically campaigned quietly, if at all, after the fall elections. But on June 16, Illinois Republicans broke with that tradition and formally endorsed Lincoln months ahead of time, an early and very public show of support meant to settle, once and for all, who would carry the party's banner against Douglas that fall.
 
@@ -28,7 +29,7 @@ That decision was not as obvious as it might look in hindsight. Douglas, the inc
 
 Illinois Republicans were not interested. Whatever his quarrel with Buchanan, Douglas remained committed to popular sovereignty, the idea that settlers in each new territory should decide for themselves whether to permit slavery. That was the same doctrine Republicans blamed for opening Kansas to slavery in the first place, and no amount of friction with Buchanan changed Douglas's position on it. Lincoln's nomination was, in part, a direct answer to Greeley and the Eastern Republicans: this seat, and this fight, belonged to Illinois.
 
-## A Caucus Before the Convention
+### A Caucus Before the Convention
 
 ![The Hall of Representatives in the Old State Capitol, Springfield, Illinois, as it appeared in the mid-nineteenth century](/images/lincoln-house-divided-speech-inline-1.jpg)
 *The Hall of Representatives in the Old State Capitol, Springfield, Illinois, where Lincoln delivered the House Divided speech on the evening of June 16, 1858.*
@@ -41,7 +42,7 @@ William H. Herndon, Lincoln's law partner, was reportedly the lone dissenter. By
 
 Lincoln listened to all of it, and delivered the speech unchanged.
 
-## "Too Radical for the Occasion"
+### "Too Radical for the Occasion"
 
 It is worth sitting with how the speech sounded to the people in that room, because it is easy to lose the sense of risk once a line has been carved into monuments. Lincoln was not simply describing a moral problem. He was making a structural argument, that the country's drift over slavery in the territories was not an accident, but the product of a connected sequence of political moves, one that pointed toward only two possible endings. Either slavery would be put on a path to "ultimate extinction," or it would become lawful everywhere, in every state, old and new alike.
 
@@ -49,13 +50,13 @@ To Republican ears in 1858, that was not a safe thing to say out loud. Lincoln's
 
 Herndon himself never pretended the speech was a safe political document. He recalled reading it beforehand and discussing exactly the line that would become famous. Lincoln's response, as Herndon remembered it, was that the proposition was true, and that he intended to use plain, universally recognizable language to strike home to the minds of his audience. He was not interested in softening it.
 
-## The Argument Beneath the Line
+### The Argument Beneath the Line
 
 What gets lost in the popular memory of the speech is everything Lincoln built around that one famous sentence. The bulk of the address is a methodical argument: Lincoln walks through the Kansas-Nebraska Act, the Dred Scott decision, and the public statements of Douglas, President Buchanan, and Chief Justice Roger Taney, laying them side by side like pieces of a single structure. He compared them to a set of framed timbers, cut by different workmen at different times and places, that nonetheless fit together perfectly, every joint and measurement aligned, as though built from a single plan from the start.
 
 His point was not that war was coming. His point was that a deliberate political effort was already underway, one that had moved further than most Northerners realized, and that pretending otherwise was its own kind of danger. That argument, the careful one, is largely forgotten. The sentence that survives is the one Lincoln's friends begged him to cut.
 
-## After November
+### After November
 
 Douglas and the Democratic press did not let the speech pass quietly. Within weeks, Lincoln's opening lines were being read back to him on the campaign trail, used as evidence that he was a dangerous radical out of step with ordinary voters. By the time Lincoln spoke in Chicago that July, he was already re-explaining the "house divided" passage, quoting his own words nearly verbatim because Douglas had made them the center of the campaign.
 

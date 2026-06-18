@@ -57,7 +57,7 @@ export default async function Home() {
             <div className="accent-line"></div>
             <p className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-medium">Featured Story</p>
             <Link href={`/articles/${featured.slug}`} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center article-card cursor-pointer group">
-              <div className="aspect-[4/3] rounded-sm overflow-hidden relative bg-gray-100">
+              <div className="aspect-[3/2] rounded-sm overflow-hidden relative bg-gray-100">
                 <img
                   src={`/images/${featured.slug}.jpg`}
                   alt={featured.title}

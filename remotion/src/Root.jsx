@@ -12,6 +12,9 @@ import EisenhowerVideo from './videos/EisenhowerVideo';
 import MidwayVideo from './videos/MidwayVideo';
 import JamesEarlRayVideo from './videos/JamesEarlRayVideo';
 import NorthwoodsVideo from './videos/NorthwoodsVideo';
+import WarrenBunkerHillVideo, { totalDuration as warrenBunkerHillDuration } from './WarrenBunkerHill';
+import { WatergateVideo } from './WatergateVideo';
+import { watergateTotalDuration } from './data/watergate';
 import StuartRide, { totalDuration as stuartRideDuration, FPS as stuartRideFPS } from './compositions/StuartRide';
 import DraftLotteryVideo, { totalDuration as draftLotteryDuration, FPS as draftLotteryFPS } from './compositions/DraftLotteryVideo';
 import { totalDuration as snowdenDuration } from './data/snowden';
@@ -144,6 +147,22 @@ export const RemotionRoot = () => {
         component={DraftLotteryVideo}
         durationInFrames={draftLotteryDuration}
         fps={draftLotteryFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="WarrenBunkerHill"
+        component={WarrenBunkerHillVideo}
+        durationInFrames={warrenBunkerHillDuration}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="WatergateVideo"
+        component={WatergateVideo}
+        durationInFrames={watergateTotalDuration}
+        fps={30}
         width={1080}
         height={1920}
       />

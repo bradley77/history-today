@@ -10,7 +10,8 @@
     "voiceover:wwii": "node generate-voiceover.js",
     "voiceover:kokoro": "node scripts/generateVoiceover-kokoro.js",
     "voiceover:hiss": "node scripts/generateVoiceover-hiss.js",
-    "voiceover:madison": "node scripts/generateVoiceover-madison.js"
+    "voiceover:madison": "node scripts/generateVoiceover-madison.js",
+    "voiceover:watergate": "node scripts/generateVoiceover-watergate.js"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",
