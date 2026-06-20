@@ -17,6 +17,7 @@ import { WatergateVideo } from './WatergateVideo';
 import { watergateTotalDuration } from './data/watergate';
 import StuartRide, { totalDuration as stuartRideDuration, FPS as stuartRideFPS } from './compositions/StuartRide';
 import DraftLotteryVideo, { totalDuration as draftLotteryDuration, FPS as draftLotteryFPS } from './compositions/DraftLotteryVideo';
+import PattonBloodAndGuts, { totalDuration as pattonBloodAndGutsDuration, FPS as pattonBloodAndGutsFPS } from './compositions/PattonBloodAndGuts';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -163,6 +164,14 @@ export const RemotionRoot = () => {
         component={WatergateVideo}
         durationInFrames={watergateTotalDuration}
         fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="PattonBloodAndGuts"
+        component={PattonBloodAndGuts}
+        durationInFrames={pattonBloodAndGutsDuration}
+        fps={pattonBloodAndGutsFPS}
         width={1080}
         height={1920}
       />
