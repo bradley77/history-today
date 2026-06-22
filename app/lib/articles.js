@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { remark } from 'remark'
+import remarkGfm from 'remark-gfm'
 import html from 'remark-html'
 
 const contentDirectory = path.join(process.cwd(), 'content')
@@ -39,6 +40,7 @@ export async function getArticleBySlug(slug) {
   const { data, content } = matter(fileContents)
 
   const processedContent = await remark()
+    .use(remarkGfm)
     .use(html, { sanitize: false })
     .process(content)
   

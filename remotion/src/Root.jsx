@@ -18,6 +18,7 @@ import { watergateTotalDuration } from './data/watergate';
 import StuartRide, { totalDuration as stuartRideDuration, FPS as stuartRideFPS } from './compositions/StuartRide';
 import DraftLotteryVideo, { totalDuration as draftLotteryDuration, FPS as draftLotteryFPS } from './compositions/DraftLotteryVideo';
 import PattonBloodAndGuts, { totalDuration as pattonBloodAndGutsDuration, FPS as pattonBloodAndGutsFPS } from './compositions/PattonBloodAndGuts';
+import MyLaiVideo, { totalDuration as myLaiDuration, FPS as myLaiFPS } from './videos/MyLaiVideo';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -172,6 +173,14 @@ export const RemotionRoot = () => {
         component={PattonBloodAndGuts}
         durationInFrames={pattonBloodAndGutsDuration}
         fps={pattonBloodAndGutsFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="MyLaiVideo"
+        component={MyLaiVideo}
+        durationInFrames={myLaiDuration}
+        fps={myLaiFPS}
         width={1080}
         height={1920}
       />
