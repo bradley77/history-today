@@ -19,6 +19,7 @@ import StuartRide, { totalDuration as stuartRideDuration, FPS as stuartRideFPS }
 import DraftLotteryVideo, { totalDuration as draftLotteryDuration, FPS as draftLotteryFPS } from './compositions/DraftLotteryVideo';
 import PattonBloodAndGuts, { totalDuration as pattonBloodAndGutsDuration, FPS as pattonBloodAndGutsFPS } from './compositions/PattonBloodAndGuts';
 import MyLaiVideo, { totalDuration as myLaiDuration, FPS as myLaiFPS } from './videos/MyLaiVideo';
+import LincolnFortStevens, { totalDuration as lfsTotal, FPS as lfsFPS } from './compositions/LincolnFortStevens';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -173,6 +174,14 @@ export const RemotionRoot = () => {
         component={PattonBloodAndGuts}
         durationInFrames={pattonBloodAndGutsDuration}
         fps={pattonBloodAndGutsFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="LincolnFortStevens"
+        component={LincolnFortStevens}
+        durationInFrames={lfsTotal}
+        fps={lfsFPS}
         width={1080}
         height={1920}
       />
