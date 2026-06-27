@@ -21,6 +21,7 @@ import PattonBloodAndGuts, { totalDuration as pattonBloodAndGutsDuration, FPS as
 import MyLaiVideo, { totalDuration as myLaiDuration, FPS as myLaiFPS } from './videos/MyLaiVideo';
 import CIAHeartAttackGun, { totalDuration as ciaTotal, FPS as ciaFPS } from './compositions/CIAHeartAttackGun';
 import LincolnFortStevens, { totalDuration as lfsTotal, FPS as lfsFPS } from './compositions/LincolnFortStevens';
+import TokyoFirebombing, { totalDuration as tokyoTotalDuration, FPS as tokyoFPS } from './compositions/TokyoFirebombing';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -199,6 +200,14 @@ export const RemotionRoot = () => {
         component={MyLaiVideo}
         durationInFrames={myLaiDuration}
         fps={myLaiFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="TokyoFirebombing"
+        component={TokyoFirebombing}
+        durationInFrames={tokyoTotalDuration}
+        fps={tokyoFPS}
         width={1080}
         height={1920}
       />
