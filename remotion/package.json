@@ -11,7 +11,8 @@
     "voiceover:kokoro": "node scripts/generateVoiceover-kokoro.js",
     "voiceover:hiss": "node scripts/generateVoiceover-hiss.js",
     "voiceover:madison": "node scripts/generateVoiceover-madison.js",
-    "voiceover:watergate": "node scripts/generateVoiceover-watergate.js"
+    "voiceover:watergate": "node scripts/generateVoiceover-watergate.js",
+    "voiceover:khe-sanh-quick-strike": "node scripts/generateVoiceover-khe-sanh-quick-strike.js"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",

@@ -16,7 +16,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
-  const heroImageUrl = `https://echoandchronicle.today/images/${slug}.jpg`
+  const heroImageUrl = article.heroImage
+    ? `https://echoandchronicle.today${article.heroImage}`
+    : `https://echoandchronicle.today/images/${slug}.jpg`
   return {
     title: `${article.title} | Echo and Chronicle`,
     description: article.excerpt,
@@ -88,7 +90,7 @@ export default async function ArticlePage({ params }) {
         <div className="flex flex-col md:flex-row gap-8 items-start max-w-3xl">
           <div className="w-[28rem] shrink-0">
             <LightboxImage
-              src={`/images/${article.slug}.jpg`}
+              src={article.heroImage || `/images/${article.slug}.jpg`}
               alt={`Primary source image for ${article.title}`}
               errorText={`Hero image missing: check /images/${article.slug}.jpg`}
               objectPosition={article.heroPosition || 'center'}
