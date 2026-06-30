@@ -6,7 +6,7 @@ tag: "Cold War"
 slug: "twa-flight-847"
 publishDate: "2026-06-30 08:00"
 excerpt: "On June 14, 1985, two men smuggled guns and grenades onto a commercial flight in Athens. What followed was 17 days of beatings, a murder on a Beirut tarmac, and a hostage crisis that changed how America understood terrorism."
-heroImage: "/images/twa-flight-847-inline-2.jpg"
+heroImage: "/images/twa-flight-847.jpg"
 caption: "Crowds greet freed TWA Flight 847 hostages returning to the United States, July 1985. Department of Defense photo, public domain."
 sourceUrl: "https://www.reaganlibrary.gov/public/2024-07/40-633-12015544-R53-017-2023.pdf#page=4"
 sourceName: "FBI Report on the Hijacking of TWA Flight 847, September 1985 (Reagan Library / NARA)"
@@ -46,6 +46,9 @@ Nabih Berri, the leader of the Amal militia and a minister in the Lebanese cabin
 One hostage was released on June 26 after developing heart trouble. The remaining thirty-nine Americans were freed on June 30, gathering in a schoolyard in militia-controlled West Beirut before being driven to Damascus by the International Red Cross. From Damascus they flew to West Germany. Vice President George H.W. Bush met them at Rhein-Main Air Base. They were debriefed, examined, and then flown to Andrews Air Force Base in Maryland.
 
 Over the following weeks, Israel released more than seven hundred Shia prisoners, maintaining throughout that the releases had nothing to do with the hijacking.
+
+![President Reagan chairs a National Security Council meeting on the TWA Flight 847 crisis, Situation Room, 1985. NARA, public domain.](/images/twa-flight-847-inline-2.jpg)
+*President Reagan chairs a National Security Council meeting on the TWA Flight 847 crisis, Situation Room, 1985. National Archives, public domain.*
 
 ## Reagan's Statement
 
