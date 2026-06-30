@@ -17,7 +17,7 @@ On the morning of June 14, 1985, TWA Flight 847 lifted off from Athens bound for
 
 Two men had smuggled a pistol and two grenades through airport security. Shortly after takeoff, they breached the cockpit, assaulted the crew, and forced Captain John Testrake at gunpoint to change course. Its passengers would not reach freedom for another seventeen days.
 
-What unfolded over those days was not just a hijacking. It was a sustained act of terror, broadcast live to a global television audience, that exposed how unprepared the United States was to confront the new face of political violence in the Middle East.
+What unfolded over those days was not just a hijacking. The hijackers identified themselves publicly as the Organization of the Oppressed on Earth, though the operation is broadly attributed to Hezbollah. What unfolded over those days was broadcast live to a global television audience, that exposed how unprepared the United States was to confront the new face of political violence in the Middle East.
 
 ## The First Stop in Beirut
 
@@ -62,8 +62,8 @@ Imad Mughniyeh, believed to have played a supervisory role in the operation, was
 
 ## What the Document Shows
 
-The FBI report filed in September 1985, three months after the hostages came home, was prepared for Oliver North's files at the White House National Security Council. It runs five volumes. The cover page you see above identifies it as Volume V of V. It was classified at the time and has since been declassified and released by the Reagan Presidential Library.
+The FBI report filed in September 1985, three months after the hostages came home, runs five volumes. The copy reproduced here comes from Oliver North's National Security Council files at the White House, where it was held classified until its declassification and release by the Reagan Presidential Library. It runs five volumes. The cover page you see above identifies it as Volume V of V. It was classified at the time and has since been declassified and released by the Reagan Presidential Library.
 
-The document is significant not just for what it contains, but for where it was filed. North was the NSC staff member managing the administration's counterterrorism portfolio. Within months of this report being filed, the same cast of characters, the same hostages-for-prisoners logic, and many of the same back channels would reappear in what became the Iran-Contra affair.
+The document is significant not just for what it contains, but for where it was filed. North was the NSC staff member managing the administration's counterterrorism portfolio. Within months of this report being filed, the same cast of characters, similar hostage-focused negotiations and many of the same back channels would reappear in what became the Iran-Contra affair.
 
 The FBI's five-volume report on TWA 847 represents the moment the U.S. government tried to understand what had happened. The question of whether it learned the right lessons is more complicated.
