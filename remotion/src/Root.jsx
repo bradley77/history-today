@@ -24,6 +24,7 @@ import LincolnFortStevens, { totalDuration as lfsTotal, FPS as lfsFPS } from './
 import TokyoFirebombing, { totalDuration as tokyoTotalDuration, FPS as tokyoFPS } from './compositions/TokyoFirebombing';
 import KheSanhQuickStrike, { totalDuration as kheSanhTotal, FPS as kheSanhFPS } from './compositions/KheSanhQuickStrike';
 import MacArthurInchon, { totalDuration as macArthurInchonTotal, FPS as macArthurInchonFPS } from './compositions/MacArthurInchon';
+import UnionShermanScorchedEarth, { totalDuration as unionShermanTotal, FPS as unionShermanFPS } from './compositions/UnionShermanScorchedEarth';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -226,6 +227,14 @@ export const RemotionRoot = () => {
         component={MacArthurInchon}
         durationInFrames={macArthurInchonTotal}
         fps={macArthurInchonFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="UnionShermanScorchedEarth"
+        component={UnionShermanScorchedEarth}
+        durationInFrames={unionShermanTotal}
+        fps={unionShermanFPS}
         width={1080}
         height={1920}
       />
