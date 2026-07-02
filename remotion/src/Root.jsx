@@ -25,6 +25,7 @@ import TokyoFirebombing, { totalDuration as tokyoTotalDuration, FPS as tokyoFPS 
 import KheSanhQuickStrike, { totalDuration as kheSanhTotal, FPS as kheSanhFPS } from './compositions/KheSanhQuickStrike';
 import MacArthurInchon, { totalDuration as macArthurInchonTotal, FPS as macArthurInchonFPS } from './compositions/MacArthurInchon';
 import UnionShermanScorchedEarth, { totalDuration as unionShermanTotal, FPS as unionShermanFPS } from './compositions/UnionShermanScorchedEarth';
+import GettysburgDay1QS, { totalDuration as gettysburgDay1QSTotal, FPS as gettysburgDay1QSFPS } from './compositions/GettysburgDay1QS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -235,6 +236,14 @@ export const RemotionRoot = () => {
         component={UnionShermanScorchedEarth}
         durationInFrames={unionShermanTotal}
         fps={unionShermanFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GettysburgDay1QS"
+        component={GettysburgDay1QS}
+        durationInFrames={gettysburgDay1QSTotal}
+        fps={gettysburgDay1QSFPS}
         width={1080}
         height={1920}
       />
