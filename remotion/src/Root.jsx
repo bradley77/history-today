@@ -26,6 +26,7 @@ import KheSanhQuickStrike, { totalDuration as kheSanhTotal, FPS as kheSanhFPS } 
 import MacArthurInchon, { totalDuration as macArthurInchonTotal, FPS as macArthurInchonFPS } from './compositions/MacArthurInchon';
 import UnionShermanScorchedEarth, { totalDuration as unionShermanTotal, FPS as unionShermanFPS } from './compositions/UnionShermanScorchedEarth';
 import GettysburgDay1QS, { totalDuration as gettysburgDay1QSTotal, FPS as gettysburgDay1QSFPS } from './compositions/GettysburgDay1QS';
+import GettysburgDay2QS, { totalDuration as gettysburgDay2QSTotal, FPS as gettysburgDay2QSFPS } from './compositions/GettysburgDay2QS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -244,6 +245,14 @@ export const RemotionRoot = () => {
         component={GettysburgDay1QS}
         durationInFrames={gettysburgDay1QSTotal}
         fps={gettysburgDay1QSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GettysburgDay2QS"
+        component={GettysburgDay2QS}
+        durationInFrames={gettysburgDay2QSTotal}
+        fps={gettysburgDay2QSFPS}
         width={1080}
         height={1920}
       />
