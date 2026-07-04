@@ -27,6 +27,8 @@ import MacArthurInchon, { totalDuration as macArthurInchonTotal, FPS as macArthu
 import UnionShermanScorchedEarth, { totalDuration as unionShermanTotal, FPS as unionShermanFPS } from './compositions/UnionShermanScorchedEarth';
 import GettysburgDay1QS, { totalDuration as gettysburgDay1QSTotal, FPS as gettysburgDay1QSFPS } from './compositions/GettysburgDay1QS';
 import GettysburgDay2QS, { totalDuration as gettysburgDay2QSTotal, FPS as gettysburgDay2QSFPS } from './compositions/GettysburgDay2QS';
+import GettysburgDay3QS, { totalDuration as gettysburgDay3QSTotal, FPS as gettysburgDay3QSFPS } from './compositions/GettysburgDay3QS';
+import NuclearKyoto, { totalDuration as nuclearKyotoTotal, FPS as nuclearKyotoFPS } from './compositions/NuclearKyoto';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -253,6 +255,22 @@ export const RemotionRoot = () => {
         component={GettysburgDay2QS}
         durationInFrames={gettysburgDay2QSTotal}
         fps={gettysburgDay2QSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GettysburgDay3QS"
+        component={GettysburgDay3QS}
+        durationInFrames={gettysburgDay3QSTotal}
+        fps={gettysburgDay3QSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="NuclearKyoto"
+        component={NuclearKyoto}
+        durationInFrames={nuclearKyotoTotal}
+        fps={nuclearKyotoFPS}
         width={1080}
         height={1920}
       />
