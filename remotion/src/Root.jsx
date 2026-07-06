@@ -29,6 +29,7 @@ import GettysburgDay1QS, { totalDuration as gettysburgDay1QSTotal, FPS as gettys
 import GettysburgDay2QS, { totalDuration as gettysburgDay2QSTotal, FPS as gettysburgDay2QSFPS } from './compositions/GettysburgDay2QS';
 import GettysburgDay3QS, { totalDuration as gettysburgDay3QSTotal, FPS as gettysburgDay3QSFPS } from './compositions/GettysburgDay3QS';
 import NuclearKyoto, { totalDuration as nuclearKyotoTotal, FPS as nuclearKyotoFPS } from './compositions/NuclearKyoto';
+import BattleOfHue, { totalDuration as battleOfHueTotal, FPS as battleOfHueFPS } from './compositions/BattleOfHue';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -271,6 +272,14 @@ export const RemotionRoot = () => {
         component={NuclearKyoto}
         durationInFrames={nuclearKyotoTotal}
         fps={nuclearKyotoFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="BattleOfHue"
+        component={BattleOfHue}
+        durationInFrames={battleOfHueTotal}
+        fps={battleOfHueFPS}
         width={1080}
         height={1920}
       />
