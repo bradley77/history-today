@@ -30,6 +30,8 @@ import GettysburgDay2QS, { totalDuration as gettysburgDay2QSTotal, FPS as gettys
 import GettysburgDay3QS, { totalDuration as gettysburgDay3QSTotal, FPS as gettysburgDay3QSFPS } from './compositions/GettysburgDay3QS';
 import NuclearKyoto, { totalDuration as nuclearKyotoTotal, FPS as nuclearKyotoFPS } from './compositions/NuclearKyoto';
 import BattleOfHue, { totalDuration as battleOfHueTotal, FPS as battleOfHueFPS } from './compositions/BattleOfHue';
+import HighwayOfDeathQuickStrike, { totalDuration as highwayOfDeathTotal, FPS as highwayOfDeathFPS } from './compositions/HighwayOfDeathQuickStrike';
+import VicksburgMineQS, { totalDuration as vicksburgMineQSTotal, FPS as vicksburgMineQSFPS } from './compositions/VicksburgMineQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -280,6 +282,22 @@ export const RemotionRoot = () => {
         component={BattleOfHue}
         durationInFrames={battleOfHueTotal}
         fps={battleOfHueFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="HighwayOfDeathQuickStrike"
+        component={HighwayOfDeathQuickStrike}
+        durationInFrames={highwayOfDeathTotal}
+        fps={highwayOfDeathFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="VicksburgMineQS"
+        component={VicksburgMineQS}
+        durationInFrames={vicksburgMineQSTotal}
+        fps={vicksburgMineQSFPS}
         width={1080}
         height={1920}
       />
