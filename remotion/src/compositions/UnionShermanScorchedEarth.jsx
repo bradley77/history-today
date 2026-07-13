@@ -1,12 +1,18 @@
 import {
   AbsoluteFill,
   Audio,
-  Img,
   Sequence,
   interpolate,
   staticFile,
   useCurrentFrame,
 } from 'remotion';
+import {
+  FPS,
+  GOLD,
+  KenBurnsImage,
+  useGoldOverlay,
+  EndCardCTA,
+} from '../shared/QuickStrikeShared';
 
 const SLUG = 'union-sherman-scorched-earth';
 
@@ -15,47 +21,45 @@ const SLUG = 'union-sherman-scorched-earth';
 const SLIDES = [
   {
     id: 'slide1',
-    image: staticFile('slides/Sherman/01-sherman.jpg'),
-    audio: staticFile(`audio/${SLUG}-01.mp3`),
+    image: 'slides/Sherman/01-sherman.jpg',
+    audio: `audio/${SLUG}-01.mp3`,
     durationInSeconds: 3.273,
     audioDurationSeconds: 2.873,
     overlayLines: ["GEORGIA WASN'T FIRST"],
     caption: "Georgia wasn't Sherman's first march of destruction.",
     // No pan — zero-pan, scale 1.0 → 1.06
-    kenBurns: { startScale: 1.0, endScale: 1.06, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.06, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
   },
   {
     id: 'slide2',
-    image: staticFile('slides/Sherman/02-railroad-destruction.jpg'),
-    audio: staticFile(`audio/${SLUG}-02.mp3`),
+    image: 'slides/Sherman/02-railroad-destruction.jpg',
+    audio: `audio/${SLUG}-02.mp3`,
     durationInSeconds: 7.427,
     audioDurationSeconds: 7.027,
     overlayLines: ['MERIDIAN, MISSISSIPPI', 'FEBRUARY 1864'],
     caption: 'Nine months before Georgia, he marched through Mississippi. His men destroyed 115 miles of railroad.',
     // Pan 25px right — > 20px requires scale ≥ 1.06
-    kenBurns: { startScale: 1.06, endScale: 1.06, txFrom: 0, txTo: 25, tyFrom: 0, tyTo: 0 },
+    kenBurns: { scaleFrom: 1.06, scaleTo: 1.06, txFrom: 0, txTo: 25, tyFrom: 0, tyTo: 0 },
   },
   {
     id: 'slide3',
-    image: staticFile('slides/Sherman/03-columbia-burning.jpg'),
-    audio: staticFile(`audio/${SLUG}-03.mp3`),
+    image: 'slides/Sherman/03-columbia-burning.jpg',
+    audio: `audio/${SLUG}-03.mp3`,
     durationInSeconds: 5.128,
     audioDurationSeconds: 4.728,
     overlayLines: ['SOUTH CAROLINA', 'FEBRUARY 1865'],
     caption: 'Then came South Carolina. Columbia burned in February 1865.',
     // Drift 15px up — < 20px, scale can be as low as 1.0; using push-in 1.0 → 1.07
-    kenBurns: { startScale: 1.0, endScale: 1.07, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: -15 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.07, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: -15 },
   },
 ];
 
-const CTA_AUDIO = staticFile(`audio/${SLUG}-04.mp3`);
+const CTA_AUDIO = `audio/${SLUG}-04.mp3`;
 const CTA_DURATION_SECONDS = 2.803;
 const CTA_AUDIO_SECONDS = 2.403; // measured audio duration, for caption scoping
-const CTA_TRIGGER_WORD = 'UNION';
-const CTA_TEXT = 'COMMENT UNION BELOW';
-const CTA_CAPTION = 'Comment UNION below and follow the page.';
-
-export const FPS = 30;
+const CTA_TRIGGER_WORD = 'BLUEGRAY';
+const CTA_SUBLINE = 'COMMENT BLUEGRAY BELOW';
+const CTA_CAPTION = 'Comment BLUEGRAY below and follow the page.';
 
 const slidesWithFrames = SLIDES.map((s) => ({
   ...s,
@@ -68,24 +72,12 @@ const END_CARD_CAPTION_FRAMES = Math.round(CTA_AUDIO_SECONDS * FPS);
 
 const slidesDuration = slidesWithFrames.reduce((sum, s) => sum + s.durationFrames, 0);
 export const totalDuration = slidesDuration + END_CARD_FRAMES;
+export { FPS };
 
-function useGoldOverlay(localFrame, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
-
-// Caption outline via 8-direction text-shadow — renders over any background
+// Caption outline via 8-direction text-shadow — renders over any background.
+// NOT QuickStrikeShared's CaptionOverlay: this file's caption is unboxed
+// outlined text (not a boxed floating chip), a third distinct caption style
+// in this codebase, so it stays local.
 const CAPTION_SHADOW =
   '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,' +
   ' -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000';
@@ -131,44 +123,13 @@ function SlidePanel({ slide }) {
   const frame = useCurrentFrame();
   const { durationFrames, captionFrames, kenBurns, overlayLines, caption } = slide;
 
-  const scale = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startScale, kenBurns.endScale],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const tx = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.txFrom, kenBurns.txTo],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const ty = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.tyFrom, kenBurns.tyTo],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, 8);
   const fontSize = overlayLines.length >= 3 ? 36 : 42;
 
   return (
     <AbsoluteFill>
       {/* Image with Ken Burns — no fade, full brightness from frame 0 */}
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={slide.image}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={kenBurns} />
 
       {/* Vignette */}
       <AbsoluteFill
@@ -202,7 +163,7 @@ function SlidePanel({ slide }) {
           <div
             style={{
               height: 3,
-              background: '#C9A84C',
+              background: GOLD,
               width: `${ruleWidth}%`,
               marginBottom: 16,
               marginLeft: 'auto',
@@ -234,7 +195,7 @@ function SlidePanel({ slide }) {
           <div
             style={{
               height: 3,
-              background: '#C9A84C',
+              background: GOLD,
               width: `${ruleWidth}%`,
               marginTop: 16,
               marginLeft: 'auto',
@@ -244,87 +205,22 @@ function SlidePanel({ slide }) {
         </div>
       </AbsoluteFill>
 
-      <Audio src={slide.audio} startFrom={0} />
+      <Audio src={staticFile(slide.audio)} startFrom={0} />
     </AbsoluteFill>
   );
 }
 
 function EndCard() {
   const frame = useCurrentFrame();
-  const textOpacity = interpolate(frame, [0, 12], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const ruleWidth = interpolate(frame, [8, 33], [0, 100], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
   const captionVisible = frame < END_CARD_CAPTION_FRAMES;
 
   return (
-    <AbsoluteFill
-      style={{
-        background: '#000',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-      }}
-    >
-      <Audio src={CTA_AUDIO} startFrom={0} />
-
-      <div style={{ width: '80%', maxWidth: 900 }}>
-        <div
-          style={{
-            height: 3,
-            background: '#C9A84C',
-            width: `${ruleWidth}%`,
-            marginBottom: 36,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        />
-
-        <div
-          style={{
-            opacity: textOpacity,
-            color: '#fff',
-            fontFamily: 'Georgia, serif',
-            fontSize: 96,
-            fontWeight: 700,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            textAlign: 'center',
-            marginBottom: 20,
-          }}
-        >
-          {CTA_TRIGGER_WORD}
-        </div>
-
-        <div
-          style={{
-            opacity: textOpacity,
-            color: '#C9A84C',
-            fontFamily: 'Georgia, serif',
-            fontSize: 28,
-            fontWeight: 400,
-            letterSpacing: '0.05em',
-            textAlign: 'center',
-            marginBottom: 36,
-          }}
-        >
-          {CTA_TEXT}
-        </div>
-
-        <div
-          style={{
-            height: 3,
-            background: '#C9A84C',
-            width: `${ruleWidth}%`,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-          }}
-        />
-      </div>
+    <AbsoluteFill>
+      <EndCardCTA
+        triggerWord={CTA_TRIGGER_WORD}
+        subline={CTA_SUBLINE}
+        audio={CTA_AUDIO}
+      />
 
       {/* Burned-in caption — scoped to CTA audio duration */}
       <div

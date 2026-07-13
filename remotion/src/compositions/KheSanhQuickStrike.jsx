@@ -1,51 +1,44 @@
-import {
-  AbsoluteFill,
-  Audio,
-  Img,
-  Sequence,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-} from 'remotion';
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
+import { FPS, GOLD, KenBurnsImage, Vignette, useGoldOverlay } from '../shared/QuickStrikeShared';
 
 const SLUG = "khe-sanh-quick-strike";
 
 const SLIDES = [
   {
     id: "slide1",
-    image: staticFile('slides/KheSanh/01-lbj-sandtable.jpg'),
-    audio: staticFile(`audio/${SLUG}-vo-01.mp3`),
+    image: 'slides/KheSanh/01-lbj-sandtable.jpg',
+    audio: `audio/${SLUG}-vo-01.mp3`,
     durationInSeconds: 5.200,
     overlayLines: ["THE PRESIDENT MADE HIS", "GENERALS SIGN A PLEDGE", "TO HOLD IT"],
     contextLabel: "WHITE HOUSE SITUATION ROOM — FEB. 1968",
-    kenBurns: { startScale: 1.0, endScale: 1.06 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.06, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
   },
   {
     id: "slide2",
-    image: staticFile('slides/KheSanh/02-ordnance.jpg'),
-    audio: staticFile(`audio/${SLUG}-vo-02.mp3`),
+    image: 'slides/KheSanh/02-ordnance.jpg',
+    audio: `audio/${SLUG}-vo-02.mp3`,
     durationInSeconds: 4.155,
     overlayLines: ["200 MARINES DIED HOLDING IT", "FOR 77 DAYS"],
     contextLabel: "KHE SANH, VIETNAM — 1968",
-    kenBurns: { startScale: 1.06, endScale: 1.0 },
+    kenBurns: { scaleFrom: 1.06, scaleTo: 1.0, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
   },
   {
     id: "slide3",
-    image: staticFile('slides/KheSanh/03-hill680.jpg'),
-    audio: staticFile(`audio/${SLUG}-vo-03.mp3`),
+    image: 'slides/KheSanh/03-hill680.jpg',
+    audio: `audio/${SLUG}-vo-03.mp3`,
     durationInSeconds: 7.675,
     overlayLines: ["FOUR MONTHS LATER THEY", "DEMOLISHED IT AND WALKED AWAY"],
     contextLabel: "KHE SANH COMBAT BASE — JULY 1968",
-    kenBurns: { startScale: 1.0, endScale: 1.06 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.06, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
   },
 ];
 
-const CTA_AUDIO = staticFile(`audio/${SLUG}-vo-04.mp3`);
+const CTA_AUDIO = `audio/${SLUG}-vo-04.mp3`;
 const CTA_DURATION_SECONDS = 4.411;
 const CTA_TRIGGER_WORD = "RECON";
 const CTA_SUBTITLE = "Comment RECON for a free declassified Vietnam document";
 
-export const FPS = 30;
+export { FPS };
 
 const slidesWithFrames = SLIDES.map((s) => ({
   ...s,
@@ -57,32 +50,12 @@ const END_CARD_FRAMES = Math.round(CTA_DURATION_SECONDS * FPS);
 const slidesDuration = slidesWithFrames.reduce((sum, s) => sum + s.durationFrames, 0);
 export const totalDuration = slidesDuration + END_CARD_FRAMES;
 
-function useGoldOverlay(localFrame, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
-
+// NOT QuickStrikeShared's GoldLowerThird: this file's overlay renders a
+// variable number of uppercase lines with dynamic font sizing (not a single
+// fixed-size headline in a boxed background), so it stays local.
 function SlidePanel({ slide }) {
   const frame = useCurrentFrame();
   const { durationFrames, kenBurns, overlayLines, contextLabel } = slide;
-
-  const scale = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startScale, kenBurns.endScale],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
 
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, 8);
 
@@ -90,28 +63,8 @@ function SlidePanel({ slide }) {
 
   return (
     <AbsoluteFill>
-      {/* Image with Ken Burns */}
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={slide.image}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale})`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
-
-      {/* Vignette */}
-      <AbsoluteFill
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={kenBurns} />
+      <Vignette />
 
       {/* Context label — top-left */}
       <AbsoluteFill
@@ -136,14 +89,6 @@ function SlidePanel({ slide }) {
         </div>
       </AbsoluteFill>
 
-      {/* Bottom gradient for text legibility */}
-      <AbsoluteFill
-        style={{
-          background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.72) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-
       {/* Gold animated rules + centered lower-third overlay */}
       <AbsoluteFill
         style={{
@@ -158,7 +103,7 @@ function SlidePanel({ slide }) {
           <div
             style={{
               height: 3,
-              background: '#C9A84C',
+              background: GOLD,
               width: `${ruleWidth}%`,
               marginBottom: 16,
               marginLeft: 'auto',
@@ -192,7 +137,7 @@ function SlidePanel({ slide }) {
           <div
             style={{
               height: 3,
-              background: '#C9A84C',
+              background: GOLD,
               width: `${ruleWidth}%`,
               marginTop: 16,
               marginLeft: 'auto',
@@ -203,11 +148,15 @@ function SlidePanel({ slide }) {
       </AbsoluteFill>
 
       {/* Per-slide audio */}
-      <Audio src={slide.audio} startFrom={0} />
+      <Audio src={staticFile(slide.audio)} startFrom={0} />
     </AbsoluteFill>
   );
 }
 
+// Kept local, not migrated to QuickStrikeShared's EndCardCTA: this end card's
+// trigger word + subtitle layout (no "Comment" label, 96px trigger, gold
+// Georgia subtitle) wasn't part of the requested EndCardCTA migration scope
+// (Lincoln/Tokyo/Sherman only), so its exact existing look stays untouched.
 function EndCard() {
   const frame = useCurrentFrame();
   const textOpacity = interpolate(frame, [0, 12], [0, 1], {
@@ -228,13 +177,13 @@ function EndCard() {
         flexDirection: 'column',
       }}
     >
-      <Audio src={CTA_AUDIO} startFrom={0} />
+      <Audio src={staticFile(CTA_AUDIO)} startFrom={0} />
       <div style={{ width: '80%', maxWidth: 900 }}>
         {/* Top gold rule */}
         <div
           style={{
             height: 3,
-            background: '#C9A84C',
+            background: GOLD,
             width: `${ruleWidth}%`,
             marginBottom: 36,
             marginLeft: 'auto',
@@ -263,7 +212,7 @@ function EndCard() {
         <div
           style={{
             opacity: textOpacity,
-            color: '#C9A84C',
+            color: GOLD,
             fontFamily: 'Georgia, serif',
             fontSize: 28,
             fontWeight: 400,
@@ -279,7 +228,7 @@ function EndCard() {
         <div
           style={{
             height: 3,
-            background: '#C9A84C',
+            background: GOLD,
             width: `${ruleWidth}%`,
             marginLeft: 'auto',
             marginRight: 'auto',

@@ -1,20 +1,24 @@
 import {
   AbsoluteFill,
   Audio,
-  Easing,
-  Img,
   Sequence,
   interpolate,
   staticFile,
   useCurrentFrame,
 } from 'remotion';
 import { useMemo } from 'react';
+import {
+  FPS,
+  OSWALD_URL,
+  HARD_CUT_FRAMES,
+  GOLD,
+  KenBurnsImage,
+  Vignette,
+  ContextTag,
+  useGoldOverlay,
+  type Motion,
+} from '../shared/QuickStrikeShared';
 
-const OSWALD_URL = 'https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap';
-
-export const FPS = 30;
-
-const HARD_CUT_FRAMES = 4;
 const PAD_S = 0.4;
 
 // Measured Kokoro VO durations (am_adam, speed 0.95, en-us) via
@@ -24,6 +28,13 @@ const SLIDE2_AUDIO_S = 6.635;
 const SLIDE3_AUDIO_S = 5.717;
 const SLIDE4_AUDIO_S = 11.840;
 const SLIDE5_AUDIO_S = 2.197;
+
+// Source images are already native 1080x1920 (exact canvas match), so a plain
+// object-fit:cover push-in is enough — no pan needed on any slide.
+const PUSH_IN_MOTION: Motion = {
+  scaleFrom: 1.0, scaleTo: 1.08, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0,
+  easing: 'easeInOutCubic',
+};
 
 type SlideConfig = {
   id: string;
@@ -102,49 +113,14 @@ const slidesWithFrames = SLIDES.map((s) => ({
 }));
 
 export const totalDuration = slidesWithFrames.reduce((sum, s) => sum + s.durationFrames, 0);
-
-function useGoldOverlay(localFrame: number, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
-
-// Small gold contextual tag — top left, single line, no box. Distinct element
-// from the bottom caption/headline stack; omitted entirely on the end card.
-function ContextTag({ text }: { text: string }) {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 48,
-        left: 40,
-        color: '#C9A84C',
-        fontSize: 22,
-        fontWeight: 600,
-        letterSpacing: '0.06em',
-        fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
-        textShadow: '0 1px 6px rgba(0,0,0,0.9)',
-        pointerEvents: 'none',
-      }}
-    >
-      {text}
-    </div>
-  );
-}
+export { FPS };
 
 // Picks the caption chunk active at `frame`, each chunk's on-screen window sized
 // proportionally to its share of the total word count across `durationFrames`.
-// A single-element array is simply active for the whole duration.
+// A single-element array is simply active for the whole duration. NOT
+// QuickStrikeShared's CaptionOverlay: this file's caption sits inline above
+// the headline (fades in once, never fades out), a different layout from the
+// shared component's floating word-cycling box, so it stays local.
 function useActiveCaption(lines: string[], durationFrames: number, frame: number) {
   const ranges = useMemo(() => {
     const wordCounts = lines.map((line) => line.split(/\s+/).filter(Boolean).length);
@@ -184,44 +160,12 @@ function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames:
         extrapolateRight: 'clamp',
       });
 
-  // Source images are already native 1080x1920 (exact canvas match), so a plain
-  // object-fit:cover push-in is enough — no pan needed on any slide.
-  const scale = interpolate(frame, [0, durationFrames], [1.0, 1.08], {
-    easing: Easing.inOut(Easing.cubic),
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
   const { ruleWidth, textOpacity } = useGoldOverlay(frame);
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', opacity }}>
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={staticFile(slide.image)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale})`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
-
-      <AbsoluteFill
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.75) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={PUSH_IN_MOTION} />
+      <Vignette />
 
       {contextTag && <ContextTag text={contextTag} />}
 
@@ -260,7 +204,7 @@ function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames:
             style={{
               height: 3,
               width: `${ruleWidth}%`,
-              backgroundColor: '#C9A84C',
+              backgroundColor: GOLD,
               marginBottom: 16,
               marginLeft: 'auto',
               marginRight: 'auto',
@@ -296,7 +240,7 @@ function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames:
                 style={{
                   height: 3,
                   width: `${ruleWidth}%`,
-                  backgroundColor: '#C9A84C',
+                  backgroundColor: GOLD,
                   marginTop: 16,
                   marginLeft: 'auto',
                   marginRight: 'auto',

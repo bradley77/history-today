@@ -1,31 +1,26 @@
 import {
   AbsoluteFill,
   Audio,
-  Img,
   Sequence,
   interpolate,
   staticFile,
   useCurrentFrame,
 } from 'remotion';
-
-const OSWALD_URL = 'https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap';
-
-export const FPS = 30;
-
-const HARD_CUT_FRAMES = 4;
-
-type Motion = {
-  scaleFrom: number;
-  scaleTo: number;
-  txFrom: number;
-  txTo: number;
-  tyFrom: number;
-  tyTo: number;
-};
+import {
+  FPS,
+  OSWALD_URL,
+  HARD_CUT_FRAMES,
+  GOLD,
+  KenBurnsImage,
+  Vignette,
+  ContextTag,
+  useGoldOverlay,
+  type Motion,
+} from '../shared/QuickStrikeShared';
 
 type SlideConfig = {
   id: string;
-  image?: string;
+  image: string;
   audio: string;
   // Actual VO file duration (measured via Kokoro) + 0.4s pad
   durationInSeconds: number;
@@ -35,10 +30,7 @@ type SlideConfig = {
   headlineText: string;
   // Verbatim VO line, lighter weight, sits directly above the top gold rule
   captionText: string;
-  motion?: Motion;
-  // Ken Burns pivot point — defaults to the frame center; override when the
-  // subject isn't centered (e.g. a top-anchored subject over blurred fill)
-  transformOrigin?: string;
+  motion: Motion;
 };
 
 const SLIDES: SlideConfig[] = [
@@ -60,12 +52,12 @@ const SLIDES: SlideConfig[] = [
     contextTag: 'TRINITY TEST SITE — NM, JULY 1945',
     headlineText: 'KYOTO TOPPED THE ORIGINAL LIST',
     captionText: 'Kyoto was originally at the top of the target list.',
-    motion: { scaleFrom: 1.0, scaleTo: 1.06, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
-    // Cloud sits top-anchored with blurred fill in the bottom margin (re-cropped
-    // source). Pivoting the zoom on the cloud itself (not full-canvas center)
-    // keeps the crop tightening around the sharp subject as it scales in,
-    // rather than enlarging toward the blurred fill.
-    transformOrigin: '50% 65%',
+    motion: { scaleFrom: 1.0, scaleTo: 1.06, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0,
+      // Cloud sits top-anchored with blurred fill in the bottom margin (re-cropped
+      // source). Pivoting the zoom on the cloud itself (not full-canvas center)
+      // keeps the crop tightening around the sharp subject as it scales in,
+      // rather than enlarging toward the blurred fill.
+      transformOrigin: '50% 65%' },
   },
   {
     id: 'slide3',
@@ -98,49 +90,15 @@ const slidesDuration = slidesWithFrames.reduce((sum, s) => sum + s.durationFrame
 const END_CARD_FRAMES = Math.round(CTA_DURATION_SECONDS * FPS);
 
 export const totalDuration = slidesDuration + END_CARD_FRAMES;
-
-function useGoldOverlay(localFrame: number, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
-
-// Small gold contextual tag — top left, single line, no box. Distinct element
-// from the bottom headline stack; omitted entirely on the end card.
-function ContextTag({ text }: { text: string }) {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 48,
-        left: 40,
-        color: '#C9A84C',
-        fontSize: 22,
-        fontWeight: 600,
-        letterSpacing: '0.06em',
-        fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
-        textShadow: '0 1px 6px rgba(0,0,0,0.9)',
-        pointerEvents: 'none',
-      }}
-    >
-      {text}
-    </div>
-  );
-}
+export { FPS };
 
 // Bottom headline stack — original bottom-of-frame position (not top left).
 // Top-to-bottom order: verbatim caption (lighter weight) directly above the
 // top gold rule, then the bold all-caps headline between the two rules.
+// NOT QuickStrikeShared's GoldLowerThird: the caption and headline here are a
+// single visually-coupled stack (caption sits inside the same flex container,
+// 14px above the rule), which the shared component — a headline-only block —
+// doesn't represent, so this stays local.
 function BottomStack({
   headline,
   caption,
@@ -195,7 +153,7 @@ function BottomStack({
           style={{
             height: 3,
             width: `${ruleWidth}%`,
-            backgroundColor: '#C9A84C',
+            backgroundColor: GOLD,
             marginBottom: 16,
             marginLeft: 'auto',
             marginRight: 'auto',
@@ -228,7 +186,7 @@ function BottomStack({
           style={{
             height: 3,
             width: `${ruleWidth}%`,
-            backgroundColor: '#C9A84C',
+            backgroundColor: GOLD,
             marginTop: 16,
             marginLeft: 'auto',
             marginRight: 'auto',
@@ -241,7 +199,7 @@ function BottomStack({
 
 function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames: number }; isFirst: boolean }) {
   const frame = useCurrentFrame();
-  const { motion, durationFrames, headlineText, captionText, contextTag, image, transformOrigin } = slide;
+  const { motion, durationFrames, headlineText, captionText, contextTag, image } = slide;
 
   // QUICK STRIKES FORMAT: TRUE cold open on slide 1 — full brightness at frame 0, no fade-in.
   // Slides 2+ get a 4-frame hard cut. No fade-out anywhere, hard cut ending.
@@ -252,57 +210,10 @@ function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames:
         extrapolateRight: 'clamp',
       });
 
-  const scale = motion
-    ? interpolate(frame, [0, durationFrames], [motion.scaleFrom, motion.scaleTo], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-      })
-    : 1;
-  const tx = motion
-    ? interpolate(frame, [0, durationFrames], [motion.txFrom, motion.txTo], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-      })
-    : 0;
-  const ty = motion
-    ? interpolate(frame, [0, durationFrames], [motion.tyFrom, motion.tyTo], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-      })
-    : 0;
-
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', opacity }}>
-      {image ? (
-        <>
-          <AbsoluteFill style={{ overflow: 'hidden' }}>
-            <Img
-              src={staticFile(image)}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center center',
-                transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
-                transformOrigin: transformOrigin ?? 'center center',
-              }}
-            />
-          </AbsoluteFill>
-
-          <AbsoluteFill
-            style={{
-              background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-              pointerEvents: 'none',
-            }}
-          />
-          <AbsoluteFill
-            style={{
-              background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.75) 100%)',
-              pointerEvents: 'none',
-            }}
-          />
-        </>
-      ) : null}
+      <KenBurnsImage image={image} frame={frame} durationFrames={durationFrames} motion={motion} />
+      <Vignette />
 
       {contextTag && <ContextTag text={contextTag} />}
       <BottomStack headline={headlineText} caption={captionText} frame={frame} />

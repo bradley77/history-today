@@ -1,63 +1,59 @@
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import {
-  AbsoluteFill,
-  Audio,
-  Img,
-  Sequence,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
+  FPS,
+  HARD_CUT_FRAMES,
+  GOLD,
+  KenBurnsImage,
+  Vignette,
+  useGoldOverlay,
+  EndCardCTA,
+} from '../shared/QuickStrikeShared';
 
 // ---------------------------------------------------------------------------
-// Per-slide Ken Burns config
-// startScale / endScale: zoom range (1.0 = no zoom)
-// startX / endX: horizontal translate in px (positive = right, negative = left)
-// startY / endY: vertical translate in px (positive = down, negative = up)
+// Per-slide Ken Burns config (scaleFrom/scaleTo/txFrom/txTo/tyFrom/tyTo — the
+// QuickStrikeShared Motion shape — 1.0 = no zoom, px translate, +x = right, +y = down)
 // ---------------------------------------------------------------------------
 const SLIDES = [
   {
     // Slide 1 — Lincoln portrait
     // Slow push-in toward face, slight upward drift to settle on his eyes
-    image: staticFile('slides/LincolnFortStevens/01-lincoln-portrait.jpg'),
+    image: 'slides/LincolnFortStevens/01-lincoln-portrait.jpg',
     // UPDATE: set durationInSeconds = actual audio length + 0.4
     durationInSeconds: 4.21,
     audio: staticFile('audio/lincoln-fort-stevens-slide1-trimmed.mp3'),
     overlayText: 'ABRAHAM LINCOLN\n16TH PRESIDENT',
     overlayPosition: 'bottom',
     delayFrames: 6,
-    kenBurns: { startScale: 1.0, endScale: 1.07, startX: 0, endX: 0, startY: 0, endY: -25 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.07, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: -25 },
   },
   {
     // Slide 2 — Fort Stevens 1864 photograph
     // Pan left to right across soldier formation and parapet
-    image: staticFile('slides/LincolnFortStevens/02-fort-stevens-photo.jpg'),
+    image: 'slides/LincolnFortStevens/02-fort-stevens-photo.jpg',
     // UPDATE: set durationInSeconds = actual audio length + 0.4
     durationInSeconds: 5.33,
     audio: staticFile('audio/lincoln-fort-stevens-slide2.mp3'),
     overlayText: 'FORT STEVENS\nWASHINGTON D.C. — JULY 12, 1864',
     overlayPosition: 'top',
     delayFrames: 8,
-    kenBurns: { startScale: 1.04, endScale: 1.04, startX: 40, endX: -40, startY: 0, endY: 0 },
+    kenBurns: { scaleFrom: 1.04, scaleTo: 1.04, txFrom: 40, txTo: -40, tyFrom: 0, tyTo: 0 },
   },
   {
     // Slide 3 — Memorial plaque
     // Start wide to show "LINCOLN UNDER FIRE AT FORT STEVENS" header text,
     // then push in and drift down to land on the relief figures
-    image: staticFile('slides/LincolnFortStevens/03-fort-stevens-plaque.jpg'),
+    image: 'slides/LincolnFortStevens/03-fort-stevens-plaque.jpg',
     // UPDATE: set durationInSeconds = actual audio length + 0.4
     durationInSeconds: 2.43,
     audio: staticFile('audio/lincoln-fort-stevens-slide3.mp3'),
     overlayText: 'LINCOLN UNDER FIRE\nFORT STEVENS — JULY 12, 1864',
     overlayPosition: 'bottom',
     delayFrames: 10,
-    kenBurns: { startScale: 1.0, endScale: 1.08, startX: 0, endX: 0, startY: -30, endY: 20 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.08, txFrom: 0, txTo: 0, tyFrom: -30, tyTo: 20 },
   },
 ];
 
-const FPS = 30;
 const END_CARD_DURATION = 61; // frames
-const HARD_CUT_FRAMES = 4;    // opacity ramp on slides 2+, matching Patton
 
 // Derive frame durations from durationInSeconds
 const slidesWithFrames = SLIDES.map((s) => ({
@@ -70,26 +66,11 @@ export const totalDuration = slidesDuration + END_CARD_DURATION;
 export { FPS };
 
 // ---------------------------------------------------------------------------
-// useGoldOverlay — ported directly from PattonBloodAndGuts
-// ---------------------------------------------------------------------------
-function useGoldOverlay(localFrame, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
-
-// ---------------------------------------------------------------------------
-// SlidePanel — renders one slide with per-slide Ken Burns + gold overlay
+// SlidePanel — renders one slide with per-slide Ken Burns + gold overlay.
+// NOT QuickStrikeShared's GoldLowerThird: this file's overlay can sit at the
+// TOP or bottom of frame, is unboxed Georgia serif (not the boxed Oswald
+// style GoldLowerThird renders), and supports multi-line uppercase text — a
+// different look the shared component doesn't cover, so it stays local.
 // ---------------------------------------------------------------------------
 function SlidePanel({ slide, isFirst }) {
   const frame = useCurrentFrame();
@@ -103,48 +84,15 @@ function SlidePanel({ slide, isFirst }) {
         extrapolateRight: 'clamp',
       });
 
-  // Per-slide Ken Burns
-  const scale = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startScale, kenBurns.endScale],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const translateX = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startX, kenBurns.endX],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const translateY = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startY, kenBurns.endY],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, delayFrames);
 
   const isTop = overlayPosition === 'top';
 
   return (
     <AbsoluteFill style={{ opacity, background: '#000' }}>
-      {/* Image with Ken Burns */}
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={slide.image}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale}) translateX(${translateX}px) translateY(${translateY}px)`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={kenBurns} />
 
-      {/* Vignette */}
+      {/* Vignette — radial only (no bottom linear gradient on this file) */}
       <AbsoluteFill
         style={{
           background:
@@ -167,7 +115,7 @@ function SlidePanel({ slide, isFirst }) {
           <div
             style={{
               height: 3,
-              background: '#C9A84C',
+              background: GOLD,
               width: `${ruleWidth}%`,
               marginBottom: 14,
             }}
@@ -198,7 +146,7 @@ function SlidePanel({ slide, isFirst }) {
           <div
             style={{
               height: 3,
-              background: '#C9A84C',
+              background: GOLD,
               width: `${ruleWidth}%`,
               marginTop: 14,
             }}
@@ -208,87 +156,6 @@ function SlidePanel({ slide, isFirst }) {
 
       {/* Per-slide audio */}
       <Audio src={slide.audio} />
-    </AbsoluteFill>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// End card — matches Patton pattern: black bg, gold trigger text
-// ---------------------------------------------------------------------------
-function EndCard() {
-  const frame = useCurrentFrame();
-  const textOpacity = interpolate(frame, [0, 12], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const ruleWidth = interpolate(frame, [8, 33], [0, 100], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
-  return (
-    <AbsoluteFill
-      style={{
-        background: '#000',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-      }}
-    >
-      <div style={{ width: '80%', maxWidth: 900 }}>
-        {/* Top gold rule */}
-        <div
-          style={{
-            height: 3,
-            background: '#C9A84C',
-            width: `${ruleWidth}%`,
-            marginBottom: 28,
-          }}
-        />
-
-        {/* Comment label */}
-        <div
-          style={{
-            opacity: textOpacity,
-            color: '#C9A84C',
-            fontFamily: 'Georgia, serif',
-            fontSize: 48,
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            textAlign: 'center',
-            marginBottom: 16,
-          }}
-        >
-          Comment
-        </div>
-
-        {/* UNION trigger word */}
-        <div
-          style={{
-            opacity: textOpacity,
-            color: '#fff',
-            fontFamily: 'Georgia, serif',
-            fontSize: 72,
-            fontWeight: 700,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            textAlign: 'center',
-            marginBottom: 28,
-          }}
-        >
-          UNION
-        </div>
-
-        {/* Bottom gold rule */}
-        <div
-          style={{
-            height: 3,
-            background: '#C9A84C',
-            width: `${ruleWidth}%`,
-          }}
-        />
-      </div>
     </AbsoluteFill>
   );
 }
@@ -315,7 +182,7 @@ export default function LincolnFortStevens() {
 
       {/* End card */}
       <Sequence from={slidesDuration} durationInFrames={END_CARD_DURATION}>
-        <EndCard />
+        <EndCardCTA triggerWord="BLUEGRAY" subline="" />
       </Sequence>
     </AbsoluteFill>
   );

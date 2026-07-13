@@ -8,12 +8,17 @@ import {
   useCurrentFrame,
 } from 'remotion';
 import { useMemo } from 'react';
-
-const OSWALD_URL = 'https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap';
-
-export const FPS = 30;
-
-const HARD_CUT_FRAMES = 4;
+import {
+  FPS,
+  OSWALD_URL,
+  HARD_CUT_FRAMES,
+  GOLD,
+  KenBurnsImage,
+  Vignette,
+  GoldLowerThird,
+  useGoldOverlay,
+  type Motion,
+} from '../shared/QuickStrikeShared';
 
 // Slides 1 & 2 share 01-march.jpg and must read as ONE continuous shot, not a
 // cut between two images — so the image itself is rendered by MarchPanLayer
@@ -117,15 +122,6 @@ const SLIDE2_TEXT = {
 const SLIDE1_AUDIO_FRAMES = Math.round(SLIDE1_TEXT.audioDurationSeconds * FPS);
 const SLIDE2_AUDIO_FRAMES = Math.round(SLIDE2_TEXT.audioDurationSeconds * FPS);
 
-type Motion = {
-  scaleFrom: number;
-  scaleTo: number;
-  txFrom: number;
-  txTo: number;
-  tyFrom: number;
-  tyTo: number;
-};
-
 type SlideConfig = {
   id: string;
   image: string;
@@ -193,28 +189,15 @@ const slidesWithFrames = SLIDES.map((s) => ({
 
 export const totalDuration =
   MARCH_PAN_FRAMES + slidesWithFrames.reduce((sum, s) => sum + s.durationFrames, 0);
-
-function useGoldOverlay(localFrame: number, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
+export { FPS };
 
 // Closed captions — timed against the slide's actual (unpadded) audio duration
 // so the caption finishes when the speech finishes rather than lingering into
 // the trailing 0.4s pad. Each slide here is a single short VO line, so there's
 // one caption line spanning the full speaking window rather than a sequence of
-// word-timed chunks.
+// word-timed chunks. Kept local (not QuickStrikeShared's CaptionOverlay): this
+// composition's captions hard-cut to hidden at audioDurationFrames rather than
+// fading, which is this file's own established, deliberate behavior.
 function CaptionOverlay({
   lines,
   audioDurationFrames,
@@ -307,27 +290,19 @@ function MarchPanLayer() {
         </AbsoluteFill>
       </AbsoluteFill>
 
-      <AbsoluteFill
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.75) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
+      <Vignette />
 
       {/* Same label text for the whole combined span, so it's rendered once
-          here rather than per-slide — it never pops or re-fades at the cut. */}
+          here rather than per-slide — it never pops or re-fades at the cut.
+          NOT QuickStrikeShared's ContextTag: this composition's label uses a
+          slightly different size/tracking (24px / 0.03em vs 22px / 0.06em)
+          than the shared component, so it stays local to avoid changing it. */}
       <div
         style={{
           position: 'absolute',
           top: 48,
           left: 40,
-          color: '#C9A84C',
+          color: GOLD,
           fontSize: 24,
           fontWeight: 600,
           letterSpacing: '0.03em',
@@ -360,64 +335,10 @@ function MarchTextOverlay({
   audioSrc: string;
 }) {
   const frame = useCurrentFrame();
-  const { ruleWidth, textOpacity } = useGoldOverlay(frame);
 
   return (
     <AbsoluteFill>
-      <AbsoluteFill
-        style={{
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          padding: '0 48px 140px',
-          pointerEvents: 'none',
-        }}
-      >
-        <div style={{ width: '100%' }}>
-          <div
-            style={{
-              height: 3,
-              width: `${ruleWidth}%`,
-              backgroundColor: '#C9A84C',
-              marginBottom: 16,
-              marginLeft: 'auto',
-              marginRight: 'auto',
-            }}
-          />
-          <div
-            style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.60)',
-              padding: '24px 40px',
-              textAlign: 'center',
-            }}
-          >
-            <p
-              style={{
-                fontSize: 52,
-                fontWeight: 700,
-                color: '#F5F0E8',
-                margin: 0,
-                lineHeight: 1.25,
-                textShadow: '0 2px 14px rgba(0,0,0,0.95)',
-                fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
-                letterSpacing: '0.01em',
-                opacity: textOpacity,
-              }}
-            >
-              {overlayText}
-            </p>
-          </div>
-          <div
-            style={{
-              height: 3,
-              width: `${ruleWidth}%`,
-              backgroundColor: '#C9A84C',
-              marginTop: 16,
-              marginLeft: 'auto',
-              marginRight: 'auto',
-            }}
-          />
-        </div>
-      </AbsoluteFill>
+      <GoldLowerThird text={overlayText} frame={frame} />
 
       <CaptionOverlay lines={captionLines} audioDurationFrames={audioDurationFrames} top={captionY} />
 
@@ -444,106 +365,12 @@ function SlidePanel({
     extrapolateRight: 'clamp',
   });
 
-  const scale = interpolate(frame, [0, durationFrames], [motion.scaleFrom, motion.scaleTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const tx = interpolate(frame, [0, durationFrames], [motion.txFrom, motion.txTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const ty = interpolate(frame, [0, durationFrames], [motion.tyFrom, motion.tyTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
-  const { ruleWidth, textOpacity } = useGoldOverlay(frame);
-
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', opacity }}>
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={staticFile(slide.image)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={motion} />
+      <Vignette />
 
-      <AbsoluteFill
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.75) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {overlayText && (
-        <AbsoluteFill
-          style={{
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            padding: '0 48px 140px',
-            pointerEvents: 'none',
-          }}
-        >
-          <div style={{ width: '100%' }}>
-            <div
-              style={{
-                height: 3,
-                width: `${ruleWidth}%`,
-                backgroundColor: '#C9A84C',
-                marginBottom: 16,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.60)',
-                padding: '24px 40px',
-                textAlign: 'center',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 52,
-                  fontWeight: 700,
-                  color: '#F5F0E8',
-                  margin: 0,
-                  lineHeight: 1.25,
-                  textShadow: '0 2px 14px rgba(0,0,0,0.95)',
-                  fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
-                  letterSpacing: '0.01em',
-                  opacity: textOpacity,
-                }}
-              >
-                {overlayText}
-              </p>
-            </div>
-            <div
-              style={{
-                height: 3,
-                width: `${ruleWidth}%`,
-                backgroundColor: '#C9A84C',
-                marginTop: 16,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-            />
-          </div>
-        </AbsoluteFill>
-      )}
+      {overlayText && <GoldLowerThird text={overlayText} frame={frame} />}
 
       {slide.topLabel && (
         <div
@@ -551,7 +378,7 @@ function SlidePanel({
             position: 'absolute',
             top: 48,
             left: 40,
-            color: '#C9A84C',
+            color: GOLD,
             fontSize: 24,
             fontWeight: 600,
             letterSpacing: '0.03em',

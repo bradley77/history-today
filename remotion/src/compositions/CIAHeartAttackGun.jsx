@@ -1,49 +1,40 @@
-import {
-  AbsoluteFill,
-  Audio,
-  Img,
-  Sequence,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-} from 'remotion';
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
+import { FPS, HARD_CUT_FRAMES, GOLD, KenBurnsImage, Vignette, useGoldOverlay } from '../shared/QuickStrikeShared';
 
 const SLIDES = [
   {
-    image: staticFile('slides/CIAHeartAttackGun/01-frank-church.jpg'),
+    image: 'slides/CIAHeartAttackGun/01-frank-church.jpg',
     durationInSeconds: 5.22,
-    audio: staticFile('audio/cia-heart-attack-gun-vo-01.mp3'),
+    audio: 'audio/cia-heart-attack-gun-vo-01.mp3',
     overlayText: 'SENATOR FRANK CHURCH VS. THE CIA',
     overlayPosition: 'bottom',
     delayFrames: 6,
     sourceLabel: 'Sen. Frank Church, Committee Chairman',
-    kenBurns: { startScale: 1.0, endScale: 1.07, startX: 0, endX: 0, startY: 0, endY: -20 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.07, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: -20 },
   },
   {
-    image: staticFile('slides/CIAHeartAttackGun/02-cia-lobby-seal.jpg'),
+    image: 'slides/CIAHeartAttackGun/02-cia-lobby-seal.jpg',
     durationInSeconds: 4.88,
-    audio: staticFile('audio/cia-heart-attack-gun-vo-02.mp3'),
+    audio: 'audio/cia-heart-attack-gun-vo-02.mp3',
     overlayText: 'A DART GUN. FROZEN POISON. ALMOST NO TRACE.',
     overlayPosition: 'top',
     delayFrames: 8,
     sourceLabel: 'CIA Headquarters, Langley, Virginia',
-    kenBurns: { startScale: 1.04, endScale: 1.04, startX: -30, endX: 30, startY: 0, endY: 0 },
+    kenBurns: { scaleFrom: 1.04, scaleTo: 1.04, txFrom: -30, txTo: 30, tyFrom: 0, tyTo: 0 },
   },
   {
-    image: staticFile('slides/CIAHeartAttackGun/03-colt-m1911.png'),
+    image: 'slides/CIAHeartAttackGun/03-colt-m1911.png',
     durationInSeconds: 6.76,
-    audio: staticFile('audio/cia-heart-attack-gun-vo-03.mp3'),
+    audio: 'audio/cia-heart-attack-gun-vo-03.mp3',
     overlayText: 'THE DIRECTOR CONFIRMED IT WAS REAL',
     overlayPosition: 'bottom',
     delayFrames: 8,
     sourceLabel: 'Colt M1911 — modified by CIA as dart gun',
-    kenBurns: { startScale: 1.0, endScale: 1.06, startX: 20, endX: -20, startY: 0, endY: 0 },
+    kenBurns: { scaleFrom: 1.0, scaleTo: 1.06, txFrom: 20, txTo: -20, tyFrom: 0, tyTo: 0 },
   },
 ];
 
-const FPS = 30;
 const END_CARD_DURATION = 45;
-const HARD_CUT_FRAMES = 4;
 
 const slidesWithFrames = SLIDES.map((s) => ({
   ...s,
@@ -54,22 +45,9 @@ const slidesDuration = slidesWithFrames.reduce((sum, s) => sum + s.durationFrame
 export const totalDuration = slidesDuration + END_CARD_DURATION;
 export { FPS };
 
-function useGoldOverlay(localFrame, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
-
+// NOT QuickStrikeShared's GoldLowerThird: this file's overlay can sit at the
+// TOP or bottom of frame with multi-line uppercase text, a different look
+// the shared component doesn't cover, so it stays local.
 function SlidePanel({ slide, isFirst }) {
   const frame = useCurrentFrame();
   const { durationFrames, kenBurns, overlayText, overlayPosition, delayFrames, sourceLabel } = slide;
@@ -81,44 +59,14 @@ function SlidePanel({ slide, isFirst }) {
         extrapolateRight: 'clamp',
       });
 
-  const scale = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startScale, kenBurns.endScale],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const translateX = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startX, kenBurns.endX],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const translateY = interpolate(
-    frame,
-    [0, durationFrames],
-    [kenBurns.startY, kenBurns.endY],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, delayFrames);
   const isTop = overlayPosition === 'top';
 
   return (
     <AbsoluteFill style={{ opacity, background: '#000' }}>
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={slide.image}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale}) translateX(${translateX}px) translateY(${translateY}px)`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={kenBurns} />
 
+      {/* Vignette — radial only (no bottom linear gradient on this file) */}
       <AbsoluteFill
         style={{
           background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
@@ -159,7 +107,7 @@ function SlidePanel({ slide, isFirst }) {
         }}
       >
         <div style={{ width: '100%', maxWidth: 900 }}>
-          <div style={{ height: 3, background: '#C9A84C', width: `${ruleWidth}%`, marginBottom: 14 }} />
+          <div style={{ height: 3, background: GOLD, width: `${ruleWidth}%`, marginBottom: 14 }} />
 
           {overlayText.split('\n').map((line, i) => (
             <div
@@ -181,15 +129,19 @@ function SlidePanel({ slide, isFirst }) {
             </div>
           ))}
 
-          <div style={{ height: 3, background: '#C9A84C', width: `${ruleWidth}%`, marginTop: 14 }} />
+          <div style={{ height: 3, background: GOLD, width: `${ruleWidth}%`, marginTop: 14 }} />
         </div>
       </AbsoluteFill>
 
-      <Audio src={slide.audio} />
+      <Audio src={staticFile(slide.audio)} />
     </AbsoluteFill>
   );
 }
 
+// Kept local, not migrated to QuickStrikeShared's EndCardCTA: this end card
+// is a generic "FOLLOW FOR MORE" banner with no trigger word at all, and
+// wasn't part of the requested EndCardCTA migration scope (Lincoln/Tokyo/
+// Sherman only), so its exact existing look stays untouched.
 function EndCard() {
   const frame = useCurrentFrame();
   const textOpacity = interpolate(frame, [0, 12], [0, 1], {
@@ -206,12 +158,12 @@ function EndCard() {
       style={{ background: '#000', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}
     >
       <div style={{ width: '80%', maxWidth: 900 }}>
-        <div style={{ height: 3, background: '#C9A84C', width: `${ruleWidth}%`, marginBottom: 28 }} />
+        <div style={{ height: 3, background: GOLD, width: `${ruleWidth}%`, marginBottom: 28 }} />
 
         <div
           style={{
             opacity: textOpacity,
-            color: '#C9A84C',
+            color: GOLD,
             fontFamily: 'Georgia, serif',
             fontSize: 72,
             fontWeight: 700,
@@ -224,7 +176,7 @@ function EndCard() {
           FOLLOW FOR MORE
         </div>
 
-        <div style={{ height: 3, background: '#C9A84C', width: `${ruleWidth}%` }} />
+        <div style={{ height: 3, background: GOLD, width: `${ruleWidth}%` }} />
       </div>
     </AbsoluteFill>
   );

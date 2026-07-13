@@ -34,6 +34,7 @@ import HighwayOfDeathQuickStrike, { totalDuration as highwayOfDeathTotal, FPS as
 import VicksburgMineQS, { totalDuration as vicksburgMineQSTotal, FPS as vicksburgMineQSFPS } from './compositions/VicksburgMineQS';
 import LeeResignationQS, { totalDuration as leeResignationQSTotal, FPS as leeResignationQSFPS } from './compositions/LeeResignationQS';
 import BataanDeathMarchToll, { totalDuration as bataanDeathMarchTollTotal, FPS as bataanDeathMarchTollFPS } from './compositions/BataanDeathMarchToll';
+import OperationFrequentWindQS, { totalDuration as operationFrequentWindQSTotal, FPS as operationFrequentWindQSFPS } from './compositions/OperationFrequentWindQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -316,6 +317,14 @@ export const RemotionRoot = () => {
         component={BataanDeathMarchToll}
         durationInFrames={bataanDeathMarchTollTotal}
         fps={bataanDeathMarchTollFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="OperationFrequentWindQS"
+        component={OperationFrequentWindQS}
+        durationInFrames={operationFrequentWindQSTotal}
+        fps={operationFrequentWindQSFPS}
         width={1080}
         height={1920}
       />

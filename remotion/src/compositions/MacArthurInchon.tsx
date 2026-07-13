@@ -1,26 +1,15 @@
 import {
   AbsoluteFill,
   Audio,
-  Img,
   Sequence,
   interpolate,
   staticFile,
   useCurrentFrame,
 } from 'remotion';
+import { OSWALD_URL, GOLD, KenBurnsImage, Vignette, type Motion } from '../shared/QuickStrikeShared';
 
 export const FPS = 30;
 export const totalDuration = 1662;
-
-const OSWALD_URL = 'https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap';
-
-type Motion = {
-  scaleFrom: number;
-  scaleTo: number;
-  txFrom: number;
-  txTo: number;
-  tyFrom: number;
-  tyTo: number;
-};
 
 type SlideConfig = {
   id: string;
@@ -102,6 +91,12 @@ const SLIDES: SlideConfig[] = [
   },
 ];
 
+// NOT QuickStrikeShared's GoldLowerThird/CaptionOverlay: this file's text is
+// a single line-array serving as both headline and caption (dynamic font
+// size by line count, immediate fade, no separate caption layer, no
+// hard-cut fade between slides, and a plain-text final slide instead of
+// EndCardCTA) — different enough from the shared engine's conventions that
+// it stays local rather than risk changing the rendered result.
 function TextOverlay({ lines }: { lines: string[] }) {
   const frame = useCurrentFrame();
   const ruleWidth = interpolate(frame, [0, 25], [0, 100], {
@@ -123,7 +118,7 @@ function TextOverlay({ lines }: { lines: string[] }) {
         <div
           style={{
             height: 3,
-            background: '#C9A84C',
+            background: GOLD,
             width: `${ruleWidth}%`,
             marginBottom: 16,
             marginLeft: 'auto',
@@ -160,7 +155,7 @@ function TextOverlay({ lines }: { lines: string[] }) {
         <div
           style={{
             height: 3,
-            background: '#C9A84C',
+            background: GOLD,
             width: `${ruleWidth}%`,
             marginTop: 16,
             marginLeft: 'auto',
@@ -176,49 +171,12 @@ function SlidePanel({ slide }: { slide: SlideConfig }) {
   const frame = useCurrentFrame();
   const { motion, durationInFrames } = slide;
 
-  const imgTransform = motion
-    ? (() => {
-        const scale = interpolate(frame, [0, durationInFrames], [motion.scaleFrom, motion.scaleTo], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const tx = interpolate(frame, [0, durationInFrames], [motion.txFrom, motion.txTo], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        const ty = interpolate(frame, [0, durationInFrames], [motion.tyFrom, motion.tyTo], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-        return `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`;
-      })()
-    : undefined;
-
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
-      {slide.image && (
-        <AbsoluteFill style={{ overflow: 'hidden' }}>
-          <Img
-            src={staticFile(slide.image)}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center center',
-              transform: imgTransform,
-              transformOrigin: 'center center',
-            }}
-          />
-        </AbsoluteFill>
-      )}
-
-      {slide.image && (
+      {slide.image && motion && (
         <>
-          <AbsoluteFill
-            style={{
-              background:
-                'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-              pointerEvents: 'none',
-            }}
-          />
-          <AbsoluteFill
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.75) 100%)',
-              pointerEvents: 'none',
-            }}
-          />
+          <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationInFrames} motion={motion} />
+          <Vignette />
         </>
       )}
 

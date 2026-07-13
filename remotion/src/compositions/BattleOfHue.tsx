@@ -1,27 +1,21 @@
 import {
   AbsoluteFill,
   Audio,
-  Img,
   Sequence,
   interpolate,
   staticFile,
   useCurrentFrame,
 } from 'remotion';
-
-const OSWALD_URL = 'https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap';
-
-export const FPS = 30;
-
-const HARD_CUT_FRAMES = 4;
-
-type Motion = {
-  scaleFrom: number;
-  scaleTo: number;
-  txFrom: number;
-  txTo: number;
-  tyFrom: number;
-  tyTo: number;
-};
+import {
+  FPS,
+  OSWALD_URL,
+  HARD_CUT_FRAMES,
+  GOLD,
+  KenBurnsImage,
+  Vignette,
+  useGoldOverlay,
+  type Motion,
+} from '../shared/QuickStrikeShared';
 
 type SlideConfig = {
   id: string;
@@ -96,25 +90,14 @@ const slidesWithFrames = SLIDES.map((s) => ({
 }));
 
 export const totalDuration = slidesWithFrames.reduce((sum, s) => sum + s.durationFrames, 0);
-
-function useGoldOverlay(localFrame: number, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
+export { FPS };
 
 // Fades in immediately (ahead of the delayed gold-rule/headline), then fades
 // out just before the slide's real audio ends — never lingers into the pad.
+// NOT QuickStrikeShared's CaptionOverlay: this file's caption is a single
+// static line sitting directly above the headline block (not a floating,
+// word-cycling box lower on screen), a genuinely different layout the shared
+// component doesn't cover, so it stays local.
 function useCaptionOpacity(localFrame: number, endFrame: number) {
   return interpolate(
     localFrame,
@@ -154,50 +137,13 @@ function SlidePanel({
         extrapolateRight: 'clamp',
       });
 
-  const scale = interpolate(frame, [0, durationFrames], [motion.scaleFrom, motion.scaleTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const tx = interpolate(frame, [0, durationFrames], [motion.txFrom, motion.txTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const ty = interpolate(frame, [0, durationFrames], [motion.tyFrom, motion.tyTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
   const { ruleWidth, textOpacity } = useGoldOverlay(frame);
   const captionOpacity = useCaptionOpacity(frame, captionEndFrame);
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', opacity }}>
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={staticFile(slide.image)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
-
-      <AbsoluteFill
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.75) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={motion} />
+      <Vignette />
 
       {overlayText ? (
         <AbsoluteFill
@@ -218,7 +164,7 @@ function SlidePanel({
               style={{
                 height: 3,
                 width: `${ruleWidth}%`,
-                backgroundColor: '#C9A84C',
+                backgroundColor: GOLD,
                 marginBottom: 16,
                 marginLeft: 'auto',
                 marginRight: 'auto',
@@ -251,7 +197,7 @@ function SlidePanel({
               style={{
                 height: 3,
                 width: `${ruleWidth}%`,
-                backgroundColor: '#C9A84C',
+                backgroundColor: GOLD,
                 marginTop: 16,
                 marginLeft: 'auto',
                 marginRight: 'auto',

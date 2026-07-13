@@ -1,28 +1,15 @@
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import {
-  AbsoluteFill,
-  Audio,
-  Img,
-  Sequence,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-} from 'remotion';
-import { useMemo } from 'react';
-
-const OSWALD_URL = 'https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap';
-
-export const FPS = 30;
-
-const HARD_CUT_FRAMES = 4;
-
-type Motion = {
-  scaleFrom: number;
-  scaleTo: number;
-  txFrom: number;
-  txTo: number;
-  tyFrom: number;
-  tyTo: number;
-};
+  FPS,
+  OSWALD_URL,
+  HARD_CUT_FRAMES,
+  KenBurnsImage,
+  Vignette,
+  GoldLowerThird,
+  ContextTag,
+  CaptionOverlay,
+  type Motion,
+} from '../shared/QuickStrikeShared';
 
 type SlideConfig = {
   id: string;
@@ -30,6 +17,9 @@ type SlideConfig = {
   audio: string;
   // Actual VO file duration (measured via Kokoro) + 0.4s pad
   durationInSeconds: number;
+  // Actual VO file duration only, no pad — captions are scoped to this so they
+  // finish when the speech finishes rather than lingering into the trailing pad.
+  audioDurationSeconds: number;
   overlayText?: string;
   motion: Motion;
   captionLines?: string[];
@@ -43,6 +33,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/01-hook-battlefield.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-01.mp3',
     durationInSeconds: 6.032, // 5.632s actual + 0.4s pad
+    audioDurationSeconds: 5.632,
     overlayText: "THE UNION DIDN'T JUST HOLD THE LINE AT GETTYSBURG.",
     // Wide pan source: horizontal pan left to right across the full source width
     motion: { scaleFrom: 1.06, scaleTo: 1.08, txFrom: -55, txTo: 55, tyFrom: 0, tyTo: 0 },
@@ -58,6 +49,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/02-day1recap-buford.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-02.mp3',
     durationInSeconds: 4.027, // 3.627s actual + 0.4s pad
+    audioDurationSeconds: 3.627,
     overlayText: 'DAY ONE: LEE WENT IN BLIND.',
     // Push-in
     motion: { scaleFrom: 1.0, scaleTo: 1.05, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
@@ -73,6 +65,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/03-day2recap-longstreet-horse.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-03.mp3',
     durationInSeconds: 5.584, // 5.184s actual + 0.4s pad
+    audioDurationSeconds: 5.184,
     overlayText: 'DAY TWO: THE LINE NEARLY BROKE.',
     // Pull-back
     motion: { scaleFrom: 1.05, scaleTo: 1.0, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
@@ -88,6 +81,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/04-day3setup-lee.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-04.mp3',
     durationInSeconds: 5.136, // 4.736s actual + 0.4s pad
+    audioDurationSeconds: 4.736,
     overlayText: 'DAY THREE: ONE MORE ATTACK TO FINISH IT.',
     // Push-in
     motion: { scaleFrom: 1.0, scaleTo: 1.06, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
@@ -106,6 +100,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/06-huntreveal-hunt.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-05.mp3',
     durationInSeconds: 5.819, // 5.419s actual + 0.4s pad
+    audioDurationSeconds: 5.419,
     overlayText: 'THE PLAN DEPENDED ON A TRICK.',
     // Pull-back
     motion: { scaleFrom: 1.05, scaleTo: 1.0, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
@@ -125,6 +120,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/05-huntreveal-manuscript.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-06.mp3',
     durationInSeconds: 5.392, // 4.992s actual + 0.4s pad
+    audioDurationSeconds: 4.992,
     overlayText: 'CONFEDERATE GUNNERS BELIEVED IT.',
     // Tall source: vertical push-in toward the bottom of the page
     motion: { scaleFrom: 1.0, scaleTo: 1.15, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: -90 },
@@ -140,6 +136,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/07-collapse-engraving.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-07.mp3',
     durationInSeconds: 7.355, // 6.955s actual + 0.4s pad
+    audioDurationSeconds: 6.955,
     overlayText: 'THE GUNS CAME BACK.',
     // Wide pan source: horizontal pan right to left (reversal of slide 1), faster velocity
     motion: { scaleFrom: 1.08, scaleTo: 1.1, txFrom: 100, txTo: -100, tyFrom: 0, tyTo: 0 },
@@ -156,6 +153,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/08-resolution-meade.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-08.mp3',
     durationInSeconds: 4.731, // 4.331s actual + 0.4s pad
+    audioDurationSeconds: 4.331,
     overlayText: 'THREE PLANS. THREE FAILURES.',
     // Push-in
     motion: { scaleFrom: 1.0, scaleTo: 1.05, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
@@ -171,6 +169,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/09-close-lincoln.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-09.mp3',
     durationInSeconds: 4.944, // 4.544s actual + 0.4s pad
+    audioDurationSeconds: 4.544,
     overlayText: 'FOUR MONTHS LATER, HE TRIED TO EXPLAIN WHY IT MATTERED.',
     // Very slow, subtle push-in only — the emotional closing beat
     motion: { scaleFrom: 1.0, scaleTo: 1.03, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
@@ -186,6 +185,7 @@ const SLIDES: SlideConfig[] = [
     image: 'slides/Gettysburg-Day3/10-cta-endcard.jpg',
     audio: 'audio/gettysburg-day3-qs/gettysburg-day3-qs-vo-10.mp3',
     durationInSeconds: 5.477, // 5.077s actual + 0.4s pad
+    audioDurationSeconds: 5.077,
     // No overlayText / captionLines — the card art already has the closing
     // message baked in, so this slide plays audio only, no text layer on top.
     motion: { scaleFrom: 1.0, scaleTo: 1.0, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 },
@@ -195,88 +195,19 @@ const SLIDES: SlideConfig[] = [
 const slidesWithFrames = SLIDES.map((s) => ({
   ...s,
   durationFrames: Math.round(s.durationInSeconds * FPS),
+  audioDurationFrames: Math.round(s.audioDurationSeconds * FPS),
 }));
 
 export const totalDuration = slidesWithFrames.reduce((sum, s) => sum + s.durationFrames, 0);
+export { FPS };
 
-function useGoldOverlay(localFrame: number, delayFrames = 8) {
-  const ruleWidth = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 25],
-    [0, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  const textOpacity = interpolate(
-    localFrame,
-    [delayFrames, delayFrames + 18],
-    [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' },
-  );
-  return { ruleWidth, textOpacity };
-}
-
-// Closed captions — timed as sequential line-by-line chunks, each line's on-screen
-// window sized proportionally to its share of the slide's total word count.
-function CaptionOverlay({
-  lines,
-  durationFrames,
-  top = 1600,
+function SlidePanel({
+  slide,
+  isFirst,
 }: {
-  lines: string[];
-  durationFrames: number;
-  top?: number;
+  slide: SlideConfig & { durationFrames: number; audioDurationFrames: number };
+  isFirst: boolean;
 }) {
-  const frame = useCurrentFrame();
-
-  const lineRanges = useMemo(() => {
-    const wordCounts = lines.map((line) => line.split(/\s+/).filter(Boolean).length);
-    const totalWords = wordCounts.reduce((a, b) => a + b, 0);
-    let wordsSoFar = 0;
-    let startFrame = 0;
-    return lines.map((line, i) => {
-      wordsSoFar += wordCounts[i];
-      const endFrame = Math.round((wordsSoFar / totalWords) * durationFrames);
-      const range = { line, startFrame, endFrame };
-      startFrame = endFrame;
-      return range;
-    });
-  }, [lines, durationFrames]);
-
-  const active =
-    lineRanges.find((r) => frame >= r.startFrame && frame < r.endFrame) ??
-    lineRanges[lineRanges.length - 1];
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top,
-        left: 0,
-        right: 0,
-        display: 'flex',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 900,
-          backgroundColor: 'rgba(0,0,0,0.6)',
-          color: '#fff',
-          fontSize: 38,
-          fontWeight: 700,
-          textAlign: 'center',
-          padding: '10px 20px',
-          borderRadius: 6,
-        }}
-      >
-        {active.line}
-      </div>
-    </div>
-  );
-}
-
-function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames: number }; isFirst: boolean }) {
   const frame = useCurrentFrame();
   const { motion, durationFrames, overlayText } = slide;
 
@@ -289,128 +220,21 @@ function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames:
         extrapolateRight: 'clamp',
       });
 
-  const scale = interpolate(frame, [0, durationFrames], [motion.scaleFrom, motion.scaleTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const tx = interpolate(frame, [0, durationFrames], [motion.txFrom, motion.txTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const ty = interpolate(frame, [0, durationFrames], [motion.tyFrom, motion.tyTo], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
-  const { ruleWidth, textOpacity } = useGoldOverlay(frame);
-
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', opacity }}>
-      <AbsoluteFill style={{ overflow: 'hidden' }}>
-        <Img
-          src={staticFile(slide.image)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
-            transformOrigin: 'center center',
-          }}
-        />
-      </AbsoluteFill>
+      <KenBurnsImage image={slide.image} frame={frame} durationFrames={durationFrames} motion={motion} />
+      <Vignette />
 
-      <AbsoluteFill
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background: 'linear-gradient(to bottom, transparent 55%, rgba(0,0,0,0.75) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
+      {overlayText && <GoldLowerThird text={overlayText} frame={frame} />}
 
-      {overlayText && (
-        <AbsoluteFill
-          style={{
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            padding: '0 48px 140px',
-            pointerEvents: 'none',
-          }}
-        >
-          <div style={{ width: '100%' }}>
-            <div
-              style={{
-                height: 3,
-                width: `${ruleWidth}%`,
-                backgroundColor: '#C9A84C',
-                marginBottom: 16,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-            />
-            <div
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.60)',
-                padding: '24px 40px',
-                textAlign: 'center',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 52,
-                  fontWeight: 700,
-                  color: '#F5F0E8',
-                  margin: 0,
-                  lineHeight: 1.25,
-                  textShadow: '0 2px 14px rgba(0,0,0,0.95)',
-                  fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
-                  letterSpacing: '0.01em',
-                  opacity: textOpacity,
-                }}
-              >
-                {overlayText}
-              </p>
-            </div>
-            <div
-              style={{
-                height: 3,
-                width: `${ruleWidth}%`,
-                backgroundColor: '#C9A84C',
-                marginTop: 16,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-            />
-          </div>
-        </AbsoluteFill>
-      )}
-
-      {slide.topLabel && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 48,
-            left: 40,
-            color: '#C9A84C',
-            fontSize: 22,
-            fontWeight: 600,
-            letterSpacing: '0.06em',
-            fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
-            textShadow: '0 1px 6px rgba(0,0,0,0.9)',
-            pointerEvents: 'none',
-          }}
-        >
-          {slide.topLabel}
-        </div>
-      )}
+      {slide.topLabel && <ContextTag text={slide.topLabel} position="top-left" />}
 
       {slide.captionLines && (
-        <CaptionOverlay lines={slide.captionLines} durationFrames={durationFrames} top={slide.captionY} />
+        <CaptionOverlay
+          lines={slide.captionLines}
+          audioDurationFrames={slide.audioDurationFrames}
+          top={slide.captionY}
+        />
       )}
 
       {/* Per-slide voiceover — fires at this slide's own local frame 0, not a shared timeline */}
