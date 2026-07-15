@@ -35,6 +35,7 @@ import VicksburgMineQS, { totalDuration as vicksburgMineQSTotal, FPS as vicksbur
 import LeeResignationQS, { totalDuration as leeResignationQSTotal, FPS as leeResignationQSFPS } from './compositions/LeeResignationQS';
 import BataanDeathMarchToll, { totalDuration as bataanDeathMarchTollTotal, FPS as bataanDeathMarchTollFPS } from './compositions/BataanDeathMarchToll';
 import OperationFrequentWindQS, { totalDuration as operationFrequentWindQSTotal, FPS as operationFrequentWindQSFPS } from './compositions/OperationFrequentWindQS';
+import GettysburgRetreatQS, { totalDuration as gettysburgRetreatQSTotal, FPS as gettysburgRetreatQSFPS } from './compositions/GettysburgRetreatQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -325,6 +326,14 @@ export const RemotionRoot = () => {
         component={OperationFrequentWindQS}
         durationInFrames={operationFrequentWindQSTotal}
         fps={operationFrequentWindQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GettysburgRetreatQS"
+        component={GettysburgRetreatQS}
+        durationInFrames={gettysburgRetreatQSTotal}
+        fps={gettysburgRetreatQSFPS}
         width={1080}
         height={1920}
       />
