@@ -6,7 +6,7 @@
 
 export const CTA_CONFIG = {
   BLUEGRAY: { subline: 'COMMENT BLUEGRAY TO GET THE FREE 5-FACT CIVIL WAR PDF', era: 'Civil War' },
-  FRONT:    { subline: 'COMMENT FRONT TO GET THE FREE WWII INTELLIGENCE BRIEF', era: 'WWII' },
+  FRONT:    { subline: 'COMMENT FRONT TO GET THE FREE 5-FACT WORLD WAR 2 PDF', era: 'WWII' },
   RECON:    { subline: 'COMMENT RECON TO GET THE FREE VIETNAM FACT SHEET', era: 'Vietnam' },
 } as const;
 

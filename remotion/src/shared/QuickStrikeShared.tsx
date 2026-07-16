@@ -59,8 +59,12 @@ export type SlideConfig = {
   durationInSeconds: number;
   /** Actual VO file duration only, no pad — captions/CTA fade out before this ends */
   audioDurationSeconds: number;
-  /** Bold all-caps headline in the bottom gold-rule box */
+  /** Bold all-caps headline in the gold-rule box */
   overlayText?: string;
+  /** Anchor the gold-rule box to the top or bottom of frame. Default 'bottom'.
+   * Use 'top' when the visual subject sits low in frame (e.g. a mushroom
+   * cloud) and a bottom-anchored box would overlap it. */
+  overlayPosition?: 'top' | 'bottom';
   /** Verbatim VO line(s) shown as burned-in captions */
   captionLines?: string[];
   captionY?: number;
@@ -118,19 +122,29 @@ export function GoldLowerThird({
   text,
   frame,
   delayFrames = 8,
+  position = 'bottom',
 }: {
   text: string;
   frame: number;
   delayFrames?: number;
+  position?: 'top' | 'bottom';
 }) {
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, delayFrames);
 
   return (
     <AbsoluteFill
       style={{
-        justifyContent: 'flex-end',
+        justifyContent: position === 'top' ? 'flex-start' : 'flex-end',
         alignItems: 'center',
-        padding: '0 48px 140px',
+        // Bottom padding 360px (was 140px) keeps the box's bottom edge at
+        // y=1560 on the 1920px canvas — inside the y<=1580 safe zone above
+        // Facebook Reels' reserved UI band (profile/name/audio/caption bar,
+        // ~bottom 300-350px). Ported from GettysburgRetreatQS.tsx's one-off
+        // fix so every composition using this shared component gets it.
+        // Top-anchored variant (position='top') uses the same 140px clearance
+        // the bottom box had before that fix — the top of frame has no
+        // reserved platform UI, so it doesn't need the larger margin.
+        padding: position === 'top' ? '140px 48px 0' : '0 48px 360px',
         pointerEvents: 'none',
       }}
     >
@@ -222,7 +236,10 @@ export function ContextTag({
 export function CaptionOverlay({
   lines,
   audioDurationFrames,
-  top = 1480,
+  // Shifted from 1480 to 1260 (-220px, matching GoldLowerThird's safe-zone
+  // shift below) so the caption stays inside the y<=1580 safe zone and the
+  // existing caption-to-headline gap is preserved unchanged.
+  top = 1260,
 }: {
   lines: string[];
   audioDurationFrames: number;
@@ -395,7 +412,7 @@ export function SlidePanel({
   isFirst: boolean;
 }) {
   const frame = useCurrentFrame();
-  const { motion, durationFrames, overlayText, image, captionLines, captionY, label, labelPosition } = slide;
+  const { motion, durationFrames, overlayText, overlayPosition, image, captionLines, captionY, label, labelPosition } = slide;
 
   // Cold open on slide 1 (full brightness frame 0), 4-frame hard cut on every
   // slide after that. No fade-out anywhere — hard cut ending, matches every
@@ -424,7 +441,7 @@ export function SlidePanel({
 
       {label && <ContextTag text={label} position={labelPosition ?? 'top-left'} />}
 
-      {overlayText && <GoldLowerThird text={overlayText} frame={frame} />}
+      {overlayText && <GoldLowerThird text={overlayText} frame={frame} position={overlayPosition} />}
 
       {captionLines && (
         <CaptionOverlay
