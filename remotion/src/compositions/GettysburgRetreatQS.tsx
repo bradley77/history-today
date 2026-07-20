@@ -53,7 +53,7 @@ const SLIDES: SlideConfig[] = [
     fit: 'cover',
     motion: { scaleFrom: 1.0, scaleTo: 1.08, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0, easing: 'easeInOutCubic' },
     captionLines: ["Gettysburg didn't break Lee's army."],
-    captionY: 1230,
+    captionY: 1450,
     topLabel: 'GEN. ROBERT E. LEE, C.S.A.',
   },
   {
@@ -80,7 +80,7 @@ const SLIDES: SlideConfig[] = [
     // ≈ 7.4px/frame — slow, readable motion.
     motion: { scaleFrom: 1.0, scaleTo: 1.0, txFrom: -863, txTo: -1463, tyFrom: 0, tyTo: 0, easing: 'easeInOutCubic' },
     captionLines: ['Days later, a flooded river trapped him.'],
-    captionY: 1230,
+    captionY: 1450,
     topLabel: 'THE POTOMAC AT WILLIAMSPORT, JULY 1863',
   },
   {
@@ -92,7 +92,7 @@ const SLIDES: SlideConfig[] = [
     fit: 'cover',
     motion: { scaleFrom: 1.0, scaleTo: 1.08, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0, easing: 'easeInOutCubic' },
     captionLines: ['Meade had him pinned.', 'Most of his generals said wait.'],
-    captionY: 1230,
+    captionY: 1450,
     topLabel: 'MAJ. GEN. GEORGE G. MEADE, U.S.A.',
   },
   {
@@ -104,7 +104,7 @@ const SLIDES: SlideConfig[] = [
     fit: 'cover',
     motion: { scaleFrom: 1.0, scaleTo: 1.08, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0, easing: 'easeInOutCubic' },
     captionLines: ['Lee escaped, nearly whole.', "Lincoln said they'd had the war in their hands."],
-    captionY: 1230,
+    captionY: 1450,
     topLabel: 'PRESIDENT ABRAHAM LINCOLN, AUGUST 1863',
   },
 ];
@@ -139,14 +139,76 @@ function useGoldOverlay(localFrame: number, delayFrames = 8) {
   return { ruleWidth, textOpacity };
 }
 
+// This file predates the shared QuickStrikeShared.tsx engine and keeps its
+// own local caption implementation. These constants and the safe-zone/
+// wrap-height clamp below mirror QuickStrikeShared.tsx's CaptionOverlay
+// exactly, so both stay consistent — see that file for the full rationale.
+const CAPTION_MAX_WIDTH = 900;
+const CAPTION_H_PADDING = 20;
+const CAPTION_V_PADDING = 10;
+const CAPTION_FONT_SIZE = 38;
+const CAPTION_LINE_HEIGHT = 1.3;
+const SAFE_ZONE_BOTTOM_Y = 1580;
+const BOTTOM_SAFE_BUFFER = 20;
+
+function estimateWrappedLineCount(text: string, maxTextWidth: number): number {
+  if (typeof document === 'undefined') return 1;
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return 1;
+  ctx.font = `700 ${CAPTION_FONT_SIZE}px 'Oswald', Impact, 'Arial Black', sans-serif`;
+
+  const words = text.split(/\s+/).filter(Boolean);
+  let lineCount = 1;
+  let lineWidth = 0;
+  for (const word of words) {
+    const wordWidth = ctx.measureText(`${word} `).width;
+    if (lineWidth > 0 && lineWidth + wordWidth > maxTextWidth) {
+      lineCount += 1;
+      lineWidth = wordWidth;
+    } else {
+      lineWidth += wordWidth;
+    }
+  }
+  return lineCount;
+}
+
+// This composition's own headline box below (the `overlayText &&` block
+// further down) uses fontSize 44 / lineHeight 1.25 with no inner box padding
+// — different metrics than QuickStrikeShared's GoldLowerThird — so its
+// top-edge estimate is mirrored here with THIS file's actual numbers rather
+// than reusing the shared component's constants.
+const HEADLINE_FONT_SIZE = 44;
+const HEADLINE_LINE_HEIGHT = 1.25;
+const HEADLINE_MAX_WIDTH = 900;
+const HEADLINE_RULE_HEIGHT = 3;
+const HEADLINE_RULE_GAP = 16;
+const CAPTION_HEADLINE_GAP = 20; // gap kept above the headline's own top edge
+
+function estimateHeadlineTopY(text: string): number {
+  const lineCount = estimateWrappedLineCount(text, HEADLINE_MAX_WIDTH);
+  const boxHeight =
+    HEADLINE_RULE_HEIGHT * 2 + HEADLINE_RULE_GAP * 2 + lineCount * HEADLINE_FONT_SIZE * HEADLINE_LINE_HEIGHT;
+  return SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER - boxHeight;
+}
+
 function CaptionOverlay({
   lines,
   durationFrames,
-  top = 1230,
+  // Raised from 1230 toward the 1580 safe line — this composition is plain
+  // cover/native full-bleed Ken Burns with no blurred margin to sit in, so
+  // there's no position that clears the image entirely; this is the closest
+  // achievable to the ceiling. The wrap-height clamp below is what actually
+  // holds the y<=1580 invariant.
+  top = 1450,
+  // Headline text this caption is paired with — lets the ceiling pull up
+  // above the headline's own box when it wraps to 2+ lines, so the caption
+  // never renders on top of the headline text. See estimateHeadlineTopY.
+  overlayText,
 }: {
   lines: string[];
   durationFrames: number;
   top?: number;
+  overlayText?: string;
 }) {
   const frame = useCurrentFrame();
 
@@ -168,11 +230,27 @@ function CaptionOverlay({
     lineRanges.find((r) => frame >= r.startFrame && frame < r.endFrame) ??
     lineRanges[lineRanges.length - 1];
 
+  // Same bottom-up clamp as QuickStrikeShared.tsx: compute the box's actual
+  // rendered height for the active line, then keep its bottom edge at or
+  // above SAFE_ZONE_BOTTOM_Y minus a small buffer (and above the headline's
+  // own top edge), no matter how many lines either one wraps to.
+  const safeTop = useMemo(() => {
+    const safeZoneCeiling = SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER;
+    const ceiling =
+      overlayText !== undefined
+        ? Math.min(safeZoneCeiling, estimateHeadlineTopY(overlayText) - CAPTION_HEADLINE_GAP)
+        : safeZoneCeiling;
+    const wrappedLineCount = estimateWrappedLineCount(active.line, CAPTION_MAX_WIDTH - CAPTION_H_PADDING * 2);
+    const blockHeight = wrappedLineCount * CAPTION_FONT_SIZE * CAPTION_LINE_HEIGHT + CAPTION_V_PADDING * 2;
+    const maxTop = ceiling - blockHeight;
+    return Math.min(top, maxTop);
+  }, [active.line, top, overlayText]);
+
   return (
     <div
       style={{
         position: 'absolute',
-        top,
+        top: safeTop,
         left: 0,
         right: 0,
         display: 'flex',
@@ -182,13 +260,14 @@ function CaptionOverlay({
     >
       <div
         style={{
-          maxWidth: 900,
+          maxWidth: CAPTION_MAX_WIDTH,
           backgroundColor: 'rgba(0,0,0,0.6)',
           color: '#fff',
-          fontSize: 38,
+          fontSize: CAPTION_FONT_SIZE,
           fontWeight: 700,
+          lineHeight: CAPTION_LINE_HEIGHT,
           textAlign: 'center',
-          padding: '10px 20px',
+          padding: `${CAPTION_V_PADDING}px ${CAPTION_H_PADDING}px`,
           borderRadius: 6,
         }}
       >
@@ -367,7 +446,7 @@ function SlidePanel({ slide, isFirst }: { slide: SlideConfig & { durationFrames:
       )}
 
       {captionLines && (
-        <CaptionOverlay lines={captionLines} durationFrames={durationFrames} top={captionY} />
+        <CaptionOverlay lines={captionLines} durationFrames={durationFrames} top={captionY} overlayText={overlayText} />
       )}
 
       <Audio src={staticFile(slide.audio)} />

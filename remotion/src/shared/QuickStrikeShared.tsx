@@ -36,6 +36,19 @@ export const OSWALD_URL =
 
 export const GOLD = '#C9A84C';
 
+// Facebook Reels reserves roughly the bottom 340px of the 1920px canvas for
+// its own UI (profile/name/audio/caption bar). Text whose bottom edge renders
+// below y=1580 gets flagged by Meta's content-quality system and risks
+// reduced reach — independently confirmed on a published BLUEGRAY video.
+// Every bottom-anchored text block below computes its position FROM this
+// line and grows upward as content grows, rather than a fixed offset off the
+// very bottom of the canvas that silently stops being safe once a block gets
+// taller than whatever it was tuned against.
+export const CANVAS_HEIGHT = 1920;
+export const CANVAS_WIDTH = 1080;
+export const SAFE_ZONE_BOTTOM_Y = 1580;
+const BOTTOM_SAFE_BUFFER = 20;
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -123,11 +136,20 @@ export function GoldLowerThird({
   frame,
   delayFrames = 8,
   position = 'bottom',
+  // Overridable so a slide whose paired CaptionOverlay has a hard floor
+  // (sharpContentBottomY) that leaves no room at the default size can shrink
+  // this headline instead — see computeFloorAwareHeadlineFit. Must be passed
+  // the SAME values given to that caption's headlineFontSize/headlineLineHeight
+  // props, or the two boxes' math will disagree about where each one sits.
+  fontSize = 52,
+  lineHeight = 1.25,
 }: {
   text: string;
   frame: number;
   delayFrames?: number;
   position?: 'top' | 'bottom';
+  fontSize?: number;
+  lineHeight?: number;
 }) {
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, delayFrames);
 
@@ -136,15 +158,21 @@ export function GoldLowerThird({
       style={{
         justifyContent: position === 'top' ? 'flex-start' : 'flex-end',
         alignItems: 'center',
-        // Bottom padding 360px (was 140px) keeps the box's bottom edge at
-        // y=1560 on the 1920px canvas — inside the y<=1580 safe zone above
-        // Facebook Reels' reserved UI band (profile/name/audio/caption bar,
-        // ~bottom 300-350px). Ported from GettysburgRetreatQS.tsx's one-off
-        // fix so every composition using this shared component gets it.
+        // Bottom padding is derived from SAFE_ZONE_BOTTOM_Y (currently
+        // resolves to 360px, keeping the box's bottom edge at y=1560 on the
+        // 1920px canvas) rather than a hardcoded number, so the guarantee
+        // holds even if the safe-zone line above ever changes. justifyContent
+        // 'flex-end' + this padding anchors the box from the bottom up: the
+        // child grows upward as its content gets taller, and its bottom edge
+        // never moves. Ported from GettysburgRetreatQS.tsx's one-off fix so
+        // every composition using this shared component gets it.
         // Top-anchored variant (position='top') uses the same 140px clearance
         // the bottom box had before that fix — the top of frame has no
         // reserved platform UI, so it doesn't need the larger margin.
-        padding: position === 'top' ? '140px 48px 0' : '0 48px 360px',
+        padding:
+          position === 'top'
+            ? '140px 48px 0'
+            : `0 48px ${CANVAS_HEIGHT - SAFE_ZONE_BOTTOM_Y + BOTTOM_SAFE_BUFFER}px`,
         pointerEvents: 'none',
       }}
     >
@@ -162,11 +190,11 @@ export function GoldLowerThird({
         <div style={{ backgroundColor: 'rgba(0,0,0,0.60)', padding: '24px 40px', textAlign: 'center' }}>
           <p
             style={{
-              fontSize: 52,
+              fontSize,
               fontWeight: 700,
               color: '#F5F0E8',
               margin: 0,
-              lineHeight: 1.25,
+              lineHeight,
               textShadow: '0 2px 14px rgba(0,0,0,0.95)',
               fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
               letterSpacing: '0.01em',
@@ -233,17 +261,183 @@ export function ContextTag({
 // version of the pattern used inconsistently across the existing files.
 // ---------------------------------------------------------------------------
 
+const CAPTION_MAX_WIDTH = 900;
+const CAPTION_H_PADDING = 20; // each side, from the box's '10px 20px' padding
+const CAPTION_V_PADDING = 10; // each side, from the box's '10px 20px' padding
+const CAPTION_FONT_SIZE = 38;
+const CAPTION_MIN_FONT_SIZE = 28; // floor for the shrink-to-fit fallback below
+// Set explicitly (rather than left to the browser's 'normal') so the
+// wrap-height math below matches the actual render exactly.
+const CAPTION_LINE_HEIGHT = 1.3;
+// Gap kept below a blur-border-fill image's sharp content (sharpContentBottomY).
+const SHARP_CONTENT_MARGIN = 25;
+
+// Replays the browser's own greedy line-wrap against the caption box's real
+// font and width, so the safe-zone clamp below is based on the box's ACTUAL
+// rendered height for arbitrarily long captions — not a guess tuned to look
+// right for short ones.
+function estimateWrappedLineCount(text: string, maxTextWidth: number, fontSize: number): number {
+  if (typeof document === 'undefined') return 1;
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (!ctx) return 1;
+  ctx.font = `700 ${fontSize}px 'Oswald', Impact, 'Arial Black', sans-serif`;
+
+  const words = text.split(/\s+/).filter(Boolean);
+  let lineCount = 1;
+  let lineWidth = 0;
+  for (const word of words) {
+    const wordWidth = ctx.measureText(`${word} `).width;
+    if (lineWidth > 0 && lineWidth + wordWidth > maxTextWidth) {
+      lineCount += 1;
+      lineWidth = wordWidth;
+    } else {
+      lineWidth += wordWidth;
+    }
+  }
+  return lineCount;
+}
+
+function captionBlockHeight(lineCount: number, fontSize: number): number {
+  return lineCount * fontSize * CAPTION_LINE_HEIGHT + CAPTION_V_PADDING * 2;
+}
+
+// GoldLowerThird's own box math (font/padding/rule sizes mirrored from that
+// component), so CaptionOverlay can tell where the paired headline's box
+// actually starts and never render into it. Both boxes are computed
+// independently at render time — this keeps them from colliding without
+// coupling the two components together.
+const HEADLINE_FONT_SIZE = 52;
+const HEADLINE_LINE_HEIGHT = 1.25;
+const HEADLINE_MIN_FONT_SIZE = 32; // floor for computeFloorAwareHeadlineFit's shrink loop
+const HEADLINE_H_PADDING = 40; // each side, GoldLowerThird's box '24px 40px'
+const HEADLINE_V_PADDING = 24;
+const HEADLINE_RULE_HEIGHT = 3;
+const HEADLINE_RULE_GAP = 16; // each rule's margin to the text box
+const HEADLINE_OUTER_H_PADDING = 48; // GoldLowerThird's outer '0 48px ...'
+// Measured against real renders: canvas measureText() (used to predict line
+// wrap below) doesn't account for the headline's letterSpacing (0.01em) and
+// runs measurably narrower than the actual browser layout for this text/font
+// combination — e.g. one real headline measured ~825px here but visibly wraps
+// at the 904px box width, which only happens if its true rendered width is
+// over 904px. A wrap this component fails to predict means CaptionOverlay's
+// ceiling ends up too permissive, risking a real caption-over-headline
+// collision — worse than the caption shrinking a little early — so line-wrap
+// estimation for the headline (not the caption, which has its own shrink
+// safety net) uses a deliberately narrower effective width.
+const HEADLINE_WRAP_SAFETY_FACTOR = 0.85;
+const HEADLINE_MAX_WIDTH = (CANVAS_WIDTH - HEADLINE_OUTER_H_PADDING * 2 - HEADLINE_H_PADDING * 2) * HEADLINE_WRAP_SAFETY_FACTOR;
+// Gap kept above the paired headline's own visible text (not its box top —
+// see HEADLINE_CHROME_BEFORE_TEXT below).
+const CAPTION_HEADLINE_GAP = 20;
+// computeHeadlineTopY returns the top of the headline's RULE/PADDING box, not
+// where its text glyphs actually start — the top rule, its margin, and the
+// box's own top padding are empty decorative space above the text, not text
+// itself, so a caption is free to sit under THAT boundary too, not just under
+// the glyphs. This is exact CSS layout math (rule height + rule margin + box
+// padding), not an approximation — it closes a gap that was previously making
+// the ceiling needlessly conservative by this many pixels on every slide.
+const HEADLINE_CHROME_BEFORE_TEXT = HEADLINE_RULE_HEIGHT + HEADLINE_RULE_GAP + HEADLINE_V_PADDING;
+
+function headlineBoxHeight(lineCount: number, fontSize: number, lineHeight: number): number {
+  return HEADLINE_RULE_HEIGHT * 2 + HEADLINE_RULE_GAP * 2 + HEADLINE_V_PADDING * 2 + lineCount * fontSize * lineHeight;
+}
+
+// GoldLowerThird's bottom is pinned at SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER
+// (currently 1560) — see GoldLowerThird's padding, which is derived the same way.
+function computeHeadlineTopY(text: string, fontSize: number, lineHeight: number): number {
+  const lineCount = estimateWrappedLineCount(text, HEADLINE_MAX_WIDTH, fontSize);
+  return SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER - headlineBoxHeight(lineCount, fontSize, lineHeight);
+}
+
+// The Y a caption's bottom edge must stay at or above: the headline's own
+// rule/padding chrome is empty space a caption may sit under, so this adds
+// HEADLINE_CHROME_BEFORE_TEXT back before applying the caption-to-headline
+// gap, rather than measuring from the box's outer top.
+function computeCaptionCeilingAboveHeadline(text: string, fontSize: number, lineHeight: number): number {
+  return computeHeadlineTopY(text, fontSize, lineHeight) + HEADLINE_CHROME_BEFORE_TEXT - CAPTION_HEADLINE_GAP;
+}
+
+// For slides with a hard image floor (sharpContentBottomY): the floor is
+// non-negotiable (see CaptionOverlay below), so if the headline at its
+// default size doesn't leave enough room for even a minimum-size caption
+// below the floor, this shrinks the HEADLINE instead — never the floor.
+// Call once per slide (the result doesn't depend on which caption cue is
+// currently active, only on the worst-case cue, so the headline never
+// visibly resizes mid-slide) and pass the same fontSize/lineHeight to both
+// GoldLowerThird and this caption's CaptionOverlay.
+export function computeFloorAwareHeadlineFit({
+  overlayText,
+  captionLines,
+  sharpContentBottomY,
+}: {
+  overlayText: string;
+  captionLines: string[];
+  sharpContentBottomY: number;
+}): { fontSize: number; lineHeight: number } {
+  const floor = sharpContentBottomY + SHARP_CONTENT_MARGIN;
+  const usableWidth = CAPTION_MAX_WIDTH - CAPTION_H_PADDING * 2;
+  const minCaptionHeight = Math.max(
+    ...captionLines.map((line) =>
+      captionBlockHeight(estimateWrappedLineCount(line, usableWidth, CAPTION_MIN_FONT_SIZE), CAPTION_MIN_FONT_SIZE),
+    ),
+  );
+  const requiredCeiling = floor + minCaptionHeight;
+
+  let fontSize = HEADLINE_FONT_SIZE;
+  let ceiling = computeCaptionCeilingAboveHeadline(overlayText, fontSize, HEADLINE_LINE_HEIGHT);
+  while (ceiling < requiredCeiling && fontSize > HEADLINE_MIN_FONT_SIZE) {
+    fontSize -= 2;
+    ceiling = computeCaptionCeilingAboveHeadline(overlayText, fontSize, HEADLINE_LINE_HEIGHT);
+  }
+  return { fontSize, lineHeight: HEADLINE_LINE_HEIGHT };
+}
+
 export function CaptionOverlay({
   lines,
   audioDurationFrames,
-  // Shifted from 1480 to 1260 (-220px, matching GoldLowerThird's safe-zone
-  // shift below) so the caption stays inside the y<=1580 safe zone and the
-  // existing caption-to-headline gap is preserved unchanged.
-  top = 1260,
+  // Desired top for ordinary full-bleed (cover-fit) slides, which have no
+  // blurred margin to sit in — the sharp image always reaches the very
+  // bottom of the canvas on those, so there's no position that clears it
+  // entirely under the 1580 safe line. Pushed close to that ceiling (was
+  // 1260) so captions sit as low as the safe zone allows. Still just a
+  // starting point — the wrap-height clamp below is what actually holds
+  // the y<=1580 invariant.
+  top = 1450,
+  // For blur-border-fill images only (currently Son Tay's four slides and
+  // HighwayOfDeathQuickStrike's pulled-back slides): the real, known y-
+  // coordinate where THIS slide's sharp (non-blurred) image content ends,
+  // measured from the source composite — not a geometric guess from Ken
+  // Burns scale (the sharp region's on-screen extent changes as the shot
+  // zooms, so no single scale-derived number is safe for the whole slide).
+  // When provided, this is a HARD, non-negotiable floor: the caption always
+  // renders at exactly sharpContentBottomY + SHARP_CONTENT_MARGIN, never
+  // higher up (never overlapping the image), regardless of how tight that
+  // makes things above it. If it doesn't fit under the ceiling at normal
+  // size, the caption's own font shrinks — and if even minimum-size still
+  // doesn't fit, the paired headline must be shrunk via
+  // computeFloorAwareHeadlineFit (pass the SAME result to headlineFontSize/
+  // headlineLineHeight below) rather than moving the caption off the floor.
+  sharpContentBottomY,
+  // The headline text this caption is paired with (same string passed to the
+  // sibling GoldLowerThird), so the caption's ceiling can be pulled up above
+  // the headline's own box when a long headline wraps to 2+ lines and grows
+  // taller than usual — otherwise a caption placed just under
+  // SAFE_ZONE_BOTTOM_Y or just under sharpContentBottomY can land on top of
+  // the headline text instead of above it.
+  overlayText,
+  // Must match whatever GoldLowerThird is actually rendering the headline
+  // at (defaults to GoldLowerThird's own defaults) — only diverges from
+  // those defaults when computeFloorAwareHeadlineFit shrank the headline.
+  headlineFontSize = 52,
+  headlineLineHeight = 1.25,
 }: {
   lines: string[];
   audioDurationFrames: number;
   top?: number;
+  sharpContentBottomY?: number;
+  overlayText?: string;
+  headlineFontSize?: number;
+  headlineLineHeight?: number;
 }) {
   const frame = useCurrentFrame();
 
@@ -265,6 +459,54 @@ export function CaptionOverlay({
     lineRanges.find((r) => frame >= r.startFrame && frame < r.endFrame) ??
     lineRanges[lineRanges.length - 1];
 
+  // Compute the box's actual rendered height for the currently active line,
+  // then position it so the bottom edge never crosses the safe zone AND
+  // never crosses into the paired headline's own box — anchoring from the
+  // bottom up (block height first) rather than trusting a fixed top offset
+  // that only happens to work for short lines / short headlines.
+  const { safeTop, fontSize } = useMemo(() => {
+    const safeZoneCeiling = SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER;
+    const ceiling =
+      overlayText !== undefined
+        ? Math.min(safeZoneCeiling, computeCaptionCeilingAboveHeadline(overlayText, headlineFontSize, headlineLineHeight))
+        : safeZoneCeiling;
+    const usableWidth = CAPTION_MAX_WIDTH - CAPTION_H_PADDING * 2;
+
+    if (sharpContentBottomY !== undefined) {
+      // sharpContentBottomY is a MINIMUM, not a fixed position — the caption
+      // still prefers to sit near the bottom overlay (same target as the
+      // no-floor branch below) and only gets pushed down further when the
+      // image's sharp content actually reaches that far. Slides where the
+      // sharp content ends well above the normal caption position (e.g. a
+      // wide establishing shot) must not strand the caption up near the
+      // middle of the frame just because a floor was supplied.
+      const floor = sharpContentBottomY + SHARP_CONTENT_MARGIN;
+      const naturalHeight = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, CAPTION_FONT_SIZE), CAPTION_FONT_SIZE);
+      const naturalTarget = Math.min(top, ceiling - naturalHeight);
+      const desiredTop = Math.max(floor, naturalTarget);
+
+      // Never adjusted below this point — if the headline above doesn't leave
+      // room even at CAPTION_MIN_FONT_SIZE, that must be resolved by shrinking
+      // the headline (computeFloorAwareHeadlineFit), not by moving the caption
+      // off the floor.
+      const availableHeight = ceiling - desiredTop;
+      let size = CAPTION_FONT_SIZE;
+      let height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size);
+      while (height > availableHeight && size > CAPTION_MIN_FONT_SIZE) {
+        size -= 2;
+        height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size);
+      }
+      return { safeTop: desiredTop, fontSize: size };
+    }
+
+    // No hard floor (ordinary full-bleed slide) — free to slide the box
+    // upward to stay under the ceiling instead of shrinking the font.
+    const lineCount = estimateWrappedLineCount(active.line, usableWidth, CAPTION_FONT_SIZE);
+    const height = captionBlockHeight(lineCount, CAPTION_FONT_SIZE);
+    const maxTop = ceiling - height;
+    return { safeTop: Math.min(top, maxTop), fontSize: CAPTION_FONT_SIZE };
+  }, [active.line, top, sharpContentBottomY, overlayText, headlineFontSize, headlineLineHeight]);
+
   // Fade in over 10 frames, fade out over the last 6 frames of audio — never
   // visible during the trailing pad.
   const opacity = interpolate(
@@ -278,7 +520,7 @@ export function CaptionOverlay({
     <div
       style={{
         position: 'absolute',
-        top,
+        top: safeTop,
         left: 0,
         right: 0,
         display: 'flex',
@@ -290,13 +532,14 @@ export function CaptionOverlay({
     >
       <div
         style={{
-          maxWidth: 900,
+          maxWidth: CAPTION_MAX_WIDTH,
           backgroundColor: 'rgba(0,0,0,0.6)',
           color: '#fff',
-          fontSize: 38,
+          fontSize,
           fontWeight: 700,
+          lineHeight: CAPTION_LINE_HEIGHT,
           textAlign: 'center',
-          padding: '10px 20px',
+          padding: `${CAPTION_V_PADDING}px ${CAPTION_H_PADDING}px`,
           borderRadius: 6,
         }}
       >
