@@ -81,11 +81,22 @@ export type SlideConfig = {
   /** Verbatim VO line(s) shown as burned-in captions */
   captionLines?: string[];
   captionY?: number;
+  /** EXPERIMENTAL: shifts the bottom-anchored GoldLowerThird + CaptionOverlay
+   * block down by this many px, past the normal y<=1580 safe-zone guarantee.
+   * Defaults to 0 (no change, standard safe-zone behavior). */
+  bottomOffset?: number;
   /** Small gold label, e.g. "GETTYSBURG, PA — JULY 1, 1863" */
   label?: string;
   labelPosition?: 'top-left' | 'bottom-left';
   motion?: Motion | null;
   hasBlurBackground?: boolean;
+  /** Source image's natural pixel dimensions — provide both to opt this slide
+   * into the Pan-Fill System (getPanFillTransform) instead of the manual
+   * `motion` above. Omit to keep manual motion-driven Ken Burns. */
+  sourceWidth?: number;
+  sourceHeight?: number;
+  panFillMode?: PanFillMode;
+  panDirection?: PanDirection;
 };
 
 // ---------------------------------------------------------------------------
@@ -143,6 +154,13 @@ export function GoldLowerThird({
   // props, or the two boxes' math will disagree about where each one sits.
   fontSize = 52,
   lineHeight = 1.25,
+  // EXPERIMENTAL escape hatch: shifts the bottom-anchored box down by this
+  // many px, past the normal y<=1580 safe-zone guarantee (see
+  // SAFE_ZONE_BOTTOM_Y above) — for compositions deliberately iterating past
+  // that standard. Defaults to 0 (no change) for every existing caller.
+  // Must match whatever's passed to the paired CaptionOverlay's own
+  // bottomOffset, or the two boxes drift out of sync.
+  bottomOffset = 0,
 }: {
   text: string;
   frame: number;
@@ -150,6 +168,7 @@ export function GoldLowerThird({
   position?: 'top' | 'bottom';
   fontSize?: number;
   lineHeight?: number;
+  bottomOffset?: number;
 }) {
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, delayFrames);
 
@@ -172,7 +191,7 @@ export function GoldLowerThird({
         padding:
           position === 'top'
             ? '140px 48px 0'
-            : `0 48px ${CANVAS_HEIGHT - SAFE_ZONE_BOTTOM_Y + BOTTOM_SAFE_BUFFER}px`,
+            : `0 48px ${CANVAS_HEIGHT - SAFE_ZONE_BOTTOM_Y + BOTTOM_SAFE_BUFFER - bottomOffset}px`,
         pointerEvents: 'none',
       }}
     >
@@ -343,18 +362,21 @@ function headlineBoxHeight(lineCount: number, fontSize: number, lineHeight: numb
 }
 
 // GoldLowerThird's bottom is pinned at SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER
-// (currently 1560) — see GoldLowerThird's padding, which is derived the same way.
-function computeHeadlineTopY(text: string, fontSize: number, lineHeight: number): number {
+// (currently 1560) — see GoldLowerThird's padding, which is derived the same
+// way. bottomOffset mirrors GoldLowerThird's own experimental bottomOffset
+// prop (defaults to 0) — pass the SAME value given to the paired
+// GoldLowerThird/CaptionOverlay or the headline/caption math falls out of sync.
+function computeHeadlineTopY(text: string, fontSize: number, lineHeight: number, bottomOffset = 0): number {
   const lineCount = estimateWrappedLineCount(text, HEADLINE_MAX_WIDTH, fontSize);
-  return SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER - headlineBoxHeight(lineCount, fontSize, lineHeight);
+  return SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER + bottomOffset - headlineBoxHeight(lineCount, fontSize, lineHeight);
 }
 
 // The Y a caption's bottom edge must stay at or above: the headline's own
 // rule/padding chrome is empty space a caption may sit under, so this adds
 // HEADLINE_CHROME_BEFORE_TEXT back before applying the caption-to-headline
 // gap, rather than measuring from the box's outer top.
-function computeCaptionCeilingAboveHeadline(text: string, fontSize: number, lineHeight: number): number {
-  return computeHeadlineTopY(text, fontSize, lineHeight) + HEADLINE_CHROME_BEFORE_TEXT - CAPTION_HEADLINE_GAP;
+function computeCaptionCeilingAboveHeadline(text: string, fontSize: number, lineHeight: number, bottomOffset = 0): number {
+  return computeHeadlineTopY(text, fontSize, lineHeight, bottomOffset) + HEADLINE_CHROME_BEFORE_TEXT - CAPTION_HEADLINE_GAP;
 }
 
 // For slides with a hard image floor (sharpContentBottomY): the floor is
@@ -430,6 +452,12 @@ export function CaptionOverlay({
   // those defaults when computeFloorAwareHeadlineFit shrank the headline.
   headlineFontSize = 52,
   headlineLineHeight = 1.25,
+  // EXPERIMENTAL escape hatch, mirrors GoldLowerThird's own bottomOffset —
+  // shifts both the plain safe-zone ceiling and the headline-aware ceiling
+  // down by this many px, past the normal y<=1580 guarantee. Defaults to 0
+  // for every existing caller. Pass the SAME value given to the paired
+  // GoldLowerThird so the two boxes move down together, not independently.
+  bottomOffset = 0,
 }: {
   lines: string[];
   audioDurationFrames: number;
@@ -438,6 +466,7 @@ export function CaptionOverlay({
   overlayText?: string;
   headlineFontSize?: number;
   headlineLineHeight?: number;
+  bottomOffset?: number;
 }) {
   const frame = useCurrentFrame();
 
@@ -465,10 +494,10 @@ export function CaptionOverlay({
   // bottom up (block height first) rather than trusting a fixed top offset
   // that only happens to work for short lines / short headlines.
   const { safeTop, fontSize } = useMemo(() => {
-    const safeZoneCeiling = SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER;
+    const safeZoneCeiling = SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER + bottomOffset;
     const ceiling =
       overlayText !== undefined
-        ? Math.min(safeZoneCeiling, computeCaptionCeilingAboveHeadline(overlayText, headlineFontSize, headlineLineHeight))
+        ? Math.min(safeZoneCeiling, computeCaptionCeilingAboveHeadline(overlayText, headlineFontSize, headlineLineHeight, bottomOffset))
         : safeZoneCeiling;
     const usableWidth = CAPTION_MAX_WIDTH - CAPTION_H_PADDING * 2;
 
@@ -505,7 +534,7 @@ export function CaptionOverlay({
     const height = captionBlockHeight(lineCount, CAPTION_FONT_SIZE);
     const maxTop = ceiling - height;
     return { safeTop: Math.min(top, maxTop), fontSize: CAPTION_FONT_SIZE };
-  }, [active.line, top, sharpContentBottomY, overlayText, headlineFontSize, headlineLineHeight]);
+  }, [active.line, top, sharpContentBottomY, overlayText, headlineFontSize, headlineLineHeight, bottomOffset]);
 
   // Fade in over 10 frames, fade out over the last 6 frames of audio — never
   // visible during the trailing pad.
@@ -550,6 +579,143 @@ export function CaptionOverlay({
 }
 
 // ---------------------------------------------------------------------------
+// Pan-Fill System — the default treatment for wide/panoramic source images.
+//
+// A cover-fit crop on a wide/panoramic source (e.g. a 5600x3365 landscape
+// photo forced into the 1080x1920 canvas) throws away most of the frame and
+// leaves the subject looking cropped-in. This decides, from the image's real
+// pixel dimensions, whether it's wide enough to earn a slow horizontal pan
+// across that discarded width instead of a static crop — automatically, per
+// image, with no per-slide hand-tuning required.
+// ---------------------------------------------------------------------------
+
+// Starting default — sources at or above this width:height ratio get the pan
+// treatment; below it (near-square/portrait/single-subject sources, which
+// have no meaningful extra width to reveal) they get a static cover-fit.
+// Easy to retune: loosen toward ~1.3 if this catches near-square portraits
+// that shouldn't pan, or lower it if genuinely wide sources are being missed.
+export const PAN_FILL_ASPECT_THRESHOLD = 1.2;
+
+// Of the raw pixel overflow once the image is scaled to cover the canvas
+// height, how much of it the pan is allowed to traverse — the middle of a
+// locked 85-90% range. See PAN_FILL_EDGE_BUFFER_PX below for the hard floor
+// that applies on top of this.
+export const PAN_FILL_RANGE_FRACTION = 0.875;
+
+// Hard floor on how close the pan's endpoints get to the source image's true
+// left/right edge, regardless of PAN_FILL_RANGE_FRACTION — matters on a
+// barely-wide image, where 12.5% of a small overflow could otherwise undershoot
+// a safe margin and let the pan show the image's raw, uncomposed edge.
+export const PAN_FILL_EDGE_BUFFER_PX = 50;
+
+// Default scale-only drift for images the category decision resolves to
+// 'static' (no horizontal pan) — "static cover-fit" was always meant to allow
+// minimal motion, not enforce a frozen frame; a bare cover-fit with zero
+// animation reads as a mistake, not a deliberate choice. Matches the small
+// push-in already used elsewhere for portrait/single-subject sources (e.g.
+// LincolnFortStevens.jsx's Lincoln portrait slide). Applies automatically
+// only when the caller supplies NO explicit `motion` — an explicit `motion`
+// (e.g. a document/map's pre-picked crop pan) always overrides this.
+export const PAN_FILL_STATIC_SCALE_TO = 1.05;
+
+// Raised from the original conservative default of 40 (a comparable
+// hand-tuned pan in production, GettysburgRetreatQS slide 2, runs ≈222px/sec)
+// after 40 read as too subtle in practice — bull-run-1's pan slides were only
+// covering 7-15% of their usable pan room within VO-locked slide durations.
+// 100 roughly doubles that coverage (see BullRun1QS.tsx slide comments for
+// the actual per-slide numbers) while every pan slide checked so far still
+// stays speed-capped well short of its usablePanPx ceiling, so this isn't
+// pushing against the room-based math, only the pace within existing time.
+export const MAX_PAN_SPEED_PX_PER_SEC = 100;
+
+export type PanFillMode = 'auto' | 'pan' | 'static';
+export type PanDirection = 'ltr' | 'rtl';
+
+export type PanFillTransform = {
+  mode: 'pan' | 'static';
+  /** Scale that makes the source image's height exactly fill the 1920px canvas.
+   * Assumes a landscape/near-square/typical-portrait source (width:height
+   * ratio not narrower than the 1080:1920 canvas itself) — true for every
+   * historical photo/map this has been checked against so far. */
+  baseScale: number;
+  /** The height-matched image's rendered width in px (sourceWidth * baseScale). */
+  renderedWidth: number;
+  /** Raw pixel overflow beyond the 1080px canvas width (0 in static mode). */
+  panRoomPx: number;
+  /** Pixels of that overflow the pan is allowed to use, before the speed cap. */
+  usablePanPx: number;
+  /** Actual pan distance after the duration/speed cap — may be less than usablePanPx. */
+  panDistancePx: number;
+  /** translateX values (px) to interpolate between across the slide's frame range. */
+  txFrom: number;
+  txTo: number;
+};
+
+export function getPanFillTransform({
+  sourceWidth,
+  sourceHeight,
+  durationFrames,
+  panFillMode = 'auto',
+  panDirection = 'ltr',
+}: {
+  sourceWidth: number;
+  sourceHeight: number;
+  durationFrames: number;
+  panFillMode?: PanFillMode;
+  panDirection?: PanDirection;
+}): PanFillTransform {
+  const aspectRatio = sourceWidth / sourceHeight;
+  const baseScale = CANVAS_HEIGHT / sourceHeight;
+  const renderedWidth = sourceWidth * baseScale;
+
+  const resolvedMode: 'pan' | 'static' =
+    panFillMode === 'static'
+      ? 'static'
+      : panFillMode === 'pan'
+      ? 'pan'
+      : aspectRatio >= PAN_FILL_ASPECT_THRESHOLD
+      ? 'pan'
+      : 'static';
+
+  if (resolvedMode === 'static') {
+    return {
+      mode: 'static',
+      baseScale,
+      renderedWidth,
+      panRoomPx: 0,
+      usablePanPx: 0,
+      panDistancePx: 0,
+      txFrom: 0,
+      txTo: 0,
+    };
+  }
+
+  const panRoomPx = renderedWidth - CANVAS_WIDTH;
+  const marginPerSide = Math.max((panRoomPx * (1 - PAN_FILL_RANGE_FRACTION)) / 2, PAN_FILL_EDGE_BUFFER_PX);
+  const usablePanPx = Math.max(0, panRoomPx - marginPerSide * 2);
+
+  const durationSeconds = durationFrames / FPS;
+  const maxDistanceForDuration = MAX_PAN_SPEED_PX_PER_SEC * durationSeconds;
+  // If the speed cap covers less than the usable room, the pan simply falls
+  // short of the far edge rather than speeding up — and because txFrom/txTo
+  // below are always symmetric about 0 (the image's own center), a capped
+  // pan stays centered in the usable room instead of sliding to one extreme.
+  const panDistancePx = Math.min(usablePanPx, maxDistanceForDuration);
+
+  const half = panDistancePx / 2;
+  // Panning "left to right" means the visible window moves from the image's
+  // left content to its right content over time, which requires translateX
+  // to move from a positive offset down to a negative one (positive
+  // translateX shifts the image right on screen, which — with the box
+  // centered and overflowing — brings the LEFT side of the source into the
+  // visible window; see the txFrom/txTo derivation in QuickStrikeShared for
+  // the full pixel math).
+  const [txFrom, txTo] = panDirection === 'ltr' ? [half, -half] : [-half, half];
+
+  return { mode: 'pan', baseScale, renderedWidth, panRoomPx, usablePanPx, panDistancePx, txFrom, txTo };
+}
+
+// ---------------------------------------------------------------------------
 // KenBurnsImage — the image + vignette + motion combo used on every slide
 // ---------------------------------------------------------------------------
 
@@ -559,35 +725,82 @@ export function KenBurnsImage({
   durationFrames,
   motion,
   hasBlurBackground = false,
+  sourceWidth,
+  sourceHeight,
+  panFillMode = 'auto',
+  panDirection = 'ltr',
 }: {
   image: string;
   frame: number;
   durationFrames: number;
-  motion: Motion;
+  /** Manual scale/tx/ty animation. Ignored when sourceWidth/sourceHeight
+   * resolve to the Pan-Fill System's 'pan' mode (below); still used as-is
+   * for 'static'-resolved images and for any caller that omits the source
+   * dimensions, so every existing hand-tuned composition is unaffected. */
+  motion?: Motion;
   hasBlurBackground?: boolean;
+  /** Source image's natural pixel dimensions. Required to opt into the
+   * Pan-Fill System (getPanFillTransform) — omit to keep the legacy
+   * motion-driven rendering exactly as it was. */
+  sourceWidth?: number;
+  sourceHeight?: number;
+  /** 'auto' (default) decides pan vs. static from the image's real aspect
+   * ratio. 'pan'/'static' force one treatment regardless of aspect ratio —
+   * e.g. a document/map that needs a specific pre-picked crop instead of the
+   * auto-detected treatment should pass 'static' explicitly. */
+  panFillMode?: PanFillMode;
+  panDirection?: PanDirection;
 }) {
+  const panFill =
+    sourceWidth && sourceHeight
+      ? getPanFillTransform({ sourceWidth, sourceHeight, durationFrames, panFillMode, panDirection })
+      : null;
+  const isPan = panFill?.mode === 'pan';
+
+  // Pan-Fill's 'static' category defaults to a subtle scale-only drift
+  // (PAN_FILL_STATIC_SCALE_TO) instead of a frozen frame, unless the caller
+  // passed an explicit `motion` (which always wins). Legacy callers with no
+  // sourceWidth/sourceHeight (panFill is null) are unaffected — they keep the
+  // plain identity fallback exactly as before.
+  const m =
+    motion ??
+    (panFill?.mode === 'static'
+      ? { scaleFrom: 1, scaleTo: PAN_FILL_STATIC_SCALE_TO, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0, easing: 'easeInOutCubic' as const }
+      : { scaleFrom: 1, scaleTo: 1, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 });
   const easingFn =
-    motion.easing === 'easeInOutCubic'
+    m.easing === 'easeInOutCubic'
       ? Easing.inOut(Easing.cubic)
-      : motion.easing === 'easeInOut'
+      : m.easing === 'easeInOut'
       ? Easing.inOut(Easing.ease)
       : Easing.linear;
 
-  const scale = interpolate(frame, [0, durationFrames], [motion.scaleFrom, motion.scaleTo], {
+  const scale = interpolate(frame, [0, durationFrames], [m.scaleFrom, m.scaleTo], {
     easing: easingFn,
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const tx = interpolate(frame, [0, durationFrames], [motion.txFrom, motion.txTo], {
+  const tx = interpolate(frame, [0, durationFrames], [m.txFrom, m.txTo], {
     easing: easingFn,
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const ty = interpolate(frame, [0, durationFrames], [motion.tyFrom, motion.tyTo], {
+  const ty = interpolate(frame, [0, durationFrames], [m.tyFrom, m.tyTo], {
     easing: easingFn,
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
+
+  // Pan mode moves position only (no scale animation — the zoom stays fixed
+  // at baseScale, achieved here via height:100%/width:auto rather than
+  // object-fit:cover, so the rendered width is the deterministic pixel value
+  // getPanFillTransform's math is based on).
+  const panTx = isPan
+    ? interpolate(frame, [0, durationFrames], [panFill!.txFrom, panFill!.txTo], {
+        easing: Easing.inOut(Easing.ease),
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+      })
+    : 0;
 
   return (
     <AbsoluteFill style={{ overflow: 'hidden' }}>
@@ -609,14 +822,22 @@ export function KenBurnsImage({
       <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
         <Img
           src={staticFile(image)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center center',
-            transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
-            transformOrigin: motion.transformOrigin ?? 'center center',
-          }}
+          style={
+            isPan
+              ? {
+                  height: '100%',
+                  width: 'auto',
+                  transform: `translateX(${panTx}px)`,
+                }
+              : {
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center center',
+                  transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
+                  transformOrigin: m.transformOrigin ?? 'center center',
+                }
+          }
         />
       </AbsoluteFill>
     </AbsoluteFill>
@@ -655,7 +876,22 @@ export function SlidePanel({
   isFirst: boolean;
 }) {
   const frame = useCurrentFrame();
-  const { motion, durationFrames, overlayText, overlayPosition, image, captionLines, captionY, label, labelPosition } = slide;
+  const {
+    motion,
+    durationFrames,
+    overlayText,
+    overlayPosition,
+    image,
+    captionLines,
+    captionY,
+    label,
+    labelPosition,
+    sourceWidth,
+    sourceHeight,
+    panFillMode,
+    panDirection,
+    bottomOffset,
+  } = slide;
 
   // Cold open on slide 1 (full brightness frame 0), 4-frame hard cut on every
   // slide after that. No fade-out anywhere — hard cut ending, matches every
@@ -675,8 +911,17 @@ export function SlidePanel({
             image={image}
             frame={frame}
             durationFrames={durationFrames}
-            motion={motion ?? { scaleFrom: 1, scaleTo: 1, txFrom: 0, txTo: 0, tyFrom: 0, tyTo: 0 }}
+            // Passed through as-is (not pre-resolved to identity here) so
+            // KenBurnsImage's own fallback can tell an omitted motion apart
+            // from an explicit one — that's what lets Pan-Fill's 'static'
+            // category default to its subtle scale drift instead of always
+            // landing on a frozen identity motion.
+            motion={motion ?? undefined}
             hasBlurBackground={slide.hasBlurBackground}
+            sourceWidth={sourceWidth}
+            sourceHeight={sourceHeight}
+            panFillMode={panFillMode}
+            panDirection={panDirection}
           />
           <Vignette />
         </>
@@ -684,13 +929,17 @@ export function SlidePanel({
 
       {label && <ContextTag text={label} position={labelPosition ?? 'top-left'} />}
 
-      {overlayText && <GoldLowerThird text={overlayText} frame={frame} position={overlayPosition} />}
+      {overlayText && (
+        <GoldLowerThird text={overlayText} frame={frame} position={overlayPosition} bottomOffset={bottomOffset} />
+      )}
 
       {captionLines && (
         <CaptionOverlay
           lines={captionLines}
           audioDurationFrames={slide.audioDurationFrames}
           top={captionY}
+          overlayText={overlayText}
+          bottomOffset={bottomOffset}
         />
       )}
 

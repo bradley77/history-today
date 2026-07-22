@@ -39,6 +39,7 @@ import GettysburgRetreatQS, { totalDuration as gettysburgRetreatQSTotal, FPS as 
 import TrinityTestQS, { totalDuration as trinityTestQSTotal, FPS as trinityTestQSFPS } from './compositions/TrinityTestQS';
 import BattleOfTheBulgeQS, { totalDuration as battleOfTheBulgeQSTotal, FPS as battleOfTheBulgeQSFPS } from './compositions/BattleOfTheBulgeQS';
 import SonTayQS, { totalDuration as sonTayQSTotal, FPS as sonTayQSFPS } from './compositions/SonTayQS';
+import BullRun1QS, { totalDuration as bullRun1QSTotal, FPS as bullRun1QSFPS } from './compositions/BullRun1QS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -361,6 +362,14 @@ export const RemotionRoot = () => {
         component={SonTayQS}
         durationInFrames={sonTayQSTotal}
         fps={sonTayQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="BullRun1QS"
+        component={BullRun1QS}
+        durationInFrames={bullRun1QSTotal}
+        fps={bullRun1QSFPS}
         width={1080}
         height={1920}
       />
