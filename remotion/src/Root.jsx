@@ -41,6 +41,7 @@ import BattleOfTheBulgeQS, { totalDuration as battleOfTheBulgeQSTotal, FPS as ba
 import SonTayQS, { totalDuration as sonTayQSTotal, FPS as sonTayQSFPS } from './compositions/SonTayQS';
 import BullRun1QS, { totalDuration as bullRun1QSTotal, FPS as bullRun1QSFPS } from './compositions/BullRun1QS';
 import BattleOfAtlantaQS, { totalDuration as battleOfAtlantaQSTotal, FPS as battleOfAtlantaQSFPS } from './compositions/BattleOfAtlantaQS';
+import DayOfInfamyDraftQS, { totalDuration as dayOfInfamyDraftQSTotal, FPS as dayOfInfamyDraftQSFPS } from './compositions/DayOfInfamyDraftQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -379,6 +380,14 @@ export const RemotionRoot = () => {
         component={BattleOfAtlantaQS}
         durationInFrames={battleOfAtlantaQSTotal}
         fps={battleOfAtlantaQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="DayOfInfamyDraftQS"
+        component={DayOfInfamyDraftQS}
+        durationInFrames={dayOfInfamyDraftQSTotal}
+        fps={dayOfInfamyDraftQSFPS}
         width={1080}
         height={1920}
       />
