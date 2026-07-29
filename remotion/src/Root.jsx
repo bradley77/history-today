@@ -43,6 +43,7 @@ import BullRun1QS, { totalDuration as bullRun1QSTotal, FPS as bullRun1QSFPS } fr
 import BattleOfAtlantaQS, { totalDuration as battleOfAtlantaQSTotal, FPS as battleOfAtlantaQSFPS } from './compositions/BattleOfAtlantaQS';
 import DayOfInfamyDraftQS, { totalDuration as dayOfInfamyDraftQSTotal, FPS as dayOfInfamyDraftQSFPS } from './compositions/DayOfInfamyDraftQS';
 import IaDrangValleyQS, { totalDuration as iaDrangValleyQSTotal, FPS as iaDrangValleyQSFPS } from './compositions/IaDrangValleyQS';
+import AntietamQS, { totalDuration as antietamQSTotal, FPS as antietamQSFPS } from './compositions/AntietamQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -397,6 +398,14 @@ export const RemotionRoot = () => {
         component={IaDrangValleyQS}
         durationInFrames={iaDrangValleyQSTotal}
         fps={iaDrangValleyQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="AntietamQS"
+        component={AntietamQS}
+        durationInFrames={antietamQSTotal}
+        fps={antietamQSFPS}
         width={1080}
         height={1920}
       />

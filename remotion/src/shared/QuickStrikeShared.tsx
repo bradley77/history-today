@@ -85,6 +85,11 @@ export type SlideConfig = {
    * block down by this many px, past the normal y<=1580 safe-zone guarantee.
    * Defaults to 0 (no change, standard safe-zone behavior). */
   bottomOffset?: number;
+  /** Per-composition override of the module-level SAFE_ZONE_BOTTOM_Y, passed
+   * through to both GoldLowerThird and CaptionOverlay. Defaults to that
+   * constant, so every existing slide (every one that doesn't set this) is
+   * byte-for-byte unaffected. */
+  safeZoneBottomY?: number;
   /** Small gold label, e.g. "GETTYSBURG, PA — JULY 1, 1863" */
   label?: string;
   labelPosition?: 'top-left' | 'bottom-left';
@@ -161,6 +166,14 @@ export function GoldLowerThird({
   // Must match whatever's passed to the paired CaptionOverlay's own
   // bottomOffset, or the two boxes drift out of sync.
   bottomOffset = 0,
+  // Per-composition override of the module-level SAFE_ZONE_BOTTOM_Y.
+  // Defaults to that constant, so every existing caller (every composition
+  // that doesn't pass this) is byte-for-byte unaffected. Added for
+  // AntietamQS.tsx, which needed a boundary 10px looser than the standing
+  // 1580 default without moving that default for the other 22 compositions
+  // built on this shared engine — see AntietamQS.tsx for the margin math
+  // that justified it for that composition specifically.
+  safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
 }: {
   text: string;
   frame: number;
@@ -169,6 +182,7 @@ export function GoldLowerThird({
   fontSize?: number;
   lineHeight?: number;
   bottomOffset?: number;
+  safeZoneBottomY?: number;
 }) {
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, delayFrames);
 
@@ -177,21 +191,22 @@ export function GoldLowerThird({
       style={{
         justifyContent: position === 'top' ? 'flex-start' : 'flex-end',
         alignItems: 'center',
-        // Bottom padding is derived from SAFE_ZONE_BOTTOM_Y (currently
-        // resolves to 360px, keeping the box's bottom edge at y=1560 on the
-        // 1920px canvas) rather than a hardcoded number, so the guarantee
-        // holds even if the safe-zone line above ever changes. justifyContent
-        // 'flex-end' + this padding anchors the box from the bottom up: the
-        // child grows upward as its content gets taller, and its bottom edge
-        // never moves. Ported from GettysburgRetreatQS.tsx's one-off fix so
-        // every composition using this shared component gets it.
+        // Bottom padding is derived from safeZoneBottomY (defaults to the
+        // module-level SAFE_ZONE_BOTTOM_Y, currently resolving to 360px and
+        // keeping the box's bottom edge at y=1560 on the 1920px canvas)
+        // rather than a hardcoded number, so the guarantee holds even if the
+        // safe-zone line above ever changes. justifyContent 'flex-end' +
+        // this padding anchors the box from the bottom up: the child grows
+        // upward as its content gets taller, and its bottom edge never
+        // moves. Ported from GettysburgRetreatQS.tsx's one-off fix so every
+        // composition using this shared component gets it.
         // Top-anchored variant (position='top') uses the same 140px clearance
         // the bottom box had before that fix — the top of frame has no
         // reserved platform UI, so it doesn't need the larger margin.
         padding:
           position === 'top'
             ? '140px 48px 0'
-            : `0 48px ${CANVAS_HEIGHT - SAFE_ZONE_BOTTOM_Y + BOTTOM_SAFE_BUFFER - bottomOffset}px`,
+            : `0 48px ${CANVAS_HEIGHT - safeZoneBottomY + BOTTOM_SAFE_BUFFER - bottomOffset}px`,
         pointerEvents: 'none',
       }}
     >
@@ -361,22 +376,41 @@ function headlineBoxHeight(lineCount: number, fontSize: number, lineHeight: numb
   return HEADLINE_RULE_HEIGHT * 2 + HEADLINE_RULE_GAP * 2 + HEADLINE_V_PADDING * 2 + lineCount * fontSize * lineHeight;
 }
 
-// GoldLowerThird's bottom is pinned at SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER
-// (currently 1560) — see GoldLowerThird's padding, which is derived the same
-// way. bottomOffset mirrors GoldLowerThird's own experimental bottomOffset
-// prop (defaults to 0) — pass the SAME value given to the paired
-// GoldLowerThird/CaptionOverlay or the headline/caption math falls out of sync.
-function computeHeadlineTopY(text: string, fontSize: number, lineHeight: number, bottomOffset = 0): number {
+// GoldLowerThird's bottom is pinned at safeZoneBottomY - BOTTOM_SAFE_BUFFER
+// (currently 1560, using the default safeZoneBottomY) — see GoldLowerThird's
+// padding, which is derived the same way. bottomOffset mirrors GoldLowerThird's
+// own experimental bottomOffset prop (defaults to 0) — pass the SAME value
+// given to the paired GoldLowerThird/CaptionOverlay or the headline/caption
+// math falls out of sync. safeZoneBottomY likewise mirrors GoldLowerThird's
+// own safeZoneBottomY override (defaults to the module constant) and must
+// match whatever the paired GoldLowerThird/CaptionOverlay were given.
+function computeHeadlineTopY(
+  text: string,
+  fontSize: number,
+  lineHeight: number,
+  bottomOffset = 0,
+  safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
+): number {
   const lineCount = estimateWrappedLineCount(text, HEADLINE_MAX_WIDTH, fontSize);
-  return SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER + bottomOffset - headlineBoxHeight(lineCount, fontSize, lineHeight);
+  return safeZoneBottomY - BOTTOM_SAFE_BUFFER + bottomOffset - headlineBoxHeight(lineCount, fontSize, lineHeight);
 }
 
 // The Y a caption's bottom edge must stay at or above: the headline's own
 // rule/padding chrome is empty space a caption may sit under, so this adds
 // HEADLINE_CHROME_BEFORE_TEXT back before applying the caption-to-headline
 // gap, rather than measuring from the box's outer top.
-function computeCaptionCeilingAboveHeadline(text: string, fontSize: number, lineHeight: number, bottomOffset = 0): number {
-  return computeHeadlineTopY(text, fontSize, lineHeight, bottomOffset) + HEADLINE_CHROME_BEFORE_TEXT - CAPTION_HEADLINE_GAP;
+function computeCaptionCeilingAboveHeadline(
+  text: string,
+  fontSize: number,
+  lineHeight: number,
+  bottomOffset = 0,
+  safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
+): number {
+  return (
+    computeHeadlineTopY(text, fontSize, lineHeight, bottomOffset, safeZoneBottomY) +
+    HEADLINE_CHROME_BEFORE_TEXT -
+    CAPTION_HEADLINE_GAP
+  );
 }
 
 // For slides with a hard image floor (sharpContentBottomY): the floor is
@@ -458,6 +492,12 @@ export function CaptionOverlay({
   // for every existing caller. Pass the SAME value given to the paired
   // GoldLowerThird so the two boxes move down together, not independently.
   bottomOffset = 0,
+  // Per-composition override of the module-level SAFE_ZONE_BOTTOM_Y, mirrors
+  // GoldLowerThird's own safeZoneBottomY prop. Defaults to that constant, so
+  // every existing caller (every composition that doesn't pass this) is
+  // byte-for-byte unaffected. Must match whatever the paired GoldLowerThird
+  // was given, or the two boxes' ceiling math disagrees.
+  safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
 }: {
   lines: string[];
   audioDurationFrames: number;
@@ -467,6 +507,7 @@ export function CaptionOverlay({
   headlineFontSize?: number;
   headlineLineHeight?: number;
   bottomOffset?: number;
+  safeZoneBottomY?: number;
 }) {
   const frame = useCurrentFrame();
 
@@ -494,10 +535,13 @@ export function CaptionOverlay({
   // bottom up (block height first) rather than trusting a fixed top offset
   // that only happens to work for short lines / short headlines.
   const { safeTop, fontSize } = useMemo(() => {
-    const safeZoneCeiling = SAFE_ZONE_BOTTOM_Y - BOTTOM_SAFE_BUFFER + bottomOffset;
+    const safeZoneCeiling = safeZoneBottomY - BOTTOM_SAFE_BUFFER + bottomOffset;
     const ceiling =
       overlayText !== undefined
-        ? Math.min(safeZoneCeiling, computeCaptionCeilingAboveHeadline(overlayText, headlineFontSize, headlineLineHeight, bottomOffset))
+        ? Math.min(
+            safeZoneCeiling,
+            computeCaptionCeilingAboveHeadline(overlayText, headlineFontSize, headlineLineHeight, bottomOffset, safeZoneBottomY),
+          )
         : safeZoneCeiling;
     const usableWidth = CAPTION_MAX_WIDTH - CAPTION_H_PADDING * 2;
 
@@ -534,7 +578,7 @@ export function CaptionOverlay({
     const height = captionBlockHeight(lineCount, CAPTION_FONT_SIZE);
     const maxTop = ceiling - height;
     return { safeTop: Math.min(top, maxTop), fontSize: CAPTION_FONT_SIZE };
-  }, [active.line, top, sharpContentBottomY, overlayText, headlineFontSize, headlineLineHeight, bottomOffset]);
+  }, [active.line, top, sharpContentBottomY, overlayText, headlineFontSize, headlineLineHeight, bottomOffset, safeZoneBottomY]);
 
   // Fade in over 10 frames, fade out over the last 6 frames of audio — never
   // visible during the trailing pad.
@@ -891,6 +935,7 @@ export function SlidePanel({
     panFillMode,
     panDirection,
     bottomOffset,
+    safeZoneBottomY,
   } = slide;
 
   // Cold open on slide 1 (full brightness frame 0), 4-frame hard cut on every
@@ -930,7 +975,13 @@ export function SlidePanel({
       {label && <ContextTag text={label} position={labelPosition ?? 'top-left'} />}
 
       {overlayText && (
-        <GoldLowerThird text={overlayText} frame={frame} position={overlayPosition} bottomOffset={bottomOffset} />
+        <GoldLowerThird
+          text={overlayText}
+          frame={frame}
+          position={overlayPosition}
+          bottomOffset={bottomOffset}
+          safeZoneBottomY={safeZoneBottomY}
+        />
       )}
 
       {captionLines && (
@@ -940,6 +991,7 @@ export function SlidePanel({
           top={captionY}
           overlayText={overlayText}
           bottomOffset={bottomOffset}
+          safeZoneBottomY={safeZoneBottomY}
         />
       )}
 
@@ -960,11 +1012,19 @@ export function EndCardCTA({
   subline = 'FOLLOW FOR MORE',
   audio,
   backgroundImage,
+  // Accepted for API consistency with GoldLowerThird/CaptionOverlay/
+  // SlidePanel's own safeZoneBottomY override, but currently unused:
+  // EndCardCTA's layout is centered (justifyContent: 'center'), not anchored
+  // off SAFE_ZONE_BOTTOM_Y at all, so there's nothing for this to affect yet.
+  // Kept as a no-op prop rather than omitted so a future bottom-anchored
+  // element on this card doesn't need a signature change to pick it up.
+  safeZoneBottomY: _safeZoneBottomY,
 }: {
   triggerWord: string;
   subline?: string;
   audio?: string;
   backgroundImage?: string;
+  safeZoneBottomY?: number;
 }) {
   const frame = useCurrentFrame();
   const textOpacity = interpolate(frame, [0, 12], [0, 1], {
