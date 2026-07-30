@@ -221,7 +221,21 @@ export function GoldLowerThird({
             marginRight: 'auto',
           }}
         />
-        <div style={{ backgroundColor: 'rgba(0,0,0,0.60)', padding: '24px 40px', textAlign: 'center' }}>
+        <div
+          style={{
+            backgroundColor: 'rgba(0,0,0,0.60)',
+            padding: '24px 40px',
+            textAlign: 'center',
+            // Tied to the same textOpacity as the headline below, not left at
+            // full opacity — otherwise this backdrop paints solid at frame 0
+            // (delayFrames before textOpacity starts rising) with no text in
+            // it yet, showing as an empty dark box for the first ~8 frames.
+            // Most visible on a cold-open first slide (isFirst, no panel
+            // fade-in to mask it) but present on every slide using this
+            // component before this fix.
+            opacity: textOpacity,
+          }}
+        >
           <p
             style={{
               fontSize,
@@ -232,7 +246,6 @@ export function GoldLowerThird({
               textShadow: '0 2px 14px rgba(0,0,0,0.95)',
               fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
               letterSpacing: '0.01em',
-              opacity: textOpacity,
             }}
           >
             {text}

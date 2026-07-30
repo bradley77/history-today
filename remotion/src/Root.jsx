@@ -44,6 +44,7 @@ import BattleOfAtlantaQS, { totalDuration as battleOfAtlantaQSTotal, FPS as batt
 import DayOfInfamyDraftQS, { totalDuration as dayOfInfamyDraftQSTotal, FPS as dayOfInfamyDraftQSFPS } from './compositions/DayOfInfamyDraftQS';
 import IaDrangValleyQS, { totalDuration as iaDrangValleyQSTotal, FPS as iaDrangValleyQSFPS } from './compositions/IaDrangValleyQS';
 import AntietamQS, { totalDuration as antietamQSTotal, FPS as antietamQSFPS } from './compositions/AntietamQS';
+import LittleBighornQS, { totalDuration as littleBighornQSTotal, FPS as littleBighornQSFPS } from './compositions/LittleBighornQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -406,6 +407,14 @@ export const RemotionRoot = () => {
         component={AntietamQS}
         durationInFrames={antietamQSTotal}
         fps={antietamQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="LittleBighornQS"
+        component={LittleBighornQS}
+        durationInFrames={littleBighornQSTotal}
+        fps={littleBighornQSFPS}
         width={1080}
         height={1920}
       />
