@@ -90,6 +90,26 @@ export type SlideConfig = {
    * constant, so every existing slide (every one that doesn't set this) is
    * byte-for-byte unaffected. */
   safeZoneBottomY?: number;
+  /** Per-composition override of GoldLowerThird's default fontSize (52) /
+   * lineHeight (1.25), passed through to BOTH GoldLowerThird (so the
+   * headline actually renders smaller) and CaptionOverlay's own
+   * headlineFontSize/headlineLineHeight props (so the caption's ceiling math
+   * stays accurate against the headline's real rendered size — the two MUST
+   * match or the caption can sit with more/less clearance than intended).
+   * Defaults to undefined on both, which resolves to each component's own
+   * unchanged default — so every existing slide (every one that doesn't set
+   * this) is byte-for-byte unaffected. See REDUCED_HEADLINE_FONT_SIZE /
+   * REDUCED_HEADLINE_LINE_HEIGHT below for the recommended smaller values,
+   * same opt-in mechanism as safeZoneBottomY (July 2026 fix, commit ca6df37). */
+  headlineFontSize?: number;
+  headlineLineHeight?: number;
+  /** Per-composition override of CaptionOverlay's default captionFontSize
+   * (38) / captionLineHeight (1.3). Defaults to undefined, which resolves to
+   * CaptionOverlay's own unchanged defaults — so every existing slide (every
+   * one that doesn't set this) is byte-for-byte unaffected. See
+   * REDUCED_CAPTION_FONT_SIZE / REDUCED_CAPTION_LINE_HEIGHT below. */
+  captionFontSize?: number;
+  captionLineHeight?: number;
   /** Small gold label, e.g. "GETTYSBURG, PA — JULY 1, 1863" */
   label?: string;
   labelPosition?: 'top-left' | 'bottom-left';
@@ -319,6 +339,24 @@ const CAPTION_LINE_HEIGHT = 1.3;
 // Gap kept below a blur-border-fill image's sharp content (sharpContentBottomY).
 const SHARP_CONTENT_MARGIN = 25;
 
+// Recommended smaller sizes for NEW compositions — opt in via SlideConfig's
+// captionFontSize/captionLineHeight (CaptionOverlay) and headlineFontSize/
+// headlineLineHeight (GoldLowerThird), threaded through by SlidePanel. ~16%
+// off both historical defaults (38/52), line-height nudged up slightly to
+// keep the smaller text feeling substantial rather than dense. Letter-
+// spacing deliberately left untouched on the caption: estimateWrappedLineCount
+// below measures with canvas.measureText, which does NOT account for CSS
+// letter-spacing (see HEADLINE_WRAP_SAFETY_FACTOR's comment for the same gap
+// on the headline side) — adding new letter-spacing to the caption would
+// silently under-count wrapped lines and erode the safe-zone clamp's
+// accuracy, so line-height (fully accounted for by captionBlockHeight below)
+// was used instead wherever more visual weight was wanted.
+// Existing compositions that don't set these fields are completely
+// unaffected, on this or any future render — same opt-in mechanism as
+// safeZoneBottomY (July 2026 caption/safe-zone fix, commit ca6df37).
+export const REDUCED_CAPTION_FONT_SIZE = 32; // was 38 (-15.8%)
+export const REDUCED_CAPTION_LINE_HEIGHT = 1.35; // was 1.3
+
 // Replays the browser's own greedy line-wrap against the caption box's real
 // font and width, so the safe-zone clamp below is based on the box's ACTUAL
 // rendered height for arbitrarily long captions — not a guess tuned to look
@@ -344,8 +382,11 @@ function estimateWrappedLineCount(text: string, maxTextWidth: number, fontSize: 
   return lineCount;
 }
 
-function captionBlockHeight(lineCount: number, fontSize: number): number {
-  return lineCount * fontSize * CAPTION_LINE_HEIGHT + CAPTION_V_PADDING * 2;
+// lineHeight defaults to CAPTION_LINE_HEIGHT so the one other caller
+// (computeFloorAwareHeadlineFit, which has no captionLineHeight override of
+// its own) is byte-for-byte unaffected by this parameter's addition.
+function captionBlockHeight(lineCount: number, fontSize: number, lineHeight: number = CAPTION_LINE_HEIGHT): number {
+  return lineCount * fontSize * lineHeight + CAPTION_V_PADDING * 2;
 }
 
 // GoldLowerThird's own box math (font/padding/rule sizes mirrored from that
@@ -356,6 +397,24 @@ function captionBlockHeight(lineCount: number, fontSize: number): number {
 const HEADLINE_FONT_SIZE = 52;
 const HEADLINE_LINE_HEIGHT = 1.25;
 const HEADLINE_MIN_FONT_SIZE = 32; // floor for computeFloorAwareHeadlineFit's shrink loop
+
+// Recommended smaller sizes for NEW compositions — opt in via SlideConfig's
+// headlineFontSize/headlineLineHeight, threaded through by SlidePanel to
+// BOTH GoldLowerThird (fontSize/lineHeight props, already existed and were
+// already independently overridable — just never wired through SlideConfig
+// before) and CaptionOverlay's headlineFontSize/headlineLineHeight (so the
+// caption's ceiling-above-headline math stays accurate). ~15% off the
+// historical default (52), line-height nudged up slightly to keep the
+// smaller headline feeling substantial. Letter-spacing left at
+// GoldLowerThird's existing 0.01em — HEADLINE_WRAP_SAFETY_FACTOR below
+// already absorbs that value's canvas.measureText undercount; a larger
+// letter-spacing would need its own re-calibration of that factor, which is
+// out of scope here. See REDUCED_CAPTION_FONT_SIZE above for the caption
+// counterpart. Existing compositions that don't set these fields are
+// completely unaffected, on this or any future render — same opt-in
+// mechanism as safeZoneBottomY (July 2026 caption/safe-zone fix, ca6df37).
+export const REDUCED_HEADLINE_FONT_SIZE = 44; // was 52 (-15.4%)
+export const REDUCED_HEADLINE_LINE_HEIGHT = 1.3; // was 1.25
 const HEADLINE_H_PADDING = 40; // each side, GoldLowerThird's box '24px 40px'
 const HEADLINE_V_PADDING = 24;
 const HEADLINE_RULE_HEIGHT = 3;
@@ -511,6 +570,19 @@ export function CaptionOverlay({
   // byte-for-byte unaffected. Must match whatever the paired GoldLowerThird
   // was given, or the two boxes' ceiling math disagrees.
   safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
+  // Per-composition override of this caption's OWN rendered font size /
+  // line height (distinct from headlineFontSize/headlineLineHeight above,
+  // which describe the PAIRED HEADLINE for ceiling math, not this caption).
+  // Defaults to the existing CAPTION_FONT_SIZE/CAPTION_LINE_HEIGHT module
+  // constants, so every existing caller (every composition that doesn't
+  // pass this) is byte-for-byte unaffected — every place below that used to
+  // read the module constant directly now reads this prop instead, so the
+  // safe-zone wrap/height math (estimateWrappedLineCount, captionBlockHeight)
+  // stays accurate for whatever size is actually being rendered. See
+  // REDUCED_CAPTION_FONT_SIZE / REDUCED_CAPTION_LINE_HEIGHT for the
+  // recommended smaller values.
+  captionFontSize = CAPTION_FONT_SIZE,
+  captionLineHeight = CAPTION_LINE_HEIGHT,
 }: {
   lines: string[];
   audioDurationFrames: number;
@@ -521,6 +593,8 @@ export function CaptionOverlay({
   headlineLineHeight?: number;
   bottomOffset?: number;
   safeZoneBottomY?: number;
+  captionFontSize?: number;
+  captionLineHeight?: number;
 }) {
   const frame = useCurrentFrame();
 
@@ -567,7 +641,11 @@ export function CaptionOverlay({
       // wide establishing shot) must not strand the caption up near the
       // middle of the frame just because a floor was supplied.
       const floor = sharpContentBottomY + SHARP_CONTENT_MARGIN;
-      const naturalHeight = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, CAPTION_FONT_SIZE), CAPTION_FONT_SIZE);
+      const naturalHeight = captionBlockHeight(
+        estimateWrappedLineCount(active.line, usableWidth, captionFontSize),
+        captionFontSize,
+        captionLineHeight,
+      );
       const naturalTarget = Math.min(top, ceiling - naturalHeight);
       const desiredTop = Math.max(floor, naturalTarget);
 
@@ -576,22 +654,33 @@ export function CaptionOverlay({
       // the headline (computeFloorAwareHeadlineFit), not by moving the caption
       // off the floor.
       const availableHeight = ceiling - desiredTop;
-      let size = CAPTION_FONT_SIZE;
-      let height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size);
+      let size = captionFontSize;
+      let height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size, captionLineHeight);
       while (height > availableHeight && size > CAPTION_MIN_FONT_SIZE) {
         size -= 2;
-        height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size);
+        height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size, captionLineHeight);
       }
       return { safeTop: desiredTop, fontSize: size };
     }
 
     // No hard floor (ordinary full-bleed slide) — free to slide the box
     // upward to stay under the ceiling instead of shrinking the font.
-    const lineCount = estimateWrappedLineCount(active.line, usableWidth, CAPTION_FONT_SIZE);
-    const height = captionBlockHeight(lineCount, CAPTION_FONT_SIZE);
+    const lineCount = estimateWrappedLineCount(active.line, usableWidth, captionFontSize);
+    const height = captionBlockHeight(lineCount, captionFontSize, captionLineHeight);
     const maxTop = ceiling - height;
-    return { safeTop: Math.min(top, maxTop), fontSize: CAPTION_FONT_SIZE };
-  }, [active.line, top, sharpContentBottomY, overlayText, headlineFontSize, headlineLineHeight, bottomOffset, safeZoneBottomY]);
+    return { safeTop: Math.min(top, maxTop), fontSize: captionFontSize };
+  }, [
+    active.line,
+    top,
+    sharpContentBottomY,
+    overlayText,
+    headlineFontSize,
+    headlineLineHeight,
+    bottomOffset,
+    safeZoneBottomY,
+    captionFontSize,
+    captionLineHeight,
+  ]);
 
   // Fade in over 10 frames, fade out over the last 6 frames of audio — never
   // visible during the trailing pad.
@@ -623,7 +712,7 @@ export function CaptionOverlay({
           color: '#fff',
           fontSize,
           fontWeight: 700,
-          lineHeight: CAPTION_LINE_HEIGHT,
+          lineHeight: captionLineHeight,
           textAlign: 'center',
           padding: `${CAPTION_V_PADDING}px ${CAPTION_H_PADDING}px`,
           borderRadius: 6,
@@ -949,6 +1038,10 @@ export function SlidePanel({
     panDirection,
     bottomOffset,
     safeZoneBottomY,
+    headlineFontSize,
+    headlineLineHeight,
+    captionFontSize,
+    captionLineHeight,
   } = slide;
 
   // Cold open on slide 1 (full brightness frame 0), 4-frame hard cut on every
@@ -994,6 +1087,8 @@ export function SlidePanel({
           position={overlayPosition}
           bottomOffset={bottomOffset}
           safeZoneBottomY={safeZoneBottomY}
+          fontSize={headlineFontSize}
+          lineHeight={headlineLineHeight}
         />
       )}
 
@@ -1005,6 +1100,10 @@ export function SlidePanel({
           overlayText={overlayText}
           bottomOffset={bottomOffset}
           safeZoneBottomY={safeZoneBottomY}
+          headlineFontSize={headlineFontSize}
+          headlineLineHeight={headlineLineHeight}
+          captionFontSize={captionFontSize}
+          captionLineHeight={captionLineHeight}
         />
       )}
 

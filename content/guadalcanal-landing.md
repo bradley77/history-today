@@ -1,0 +1,31 @@
+---
+title: "The Marines Who Landed on Guadalcanal Expected a Fight. On the Big Island, They Got a Ghost Town"
+date: "August 7, 1942"
+category: "World War II"
+tag: "WWII"
+slug: "guadalcanal-landing"
+publishDate: "2026-08-07 08:00"
+excerpt: "On August 7, 1942, roughly 11,000 Marines walked onto Guadalcanal almost unopposed. A few miles away, on three islets nobody remembers the names of, another few thousand fought the bloodiest few days of their lives."
+caption: "First Marine Division troops move inland along a jungle trail on Guadalcanal, August 1942."
+sourceUrl: "/documents/guadalcanal-landing-document.pdf"
+sourceName: "Headquarters, First Marine Division, Final Report on Guadalcanal Operation, Phase I: Events Prior to H Hour, 7 August 1942 (May 24, 1943)"
+documentCaption: "The division commander's own after-action report, declassified and stamped by the Navy Department Library, opens with the blunt phrase every Marine on the beach that morning would have recognized: Phase I, events prior to H-Hour."
+---
+
+At 0910 on the morning of August 7, 1942, Major General Alexander Vandegrift and roughly 11,000 United States Marines walked ashore on Guadalcanal between Koli Point and Lunga Point, and almost nothing happened.
+
+That is not how the story usually gets told. The popular image of Guadalcanal is six months of jungle hell, the first time American troops learned what a Japanese defense actually looked like. That image is accurate. It is just not accurate about the morning of August 7 on Guadalcanal itself.
+
+The landing force had been organized under the codename Operation Watchtower, though the Marines who went in with it had another name for it: Operation Shoestring. The 1st Marine Division had never fought together as a division, and it was assembled and dispatched to the Pacific on a timetable compressed enough that parts of it were still short of training when the orders came down. Men carried M1903 Springfield rifles, a bolt-action design left over from the First World War, and planners had already trimmed the supply allotment from 90 days down to 60 to get the ships moving faster. Nobody involved thought this was going to be easy.
+
+Bad weather may have saved them the trouble. A Japanese patrol aircraft flying out of Tulagi had searched the approach waters in the days before the landing and never spotted the invasion fleet, apparently thanks to storms and heavy cloud cover. When naval gunfire and carrier aircraft opened up on the beaches that morning, the roughly 2,800 Japanese personnel stationed on Guadalcanal, the vast majority Korean laborers and Japanese construction specialists building an airfield at Lunga Point rather than frontline troops, mostly withdrew inland instead of attempting a determined defense. According to the division's own after-action report, filed the following spring, the landing force crossed the beach, pushed inland against what its officers politely called "no signs of hostile reconnaissance," and by afternoon had reached terrain the maps had labeled, only half joking, "Grassy Knoll." The Japanese garrison had already abandoned its half-finished airstrip and fled toward the Matanikau River, leaving behind food, vehicles, and construction equipment. The Marines counted about a dozen Japanese dead in the area. The airfield itself, renamed Henderson Field five days later for a Marine flier killed at Midway, was secured by the evening of August 8, though scattered contacts with stragglers continued for days afterward.
+
+None of that was true a few miles to the north.
+
+While Vandegrift's main body was walking into an empty construction camp, roughly 3,000 Marines under Brigadier General William Rupertus were assaulting Tulagi, Gavutu, and Tanambogo, three small islands guarding a natural harbor the Japanese had been using as a seaplane base. The garrison there was not made up of laborers. It belonged to a Special Naval Landing Force, Japan's rough equivalent of Marines, and it had spent months digging into caves, tunnels, and coral ridges that naval bombardment barely touched. The division's report on that fighting describes it in a flatter tone than the subject deserves: coordinated cave defenses, interlocking machine gun fire, sandbagged positions "combined with dug-outs" that gave a small number of defenders an outsized number of weapons. The 1st Raider Battalion hit Tulagi at 0800. Parachute troops came ashore on Gavutu four hours later into fire heavy enough that roughly one man in ten who landed on the dock became a casualty before he ever reached cover. Tanambogo held out until a Marine light tank crew, working with the paratroopers, forced the last defenders back into their caves.
+
+By the time organized resistance ended, on the ninth of August for Tulagi and shortly after for the other two islets, the same after-action report put Marine casualties in the northern operation at 248 men, more than a hundred of them killed, missing, or dead of wounds. Japanese losses were harder to count precisely because so few defenders survived to be counted at all. The report's own estimate, offered with the hedge that estimate deserves, was that of somewhere near 1,500 Japanese personnel on the three islands, fewer than thirty were taken prisoner and perhaps seventy escaped by swimming to Florida Island. The rest were dead.
+
+So the same morning produced two entirely different wars. On the big island, an amphibious landing that went about as smoothly as any amphibious landing ever has, against a garrison made up largely of construction troops whose job was to build an airfield, not defend it to the last man. A few miles offshore, a fight against a garrison that defended those three islets almost to the last man, and was almost completely destroyed doing it.
+
+The distinction mattered within days. Japanese command at Rabaul, still working out what exactly had happened at Guadalcanal, would spend the next six months trying to take Henderson Field back by land, sea, and air, treating the loss of that airstrip as the emergency it was. The men who had walked ashore almost unopposed on August 7 were the ones who would spend the rest of 1942 finding out that an easy landing and an easy campaign are two very different promises.

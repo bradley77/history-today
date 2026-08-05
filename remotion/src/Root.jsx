@@ -47,6 +47,7 @@ import AntietamQS, { totalDuration as antietamQSTotal, FPS as antietamQSFPS } fr
 import LittleBighornQS, { totalDuration as littleBighornQSTotal, FPS as littleBighornQSFPS } from './compositions/LittleBighornQS';
 import DoolittleRaidQS, { totalDuration as doolittleRaidQSTotal, FPS as doolittleRaidQSFPS } from './compositions/DoolittleRaidQS';
 import TetCitadelQS, { totalDuration as tetCitadelQSTotal, FPS as tetCitadelQSFPS } from './compositions/TetCitadelQS';
+import LostOrdersQS, { totalDuration as lostOrdersQSTotal, FPS as lostOrdersQSFPS } from './compositions/LostOrdersQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -433,6 +434,14 @@ export const RemotionRoot = () => {
         component={TetCitadelQS}
         durationInFrames={tetCitadelQSTotal}
         fps={tetCitadelQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="LostOrdersQS"
+        component={LostOrdersQS}
+        durationInFrames={lostOrdersQSTotal}
+        fps={lostOrdersQSFPS}
         width={1080}
         height={1920}
       />
