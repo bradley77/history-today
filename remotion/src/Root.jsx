@@ -48,6 +48,7 @@ import LittleBighornQS, { totalDuration as littleBighornQSTotal, FPS as littleBi
 import DoolittleRaidQS, { totalDuration as doolittleRaidQSTotal, FPS as doolittleRaidQSFPS } from './compositions/DoolittleRaidQS';
 import TetCitadelQS, { totalDuration as tetCitadelQSTotal, FPS as tetCitadelQSFPS } from './compositions/TetCitadelQS';
 import LostOrdersQS, { totalDuration as lostOrdersQSTotal, FPS as lostOrdersQSFPS } from './compositions/LostOrdersQS';
+import TrumanMillionVerdict, { totalDuration as trumanMillionVerdictTotal, FPS as trumanMillionVerdictFPS } from './compositions/TrumanMillionVerdict';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -442,6 +443,14 @@ export const RemotionRoot = () => {
         component={LostOrdersQS}
         durationInFrames={lostOrdersQSTotal}
         fps={lostOrdersQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="TrumanMillionVerdict"
+        component={TrumanMillionVerdict}
+        durationInFrames={trumanMillionVerdictTotal}
+        fps={trumanMillionVerdictFPS}
         width={1080}
         height={1920}
       />

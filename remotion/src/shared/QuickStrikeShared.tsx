@@ -583,6 +583,14 @@ export function CaptionOverlay({
   // recommended smaller values.
   captionFontSize = CAPTION_FONT_SIZE,
   captionLineHeight = CAPTION_LINE_HEIGHT,
+  // Per-composition override of this caption's font family. Defaults to
+  // undefined, which means no fontFamily is set on the rendered div at all
+  // — i.e. every existing caller (every composition that doesn't pass this)
+  // keeps inheriting whatever the browser/document default resolves to
+  // (typically a serif), byte-for-byte unaffected. Pass GoldLowerThird's own
+  // stack ("'Oswald', Impact, 'Arial Black', sans-serif") to match the
+  // headline's bold sans instead.
+  fontFamily,
 }: {
   lines: string[];
   audioDurationFrames: number;
@@ -595,6 +603,7 @@ export function CaptionOverlay({
   safeZoneBottomY?: number;
   captionFontSize?: number;
   captionLineHeight?: number;
+  fontFamily?: string;
 }) {
   const frame = useCurrentFrame();
 
@@ -713,6 +722,7 @@ export function CaptionOverlay({
           fontSize,
           fontWeight: 700,
           lineHeight: captionLineHeight,
+          fontFamily,
           textAlign: 'center',
           padding: `${CAPTION_V_PADDING}px ${CAPTION_H_PADDING}px`,
           borderRadius: 6,
