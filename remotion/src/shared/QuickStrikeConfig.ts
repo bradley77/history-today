@@ -10,6 +10,7 @@ export const CTA_CONFIG = {
   RECON:    { subline: 'COMMENT RECON TO GET THE FREE VIETNAM FACT SHEET', era: 'Vietnam' },
   SEVENTHCAV: { subline: 'COMMENT SEVENTHCAV TO GET THE FREE 5-FACT LITTLE BIGHORN PDF', era: 'Plains Indian Wars' },
   CITADEL:  { subline: 'COMMENT CITADEL TO GET THE FREE 5-FACT VIETNAM PDF', era: 'Vietnam' },
+  MARYESANGEL: { subline: 'COMMENT MARYESANGEL TO GET THE FREE 5-FACT CIVIL WAR PDF', era: 'Civil War' },
 } as const;
 
 export type CTATriggerWord = keyof typeof CTA_CONFIG;
