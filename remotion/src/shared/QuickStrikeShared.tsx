@@ -194,6 +194,22 @@ export function GoldLowerThird({
   // built on this shared engine — see AntietamQS.tsx for the margin math
   // that justified it for that composition specifically.
   safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
+  // Small tracked-caps line stacked above `text`, inside the SAME box,
+  // sharing this component's one textOpacity reveal — e.g. "AUGUST 4, 1964"
+  // over a hook headline. Omitted entirely (not rendered as an empty row)
+  // when undefined, so every existing caller is byte-for-byte unaffected.
+  // Pass the SAME value to the paired CaptionOverlay's own kickerText prop,
+  // or the two boxes' ceiling math disagrees about this box's real height.
+  kicker,
+  kickerFontSize = KICKER_FONT_SIZE,
+  kickerMarginBottom = KICKER_MARGIN_BOTTOM,
+  kickerColor = GOLD,
+  // Per-composition override of the box's own background opacity/padding —
+  // e.g. lowered for a slide where the standard 0.60 box reads as crowding
+  // out the image behind it. Defaults to the historical values, so every
+  // existing caller is byte-for-byte unaffected.
+  boxOpacity = 0.6,
+  boxPadding = '24px 40px',
 }: {
   text: string;
   frame: number;
@@ -203,6 +219,12 @@ export function GoldLowerThird({
   lineHeight?: number;
   bottomOffset?: number;
   safeZoneBottomY?: number;
+  kicker?: string;
+  kickerFontSize?: number;
+  kickerMarginBottom?: number;
+  kickerColor?: string;
+  boxOpacity?: number;
+  boxPadding?: string;
 }) {
   const { ruleWidth, textOpacity } = useGoldOverlay(frame, delayFrames);
 
@@ -243,8 +265,8 @@ export function GoldLowerThird({
         />
         <div
           style={{
-            backgroundColor: 'rgba(0,0,0,0.60)',
-            padding: '24px 40px',
+            backgroundColor: `rgba(0,0,0,${boxOpacity})`,
+            padding: boxPadding,
             textAlign: 'center',
             // Tied to the same textOpacity as the headline below, not left at
             // full opacity — otherwise this backdrop paints solid at frame 0
@@ -256,6 +278,21 @@ export function GoldLowerThird({
             opacity: textOpacity,
           }}
         >
+          {kicker !== undefined && (
+            <p
+              style={{
+                fontSize: kickerFontSize,
+                fontWeight: 600,
+                color: kickerColor,
+                margin: `0 0 ${kickerMarginBottom}px`,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                fontFamily: "'Oswald', Impact, 'Arial Black', sans-serif",
+              }}
+            >
+              {kicker}
+            </p>
+          )}
           <p
             style={{
               fontSize,
@@ -444,8 +481,30 @@ const CAPTION_HEADLINE_GAP = 20;
 // the ceiling needlessly conservative by this many pixels on every slide.
 const HEADLINE_CHROME_BEFORE_TEXT = HEADLINE_RULE_HEIGHT + HEADLINE_RULE_GAP + HEADLINE_V_PADDING;
 
-function headlineBoxHeight(lineCount: number, fontSize: number, lineHeight: number): number {
-  return HEADLINE_RULE_HEIGHT * 2 + HEADLINE_RULE_GAP * 2 + HEADLINE_V_PADDING * 2 + lineCount * fontSize * lineHeight;
+// Kicker row — a small tracked-caps label GoldLowerThird can stack above its
+// headline text, inside the SAME box, sharing one reveal opacity (e.g.
+// "AUGUST 4, 1964" over a hook headline, or "3 DAYS LATER" over a stat
+// reveal). Opt-in via GoldLowerThird's new `kicker` prop below; every
+// existing caller (every caller that doesn't pass it) measures and renders
+// byte-for-byte as before — kickerHeight resolves to 0 throughout
+// headlineBoxHeight/computeHeadlineTopY/computeCaptionCeilingAboveHeadline
+// whenever no kicker text is given. Added for GulfOfTonkinQS, which
+// previously reproduced this whole box structure as a local duplicate
+// (GoldLowerThird has no kicker awareness) with a hand-picked, occasionally-
+// wrong caption ceiling constant (CAPTION_TOP_KICKER) standing in for real
+// measurement — this makes the real ceiling math understand that layout
+// instead, so any composition doing a kicker headline gets an accurate,
+// text-length-aware ceiling rather than a guess.
+export const KICKER_FONT_SIZE = 22;
+const KICKER_LINE_HEIGHT = 1;
+const KICKER_MARGIN_BOTTOM = 10;
+
+function kickerBlockHeight(kickerFontSize: number, kickerMarginBottom: number): number {
+  return kickerFontSize * KICKER_LINE_HEIGHT + kickerMarginBottom;
+}
+
+function headlineBoxHeight(lineCount: number, fontSize: number, lineHeight: number, kickerHeight: number = 0): number {
+  return HEADLINE_RULE_HEIGHT * 2 + HEADLINE_RULE_GAP * 2 + HEADLINE_V_PADDING * 2 + lineCount * fontSize * lineHeight + kickerHeight;
 }
 
 // GoldLowerThird's bottom is pinned at safeZoneBottomY - BOTTOM_SAFE_BUFFER
@@ -462,9 +521,16 @@ function computeHeadlineTopY(
   lineHeight: number,
   bottomOffset = 0,
   safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
+  // Kicker awareness — all optional/trailing so every existing call site
+  // (none of which pass these) is unaffected: kickerText undefined resolves
+  // kickerHeight to 0, identical to before this param set existed.
+  kickerText?: string,
+  kickerFontSize: number = KICKER_FONT_SIZE,
+  kickerMarginBottom: number = KICKER_MARGIN_BOTTOM,
 ): number {
   const lineCount = estimateWrappedLineCount(text, HEADLINE_MAX_WIDTH, fontSize);
-  return safeZoneBottomY - BOTTOM_SAFE_BUFFER + bottomOffset - headlineBoxHeight(lineCount, fontSize, lineHeight);
+  const kickerHeight = kickerText !== undefined ? kickerBlockHeight(kickerFontSize, kickerMarginBottom) : 0;
+  return safeZoneBottomY - BOTTOM_SAFE_BUFFER + bottomOffset - headlineBoxHeight(lineCount, fontSize, lineHeight, kickerHeight);
 }
 
 // The Y a caption's bottom edge must stay at or above: the headline's own
@@ -477,9 +543,12 @@ function computeCaptionCeilingAboveHeadline(
   lineHeight: number,
   bottomOffset = 0,
   safeZoneBottomY = SAFE_ZONE_BOTTOM_Y,
+  kickerText?: string,
+  kickerFontSize: number = KICKER_FONT_SIZE,
+  kickerMarginBottom: number = KICKER_MARGIN_BOTTOM,
 ): number {
   return (
-    computeHeadlineTopY(text, fontSize, lineHeight, bottomOffset, safeZoneBottomY) +
+    computeHeadlineTopY(text, fontSize, lineHeight, bottomOffset, safeZoneBottomY, kickerText, kickerFontSize, kickerMarginBottom) +
     HEADLINE_CHROME_BEFORE_TEXT -
     CAPTION_HEADLINE_GAP
   );
@@ -521,6 +590,22 @@ export function computeFloorAwareHeadlineFit({
 }
 
 export function CaptionOverlay({
+  // STANDARD CONVENTION (Aug 2026): pass phrase-level chunks here, not the
+  // whole slide's VO as one string. Each array entry becomes its own timed
+  // cue — start/end frames are apportioned across audioDurationFrames by
+  // that cue's share of the total word count (see lineRanges below) — so
+  // splitting a sentence into 2-3 natural clause/phrase breaks makes the
+  // caption appear/disappear roughly in sync with the spoken audio instead
+  // of sitting on screen as one static block for the entire slide. Kokoro's
+  // create() returns only raw audio samples (no word/phoneme timestamps —
+  // confirmed against the installed kokoro_onnx package), so this proportional
+  // word-count split is an ESTIMATE, not real forced alignment: it assumes a
+  // constant speaking rate and won't account for pauses at commas/periods.
+  // That's an accepted, honest limitation — true alignment would need a
+  // separate tool (e.g. Whisper word timestamps run against the generated
+  // MP3) and is out of scope here. A single-element array still works
+  // exactly as before (one cue spanning the whole duration) for short lines
+  // (e.g. end-card CTAs) where chunking wouldn't add anything.
   lines,
   audioDurationFrames,
   // Desired top for ordinary full-bleed (cover-fit) slides, which have no
@@ -591,6 +676,15 @@ export function CaptionOverlay({
   // stack ("'Oswald', Impact, 'Arial Black', sans-serif") to match the
   // headline's bold sans instead.
   fontFamily,
+  // Kicker text/sizing this caption's paired GoldLowerThird is rendering
+  // (same values passed to that component's own kicker/kickerFontSize/
+  // kickerMarginBottom props), so the headline-aware ceiling above accounts
+  // for the kicker row's real height too. Defaults to undefined/module
+  // defaults, matching GoldLowerThird's own defaults — every existing caller
+  // (every caption with no paired kicker) is byte-for-byte unaffected.
+  kickerText,
+  kickerFontSize = KICKER_FONT_SIZE,
+  kickerMarginBottom = KICKER_MARGIN_BOTTOM,
 }: {
   lines: string[];
   audioDurationFrames: number;
@@ -604,6 +698,9 @@ export function CaptionOverlay({
   captionFontSize?: number;
   captionLineHeight?: number;
   fontFamily?: string;
+  kickerText?: string;
+  kickerFontSize?: number;
+  kickerMarginBottom?: number;
 }) {
   const frame = useCurrentFrame();
 
@@ -636,7 +733,16 @@ export function CaptionOverlay({
       overlayText !== undefined
         ? Math.min(
             safeZoneCeiling,
-            computeCaptionCeilingAboveHeadline(overlayText, headlineFontSize, headlineLineHeight, bottomOffset, safeZoneBottomY),
+            computeCaptionCeilingAboveHeadline(
+              overlayText,
+              headlineFontSize,
+              headlineLineHeight,
+              bottomOffset,
+              safeZoneBottomY,
+              kickerText,
+              kickerFontSize,
+              kickerMarginBottom,
+            ),
           )
         : safeZoneCeiling;
     const usableWidth = CAPTION_MAX_WIDTH - CAPTION_H_PADDING * 2;
@@ -689,6 +795,9 @@ export function CaptionOverlay({
     safeZoneBottomY,
     captionFontSize,
     captionLineHeight,
+    kickerText,
+    kickerFontSize,
+    kickerMarginBottom,
   ]);
 
   // Fade in over 10 frames, fade out over the last 6 frames of audio — never
