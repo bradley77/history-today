@@ -52,6 +52,7 @@ import TrumanMillionVerdict, { totalDuration as trumanMillionVerdictTotal, FPS a
 import GuadalcanalQS, { totalDuration as guadalcanalQSTotal, FPS as guadalcanalQSFPS } from './compositions/GuadalcanalQS';
 import MaryesAngelQS, { totalDuration as maryesAngelQSTotal, FPS as maryesAngelQSFPS } from './compositions/MaryesAngelQS';
 import GulfOfTonkinQS, { totalDuration as gulfOfTonkinQSTotal, FPS as gulfOfTonkinQSFPS } from './compositions/GulfOfTonkinQS';
+import ThomasChickamaugaQS, { totalDuration as thomasChickamaugaQSTotal, FPS as thomasChickamaugaQSFPS } from './compositions/ThomasChickamaugaQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -478,6 +479,14 @@ export const RemotionRoot = () => {
         component={GulfOfTonkinQS}
         durationInFrames={gulfOfTonkinQSTotal}
         fps={gulfOfTonkinQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="ThomasChickamaugaQS"
+        component={ThomasChickamaugaQS}
+        durationInFrames={thomasChickamaugaQSTotal}
+        fps={thomasChickamaugaQSFPS}
         width={1080}
         height={1920}
       />
