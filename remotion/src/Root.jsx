@@ -54,6 +54,7 @@ import GuadalcanalQS, { totalDuration as guadalcanalQSTotal, FPS as guadalcanalQ
 import MaryesAngelQS, { totalDuration as maryesAngelQSTotal, FPS as maryesAngelQSFPS } from './compositions/MaryesAngelQS';
 import GulfOfTonkinQS, { totalDuration as gulfOfTonkinQSTotal, FPS as gulfOfTonkinQSFPS } from './compositions/GulfOfTonkinQS';
 import ThomasChickamaugaQS, { totalDuration as thomasChickamaugaQSTotal, FPS as thomasChickamaugaQSFPS } from './compositions/ThomasChickamaugaQS';
+import KerryTestimonyQS, { totalDuration as kerryTestimonyQSTotal, FPS as kerryTestimonyQSFPS } from './compositions/KerryTestimonyQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -496,6 +497,14 @@ export const RemotionRoot = () => {
         component={ThomasChickamaugaQS}
         durationInFrames={thomasChickamaugaQSTotal}
         fps={thomasChickamaugaQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="KerryTestimonyQS"
+        component={KerryTestimonyQS}
+        durationInFrames={kerryTestimonyQSTotal}
+        fps={kerryTestimonyQSFPS}
         width={1080}
         height={1920}
       />
