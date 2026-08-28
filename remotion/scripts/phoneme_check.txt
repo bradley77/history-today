@@ -1,0 +1,10 @@
+slide1_old: jˈuːlɪsˌiːz ɡɹˈænt bˈiːt ɹˈɑːbɚt ˈiː. lˈiː, sˈɜːvd tˈuː tˈɜːmz æz pɹˈɛzɪdənt, ænd bɪkˌeɪm ɐ lˈɛdʒənd.
+slide1_new: jˈuːlɪsˌiːz ˈɛs ɡɹˈænt bˈiːt ɹˈɑːbɚt ˈiː lˈiː, sˈɜːvd tˈuː tˈɜːmz æz pɹˈɛzɪdənt, ænd bɪkˌeɪm ɐ lˈɛdʒənd.
+slide2_old: baɪ ˈeɪtiːn ˈeɪɾi fˈɔːɹ, hiːd pˌʊt hɪz fˈɔːɹtʃʊn ɪnðə hˈændz əvə wˈɔːl stɹˈiːt kˈɑːn mˈæn jˈʌŋ ɪnˈʌf təbi hɪz sˈʌn.
+slide2_new: baɪ ˈeɪtiːn ˈeɪɾi fˈɔːɹ, hiːd pˌʊt hɪz fˈɔːɹtʃʊn ɪnðə hˈændz əvə wˈɔːl stɹˈiːt swˈɪndlɚ jˈʌŋ ɪnˈʌf təbi hɪz sˈʌn.
+slide4: dˈɑːktɚz fˈaʊnd θɹˈoʊt kˈænsɚ. mˈɑːɹk twˈeɪn ɡˈeɪv hˌɪm ɐ tʃˈæns tə sˈeɪv hɪz fˈæmɪli baɪ ɹˈaɪɾɪŋ hɪz mˈɛmwɑːɹz.
+slide7_old: kɹˈɪɾɪks stˈɪl ɹˈæŋk ɪɾ ɐmˌʌŋ ðə fˈaɪnɪst mˈɪlətˌɛɹi mˈɛmwɑːɹz ˈɛvɚ ɹˈɪʔn.
+slide7_new: kɹˈɪɾɪks stˈɪl kˈaʊnt ɪɾ ɐmˌʌŋ ðə fˈaɪnɪst mˈɪlətˌɛɹi mˈɛmwɑːɹz ˈɛvɚ ɹˈɪʔn.
+cancer_alone: kˈænsɚ
+conman_alone: kˈɑːn mˈæn
+rank_alone: ɹˈæŋk

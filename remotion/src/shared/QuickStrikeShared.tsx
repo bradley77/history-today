@@ -398,11 +398,23 @@ export const REDUCED_CAPTION_LINE_HEIGHT = 1.35; // was 1.3
 // font and width, so the safe-zone clamp below is based on the box's ACTUAL
 // rendered height for arbitrarily long captions — not a guess tuned to look
 // right for short ones.
-function estimateWrappedLineCount(text: string, maxTextWidth: number, fontSize: number): number {
+//
+// fontFamily defaults to the headline's Oswald stack, which is CORRECT for
+// this function's one headline call site (computeHeadlineTopY, below —
+// GoldLowerThird always renders Oswald, no override exists). Every CAPTION
+// call site (CaptionOverlay's own useMemo) passes its own real fontFamily
+// explicitly, since CaptionOverlay never renders in Oswald unless a future
+// caller opts in via its fontFamily prop — see that prop's doc comment.
+function estimateWrappedLineCount(
+  text: string,
+  maxTextWidth: number,
+  fontSize: number,
+  fontFamily: string = "'Oswald', Impact, 'Arial Black', sans-serif",
+): number {
   if (typeof document === 'undefined') return 1;
   const ctx = document.createElement('canvas').getContext('2d');
   if (!ctx) return 1;
-  ctx.font = `700 ${fontSize}px 'Oswald', Impact, 'Arial Black', sans-serif`;
+  ctx.font = `700 ${fontSize}px ${fontFamily}`;
 
   const words = text.split(/\s+/).filter(Boolean);
   let lineCount = 1;
@@ -756,8 +768,12 @@ export function CaptionOverlay({
       // wide establishing shot) must not strand the caption up near the
       // middle of the frame just because a floor was supplied.
       const floor = sharpContentBottomY + SHARP_CONTENT_MARGIN;
+      // fontFamily ?? 'serif': matches this caption box's own unset <div>
+      // exactly — 'serif' is the generic CSS/canvas keyword (not a hardcoded
+      // "Times New Roman" guess), so it resolves the same way the real
+      // unstyled box does on whatever engine renders this.
       const naturalHeight = captionBlockHeight(
-        estimateWrappedLineCount(active.line, usableWidth, captionFontSize),
+        estimateWrappedLineCount(active.line, usableWidth, captionFontSize, fontFamily ?? 'serif'),
         captionFontSize,
         captionLineHeight,
       );
@@ -770,17 +786,17 @@ export function CaptionOverlay({
       // off the floor.
       const availableHeight = ceiling - desiredTop;
       let size = captionFontSize;
-      let height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size, captionLineHeight);
+      let height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size, fontFamily ?? 'serif'), size, captionLineHeight);
       while (height > availableHeight && size > CAPTION_MIN_FONT_SIZE) {
         size -= 2;
-        height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size), size, captionLineHeight);
+        height = captionBlockHeight(estimateWrappedLineCount(active.line, usableWidth, size, fontFamily ?? 'serif'), size, captionLineHeight);
       }
       return { safeTop: desiredTop, fontSize: size };
     }
 
     // No hard floor (ordinary full-bleed slide) — free to slide the box
     // upward to stay under the ceiling instead of shrinking the font.
-    const lineCount = estimateWrappedLineCount(active.line, usableWidth, captionFontSize);
+    const lineCount = estimateWrappedLineCount(active.line, usableWidth, captionFontSize, fontFamily ?? 'serif');
     const height = captionBlockHeight(lineCount, captionFontSize, captionLineHeight);
     const maxTop = ceiling - height;
     return { safeTop: Math.min(top, maxTop), fontSize: captionFontSize };
@@ -795,6 +811,7 @@ export function CaptionOverlay({
     safeZoneBottomY,
     captionFontSize,
     captionLineHeight,
+    fontFamily,
     kickerText,
     kickerFontSize,
     kickerMarginBottom,

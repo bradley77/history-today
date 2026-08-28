@@ -56,6 +56,10 @@ import GulfOfTonkinQS, { totalDuration as gulfOfTonkinQSTotal, FPS as gulfOfTonk
 import ThomasChickamaugaQS, { totalDuration as thomasChickamaugaQSTotal, FPS as thomasChickamaugaQSFPS } from './compositions/ThomasChickamaugaQS';
 import KerryTestimonyQS, { totalDuration as kerryTestimonyQSTotal, FPS as kerryTestimonyQSFPS } from './compositions/KerryTestimonyQS';
 import JohnstonShilohQS, { totalDuration as johnstonShilohQSTotal, FPS as johnstonShilohQSFPS } from './compositions/JohnstonShilohQS';
+import HancocksLineQS, { totalDuration as hancocksLineQSTotal, FPS as hancocksLineQSFPS } from './compositions/HancocksLineQS';
+import HessAmnesiaQS, { totalDuration as hessAmnesiaQSTotal, FPS as hessAmnesiaQSFPS } from './compositions/HessAmnesiaQS';
+import McNamaraConfessionQS, { totalDuration as mcNamaraConfessionQSTotal, FPS as mcNamaraConfessionQSFPS } from './compositions/McNamaraConfessionQS';
+import GrantsMemoirsQS, { totalDuration as grantsMemoirsQSTotal, FPS as grantsMemoirsQSFPS } from './compositions/GrantsMemoirsQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -514,6 +518,38 @@ export const RemotionRoot = () => {
         component={JohnstonShilohQS}
         durationInFrames={johnstonShilohQSTotal}
         fps={johnstonShilohQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="HancocksLineQS"
+        component={HancocksLineQS}
+        durationInFrames={hancocksLineQSTotal}
+        fps={hancocksLineQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="HessAmnesiaQS"
+        component={HessAmnesiaQS}
+        durationInFrames={hessAmnesiaQSTotal}
+        fps={hessAmnesiaQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="McNamaraConfessionQS"
+        component={McNamaraConfessionQS}
+        durationInFrames={mcNamaraConfessionQSTotal}
+        fps={mcNamaraConfessionQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GrantsMemoirsQS"
+        component={GrantsMemoirsQS}
+        durationInFrames={grantsMemoirsQSTotal}
+        fps={grantsMemoirsQSFPS}
         width={1080}
         height={1920}
       />
