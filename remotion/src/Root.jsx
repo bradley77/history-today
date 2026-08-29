@@ -60,6 +60,7 @@ import HancocksLineQS, { totalDuration as hancocksLineQSTotal, FPS as hancocksLi
 import HessAmnesiaQS, { totalDuration as hessAmnesiaQSTotal, FPS as hessAmnesiaQSFPS } from './compositions/HessAmnesiaQS';
 import McNamaraConfessionQS, { totalDuration as mcNamaraConfessionQSTotal, FPS as mcNamaraConfessionQSFPS } from './compositions/McNamaraConfessionQS';
 import GrantsMemoirsQS, { totalDuration as grantsMemoirsQSTotal, FPS as grantsMemoirsQSFPS } from './compositions/GrantsMemoirsQS';
+import EisenhowerPhotographedEvidenceQS, { totalDuration as eisenhowerPhotographedEvidenceQSTotal, FPS as eisenhowerPhotographedEvidenceQSFPS } from './compositions/EisenhowerPhotographedEvidenceQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -550,6 +551,14 @@ export const RemotionRoot = () => {
         component={GrantsMemoirsQS}
         durationInFrames={grantsMemoirsQSTotal}
         fps={grantsMemoirsQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="EisenhowerPhotographedEvidenceQS"
+        component={EisenhowerPhotographedEvidenceQS}
+        durationInFrames={eisenhowerPhotographedEvidenceQSTotal}
+        fps={eisenhowerPhotographedEvidenceQSFPS}
         width={1080}
         height={1920}
       />
