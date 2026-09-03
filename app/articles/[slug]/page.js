@@ -130,7 +130,10 @@ export default async function ArticlePage({ params }) {
             </LightboxImage>
           )}
           {article.documentCaption && (
-            <p className="text-gray-400 text-xs uppercase tracking-widest mt-6 text-center">
+            <p
+              className="text-gray-400 text-xs uppercase tracking-widest text-center"
+              style={{ marginTop: '1rem' }}
+            >
               {article.documentCaption}
             </p>
           )}

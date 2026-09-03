@@ -62,6 +62,7 @@ import McNamaraConfessionQS, { totalDuration as mcNamaraConfessionQSTotal, FPS a
 import GrantsMemoirsQS, { totalDuration as grantsMemoirsQSTotal, FPS as grantsMemoirsQSFPS } from './compositions/GrantsMemoirsQS';
 import EisenhowerPhotographedEvidenceQS, { totalDuration as eisenhowerPhotographedEvidenceQSTotal, FPS as eisenhowerPhotographedEvidenceQSFPS } from './compositions/EisenhowerPhotographedEvidenceQS';
 import Hill875QS, { totalDuration as hill875QSTotal, FPS as hill875QSFPS } from './compositions/Hill875QS';
+import SpotsylvaniaBloodyAngleQS, { totalDuration as spotsylvaniaBloodyAngleQSTotal, FPS as spotsylvaniaBloodyAngleQSFPS } from './compositions/SpotsylvaniaBloodyAngleQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -568,6 +569,14 @@ export const RemotionRoot = () => {
         component={Hill875QS}
         durationInFrames={hill875QSTotal}
         fps={hill875QSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="SpotsylvaniaBloodyAngleQS"
+        component={SpotsylvaniaBloodyAngleQS}
+        durationInFrames={spotsylvaniaBloodyAngleQSTotal}
+        fps={spotsylvaniaBloodyAngleQSFPS}
         width={1080}
         height={1920}
       />
