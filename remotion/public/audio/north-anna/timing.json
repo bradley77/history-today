@@ -1,0 +1,42 @@
+{
+  "slug": "north-anna",
+  "slides": [
+    {
+      "id": 1,
+      "audioFile": "01-north-anna.mp3",
+      "audioDuration": 4.937,
+      "slideDuration": 5.337
+    },
+    {
+      "id": 2,
+      "audioFile": "02-north-anna.mp3",
+      "audioDuration": 5.146,
+      "slideDuration": 5.546
+    },
+    {
+      "id": 3,
+      "audioFile": "03-north-anna.mp3",
+      "audioDuration": 5.172,
+      "slideDuration": 5.572
+    },
+    {
+      "id": 4,
+      "audioFile": "04-north-anna.mp3",
+      "audioDuration": 5.146,
+      "slideDuration": 5.546
+    },
+    {
+      "id": 5,
+      "audioFile": "05-north-anna.mp3",
+      "audioDuration": 5.46,
+      "slideDuration": 5.86
+    },
+    {
+      "id": 6,
+      "audioFile": "06-north-anna.mp3",
+      "audioDuration": 6.426,
+      "slideDuration": 6.826
+    }
+  ],
+  "totalDuration": 34.687
+}
