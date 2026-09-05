@@ -63,6 +63,8 @@ import GrantsMemoirsQS, { totalDuration as grantsMemoirsQSTotal, FPS as grantsMe
 import EisenhowerPhotographedEvidenceQS, { totalDuration as eisenhowerPhotographedEvidenceQSTotal, FPS as eisenhowerPhotographedEvidenceQSFPS } from './compositions/EisenhowerPhotographedEvidenceQS';
 import Hill875QS, { totalDuration as hill875QSTotal, FPS as hill875QSFPS } from './compositions/Hill875QS';
 import SpotsylvaniaBloodyAngleQS, { totalDuration as spotsylvaniaBloodyAngleQSTotal, FPS as spotsylvaniaBloodyAngleQSFPS } from './compositions/SpotsylvaniaBloodyAngleQS';
+import NorthAnnaQS, { totalDuration as northAnnaQSTotal, FPS as northAnnaQSFPS } from './compositions/NorthAnnaQS';
+import DunkirkHaltOrderQS, { totalDuration as dunkirkHaltOrderQSTotal, FPS as dunkirkHaltOrderQSFPS } from './compositions/DunkirkHaltOrderQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -577,6 +579,22 @@ export const RemotionRoot = () => {
         component={SpotsylvaniaBloodyAngleQS}
         durationInFrames={spotsylvaniaBloodyAngleQSTotal}
         fps={spotsylvaniaBloodyAngleQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="NorthAnnaQS"
+        component={NorthAnnaQS}
+        durationInFrames={northAnnaQSTotal}
+        fps={northAnnaQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="DunkirkHaltOrderQS"
+        component={DunkirkHaltOrderQS}
+        durationInFrames={dunkirkHaltOrderQSTotal}
+        fps={dunkirkHaltOrderQSFPS}
         width={1080}
         height={1920}
       />
