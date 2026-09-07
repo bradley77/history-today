@@ -1,0 +1,33 @@
+{
+  "slug": "denton-pow",
+  "voice": "am_adam",
+  "speed": 0.95,
+  "lang": "en-us",
+  "pad": 0.4,
+  "files": [
+    {
+      "name": "denton-pow-vo-01",
+      "audioDuration": 3.605
+    },
+    {
+      "name": "denton-pow-vo-02a",
+      "audioDuration": 2.952
+    },
+    {
+      "name": "denton-pow-vo-02b",
+      "audioDuration": 2.273
+    },
+    {
+      "name": "denton-pow-vo-03a",
+      "audioDuration": 5.433
+    },
+    {
+      "name": "denton-pow-vo-03b",
+      "audioDuration": 5.198
+    },
+    {
+      "name": "denton-pow-vo-04",
+      "audioDuration": 2.952
+    }
+  ]
+}
