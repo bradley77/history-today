@@ -207,6 +207,120 @@ function getTrailPoints(
   return points;
 }
 
+// --- backdrop/map layout ------------------------------------------------
+//
+// STRUCTURAL CHANGE (was: emergent from camera tilt/zoom math). Three
+// rounds of tuning individual keyframes' tilt/zoom (and then perspective)
+// only ever moved backdrop coverage a few percentage points (36.5% ->
+// 33.9%) because the map's screen footprint was never actually GUARANTEED
+// — it was just whatever fell out of that frame's particular rotateX +
+// scale + translate combination. Any keyframe using a low zoom (the wide
+// "reveal" shots deliberately go below 1.0 to fit widely-separated
+// locations in frame) could still open up an arbitrarily large backdrop
+// void above the map.
+//
+// New approach: the backdrop is now a FIXED-HEIGHT band pinned to the top
+// of the frame, sized independently of the camera. The map renders into
+// a separate viewport sized to exactly fill the remainder, and the
+// tilted map plane inside that viewport is guaranteed (not just usually)
+// to cover its own viewport edge-to-edge, via a computed minimum scale
+// floor (see minCoverageScale below) that keyframe zoom values can exceed
+// (to zoom in further) but can no longer fall below. tilt/zoom still
+// control how dramatic the 3D read is and how tight the framing is
+// *within* that guaranteed footprint — they just can't shrink the
+// footprint itself anymore.
+const BACKDROP_HEIGHT_PERCENT = 14; // reserved band height, within the requested 12-15% range
+const MAP_VIEWPORT_HEIGHT_PERCENT = 100 - BACKDROP_HEIGHT_PERCENT;
+
+// Tried scaling this down proportionally to the shorter map viewport
+// (3200 * 0.86 ≈ 2752), reasoning that CSS perspective is an absolute
+// pixel distance and a shorter container would otherwise get relatively
+// "more generous" (less foreshortening) than before. Rendering proved
+// that reasoning wrong in practice: at 2752 the keystone wedge that the
+// 1600->3200 perspective bump (previous round) had fixed came back,
+// visibly worse than before this round even started. Left at the flat
+// 3200 tuned then — no scaling — since that's what actually held up
+// under rendering.
+const MAP_PERSPECTIVE = 3200;
+
+// Minimum scale needed for the map plane to still cover its own viewport
+// edge-to-edge, given this frame's tilt AND pan offset.
+//
+// FIRST attempt at this (tilt alone, via 1/cos(tiltDeg)) failed real
+// rendering: the opening shot (tilt only 14°, but panned well off-center
+// — cam.y=14, i.e. 36 points from the 50-center) still showed a huge gap
+// even at zoom 1.7, far above that formula's ~1.1 floor. Root cause turned
+// out to be transform ORDER, not tilt: the original transform was
+// `rotateX(tilt) scale(zoom) translate(...)`, and CSS composes that
+// right-to-left — translate is applied FIRST (as a fraction of the box's
+// own static size), and THEN scale multiplies that already-applied
+// offset by zoom too. So a keyframe panned far off-center got its pan
+// distance ADDITIONALLY amplified by zoom, requiring a much bigger scale
+// to still cover the viewport than tilt foreshortening alone would ever
+// suggest (confirmed by rendering: the math below matched the actual
+// measured gap almost exactly). Reordered the transform below to
+// `rotateX(tilt) translate(...) scale(zoom)` instead — translate's
+// percentage always resolves against the static box size regardless of
+// where it sits in the transform list, so this ordering makes the pan
+// offset a FIXED distance unaffected by zoom, which is also the more
+// intuitive semantics (pan to a map coordinate, then zoom — not zoom
+// changing how far a pan of "50-x%" actually moves).
+//
+// With that reorder, the coverage math for a plane panned by fraction f
+// (of its own height/width, i.e. (50-cam.x)/100 or (50-cam.y)/100) is
+// s >= 1 + 2*|f| to keep that axis fully covered (derived from where the
+// plane's edge — a fixed distance from center — ends up after translate
+// then scale, both centered on the box's own middle). Combined with the
+// simpler 1/cos(tiltDeg) requirement for rotateX foreshortening (which
+// only affects the Y axis).
+//
+// SECOND round of rendering (after the reorder) showed THIS combined
+// formula still isn't exact — it correctly predicted the opening shot's
+// requirement almost to the pixel (validating the pan-amplification fix),
+// but still under-covered Saunders Field's steep-tilt beat (46°) at its
+// authored zoom 1.9, leaving a visible sliver. Tuned COVERAGE_SAFETY_MARGIN
+// empirically against actual renders rather than keep hand-deriving
+// perspective's non-linear correction term (got it wrong twice already):
+// 1.1/1.2/1.33 all still left a gap or hairline sliver at Saunders Field,
+// 1.4 looked clean on a VISUAL check — but that check turned out to be
+// invalid (see below), so it shipped with a real bug.
+//
+// THIRD round: a follow-up bug report ("checkerboard between backdrop and
+// map") turned out to be exactly this same gap, still present at margin
+// 1.4, at multiple keyframes (1190, 1548, 1714, 1963) — the "visual check"
+// that approved 1.4 had rendered mapViewportStyle with an opaque DEBUG
+// background color to visualize its bounds, and that same opaque color
+// was silently papering over the real transparency gap I was supposed to
+// be checking for, so "looks fully covered" was actually just "the debug
+// fill is covering it." Re-verified properly this time by scanning the
+// rendered PNGs' actual alpha channel (a transparent/uncovered pixel is
+// unambiguous, unlike a screenshot glanced at) across all 13 camera
+// keyframes AND 16 mid-transition frames spanning the whole episode — 1.4
+// failed at 4 of those, 1.7 passed all 29 on that check alone.
+//
+// But 1.7 created its OWN regression: it pushed beat 1's effectiveZoom so
+// high (that beat has both a shallow tilt AND a large y-pan, so panFloorY
+// dominates and gets multiplied by whatever margin sits here) that the
+// grant-column unit's path — authored assuming something closer to the
+// original ~1.7 zoom — panned mostly outside the frame for large stretches
+// of beat 1. Settled on 1.3 as the actual value: high enough to meaningfully
+// shrink the gap, low enough not to crop unit content that was placed
+// assuming a less aggressive floor, and — critically — the mapViewportStyle
+// backstop below covers whatever residual gap 1.3 still leaves (confirmed:
+// zero transparent pixels across all 29 frames with 1.3 + the backstop).
+// This margin is still an empirical fit, not a proof; the backstop is what
+// actually makes "no checkerboard, ever" a guarantee rather than a hope.
+const COVERAGE_SAFETY_MARGIN = 1.3;
+function minCoverageScale(tiltDeg: number, camX: number, camY: number): number {
+  const tiltRad = (tiltDeg * Math.PI) / 180;
+  const tiltFloor = 1 / Math.cos(tiltRad);
+  const fx = Math.abs(50 - camX) / 100;
+  const fy = Math.abs(50 - camY) / 100;
+  const panFloorY = 1 + 2 * fy;
+  const panFloorX = 1 + 2 * fx;
+  return Math.max(tiltFloor, panFloorY, panFloorX) * COVERAGE_SAFETY_MARGIN;
+}
+
 // Impact flash duration, in frames — raised from 12 to 18 for more presence.
 const IMPACT_DURATION_FRAMES = 18;
 // How close (map %) a unit's current position needs to be to an active
@@ -228,12 +342,19 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
 
   const cam = sampleKeyframes(frame, scene.camera, fps);
 
-  // Perspective wrapper gives the "tilted table" depth.
-  // The inner layer is what actually pans/zooms — keeping perspective
-  // fixed on the outer wrapper avoids warping as you move.
-  // Backdrop is a dark radial gradient rather than flat black — at wide/
-  // establishing angles the tilted map doesn't fill the frame, and a pure
-  // #000 void above it read as a rendering glitch rather than atmosphere.
+  // The guarantee: keyframe zoom can still zoom IN past this (tighter
+  // framing), it just can no longer take the plane's on-screen footprint
+  // below what's needed to fill the map viewport — see minCoverageScale
+  // above for the derivation and BattleMapScene fix notes for the render
+  // testing that validated it.
+  const effectiveZoom = Math.max(
+    cam.zoom,
+    minCoverageScale(cam.tilt, cam.x, cam.y)
+  );
+
+  // Backdrop is a dark radial gradient rather than flat black — a pure
+  // #000 void behind the title card read as a rendering glitch rather
+  // than atmosphere.
   // Hue anchored to wilderness-1864.jpg's own sepia tone (sampled: the
   // map's top strip and whole-map pixel average both land on ~RGB(210,
   // 153,81) / #d29951), darkened way down for atmosphere rather than
@@ -271,25 +392,19 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
   // seamless repeating pattern, so tiling would show visible seams — same
   // reasoning as the map's own cover-fit.
   //
-  // perspective raised 1600 -> 3200 (tested 2400 too) after actually
-  // rendering stills and comparing: at the wide opening establishing shot
-  // (low zoom/tilt, centered pan), all three values looked identical — the
-  // map/backdrop seam sat at the same row regardless of perspective, since
-  // at that framing the rotateX'd plane's own top edge, not the projection
-  // distance, is what's short of the frame. But at a tighter, off-center,
-  // steeply-tilted beat (Saunders Field, zoom 1.9/tilt 46, panned well off
-  // the x-center), 1600 showed a visible dark keystone wedge of backdrop
-  // cutting into the left edge of frame — a DIFFERENT backdrop-visibility
-  // problem than the wide-shot one the zoom-floor pass addressed, caused by
-  // the steep rotateX + off-center translate pushing that corner of the
-  // plane out past the frame at a low perspective distance. That wedge
-  // shrank noticeably at 2400 and shrank further still at 3200 (down to a
-  // sliver in the corner), without visibly flattening the tilt/depth read —
-  // text and gridline foreshortening looked just as pronounced at 3200 as
-  // at 1600. 3200 wins outright on the beats where this problem actually
-  // shows up, with no visible downside on the ones where it doesn't.
-  const outerStyle: React.CSSProperties = {
-    perspective: 3200,
+  // This now lives on a FIXED-HEIGHT band (backdropStyle, below), not the
+  // full frame — a structural change from the perspective-tuning round
+  // that preceded this one. See the "backdrop/map layout" block above
+  // sampleKeyframes for why: no amount of tilt/zoom/perspective tuning on
+  // the emergent-footprint approach could get past marginal, imperceptible
+  // gains (36.5% -> 33.9%), so the map's footprint is now guaranteed by
+  // structure instead of chased through keyframe math.
+  const backdropStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: `${BACKDROP_HEIGHT_PERCENT}%`,
     overflow: "hidden",
     backgroundImage:
       // Seam graze — tight, near the map's top edge.
@@ -307,11 +422,76 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
     backgroundRepeat: "no-repeat, no-repeat, no-repeat, no-repeat",
   };
 
+  // Map viewport — sized to exactly fill the frame minus the backdrop
+  // band, regardless of camera. `perspective` lives here now (not on the
+  // outer frame) since this is the direct parent of the rotated plane —
+  // see MAP_PERSPECTIVE above for why its value stayed at the flat 3200
+  // tuned last round rather than scaling with the new smaller container.
+  //
+  // backgroundImage below is a BACKSTOP, not the primary coverage
+  // mechanism (that's minCoverageScale/effectiveZoom above) — it's what
+  // paints if the tilted plane ever falls short of this box regardless,
+  // so a shortfall reads as "a sliver more of the same wood table" rather
+  // than transparency/checkerboard. Added after a real coverage bug
+  // shipped past the tilt/zoom math once already (see minCoverageScale's
+  // comment) — the math is an empirical fit, not a guarantee, so this
+  // exists as a second line of defense rather than trusting it alone a
+  // second time. Same wood-table texture as backdropStyle, so a visible
+  // sliver of it blends with the band above instead of introducing a new
+  // texture seam of its own.
+  const mapViewportStyle: React.CSSProperties = {
+    position: "absolute",
+    top: `${BACKDROP_HEIGHT_PERCENT}%`,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: "hidden",
+    perspective: MAP_PERSPECTIVE,
+    // Same darkening vignette as backdropStyle's own (transparent-black,
+    // `normal` blend) layered over the wood photo — plain wood-table.jpg
+    // alone is noticeably lighter/more saturated than the backdrop band
+    // above it (which has this same vignette darkening it), so a visible
+    // backstop sliver without it read as a mismatched second texture
+    // rather than "more of the same table."
+    backgroundImage:
+      "radial-gradient(ellipse 120% 90% at 50% -20%, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 55%, rgba(0,0,0,0.85) 100%), " +
+      `url("${staticFile("/textures/wood-table.jpg")}")`,
+    backgroundBlendMode: "normal, normal",
+    backgroundSize: "100% 100%, cover",
+    backgroundPosition: "center, center",
+    backgroundRepeat: "no-repeat, no-repeat",
+  };
+
+  // Seam shadow — was a child of the tilted inner layer (so it could
+  // track the map's own top edge as camera tilt/zoom moved it around).
+  // Now that the map/backdrop seam sits at the SAME fixed y position
+  // every frame (the top of mapViewportStyle), this can be a plain,
+  // camera-independent overlay straddling that boundary instead —
+  // simpler, and no longer at risk of being clipped by mapViewport's
+  // overflow:hidden the way a shadow bleeding out of the tilted layer
+  // would be.
+  const seamShadowStyle: React.CSSProperties = {
+    position: "absolute",
+    top: `${BACKDROP_HEIGHT_PERCENT}%`,
+    left: 0,
+    right: 0,
+    height: "6%",
+    transform: "translateY(-50%)",
+    background:
+      "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0) 100%)",
+    pointerEvents: "none",
+  };
+
   const innerStyle: React.CSSProperties = {
     transformStyle: "preserve-3d",
-    transform: `rotateX(${cam.tilt}deg) scale(${cam.zoom}) translate(${
-      50 - cam.x
-    }%, ${50 - cam.y}%)`,
+    // translate BEFORE scale (was: scale then translate) — see
+    // minCoverageScale's comment above for why: translate's percentage is
+    // always relative to the box's static size regardless of order, so
+    // putting it before scale keeps pan a fixed distance instead of one
+    // that gets amplified by zoom.
+    transform: `rotateX(${cam.tilt}deg) translate(${50 - cam.x}%, ${
+      50 - cam.y
+    }%) scale(${effectiveZoom})`,
     transformOrigin: "center center",
     width: "100%",
     height: "100%",
@@ -319,7 +499,12 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
   };
 
   return (
-    <AbsoluteFill style={outerStyle}>
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <div style={backdropStyle} />
+
+      <div style={seamShadowStyle} />
+
+      <div style={mapViewportStyle}>
       <AbsoluteFill style={innerStyle}>
         {/* Base map layer, prepped in Pillow same as your document pipeline */}
         <Img
@@ -328,28 +513,6 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
             width: "100%",
             height: "100%",
             objectFit: "cover",
-          }}
-        />
-
-        {/* Contact shadow where the map plane meets the table — a child of
-            THIS tilted layer (not the flat backdrop), so it inherits the
-            same rotateX/scale/translate as the map and stays perspective-
-            correct as the camera moves, instead of a static shape that
-            would drift out of alignment. Peaks right at the map's own top
-            edge (0%) and feathers both directions — into the map below and
-            into the backdrop above — reading as a soft contact shadow
-            rather than a hard-edged drop shadow. Intensity below is a
-            starting point — see options to try once rendered. */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-8%",
-            left: 0,
-            right: 0,
-            height: "16%",
-            background:
-              "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0) 100%)",
-            pointerEvents: "none",
           }}
         />
 
@@ -463,7 +626,25 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
                   position: "absolute",
                   left: `${x}%`,
                   top: `${y}%`,
-                  transform: "translate(-50%, -50%)",
+                  // Counter-scale by 1/effectiveZoom: unit boxes/labels are
+                  // plain CSS pixels (60x24, fontSize 18) inside the SAME
+                  // tilted/scaled plane as the map, so their on-screen size
+                  // otherwise tracks whatever effectiveZoom that beat's
+                  // camera happens to be at — and effectiveZoom varies a
+                  // lot beat to beat (roughly 1.6-2.9x, see minCoverageScale
+                  // above), which is exactly why grant-column (beat 1,
+                  // shallow-tilt/high-pan beat with an unusually high
+                  // effectiveZoom) rendered visibly bigger than Ewell/
+                  // Warren/Hill/Getty/Hancock despite identical box/label
+                  // CSS — it was never a per-unit style divergence, just
+                  // whichever beat's zoom happened to be active. This
+                  // neutralizes that, so every unit's box+label renders at
+                  // the same on-screen size regardless of camera zoom (a
+                  // little residual difference from tilt's own foreshortening
+                  // is expected and correct — that's the actual 3D-table
+                  // effect, not a bug).
+                  transform: `translate(-50%, -50%) scale(${1 / effectiveZoom})`,
+                  transformOrigin: "center center",
                   opacity,
                   display: "flex",
                   flexDirection: "column",
@@ -641,25 +822,31 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
           );
         })}
       </AbsoluteFill>
+      </div>
 
-      {/* Title card — rendered as a sibling of the tilted inner AbsoluteFill
-          (not inside it), so it sits flat in the backdrop area above the map
-          plane instead of getting caught in the rotateX perspective warp.
-          Gives the wide establishing shot's leftover backdrop space a job
-          instead of sitting empty. Styled like the existing map labels
-          (bold, near-white, text-shadow halo, all-caps) for visual
-          consistency, just centered near the top of frame rather than
-          pinned to a map coordinate. */}
+      {/* Title card — now rendered INSIDE the fixed backdrop band (was: a
+          full-frame sibling relying on the wide shot's emergent leftover
+          space and an 8%-of-full-frame paddingTop). The band is guaranteed
+          to exist at a known size every frame now, so this just centers
+          within it instead of guessing at padding against a variable-sized
+          void. Styled like the existing map labels (bold, near-white,
+          text-shadow halo, all-caps) for visual consistency. */}
       {scene.titleCard && (() => {
         const { lines, enterFrame, exitFrame } = scene.titleCard;
         const opacity = fadeIn(frame, enterFrame) * fadeOut(frame, exitFrame);
         if (opacity <= 0) return null;
         return (
-          <AbsoluteFill
+          <div
             style={{
-              justifyContent: "flex-start",
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: `${BACKDROP_HEIGHT_PERCENT}%`,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
               alignItems: "center",
-              paddingTop: "8%",
               opacity,
               pointerEvents: "none",
             }}
@@ -686,7 +873,7 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
                 {line.toUpperCase()}
               </div>
             ))}
-          </AbsoluteFill>
+          </div>
         );
       })()}
 
