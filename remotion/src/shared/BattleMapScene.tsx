@@ -15,6 +15,7 @@ import {
   Sequence,
   interpolate,
   Easing,
+  spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
@@ -29,9 +30,17 @@ type PathPoint = { frame: number; x: number; y: number; rotation: number };
 
 // --- helpers -----------------------------------------------------------
 
+// "Considered" spring, not a bouncy one — damping raised well past
+// Remotion's default (10) so the camera settles into the next keyframe
+// without overshooting past it, per Remotion's own docs guidance for a
+// no-bounce spring. Only the damping is tuned; mass/stiffness stay at
+// Remotion's defaults.
+const CAMERA_SPRING_CONFIG = { damping: 200 };
+
 function sampleKeyframes(
   frame: number,
-  keyframes: CameraKeyframe[]
+  keyframes: CameraKeyframe[],
+  fps: number
 ): CameraKeyframe {
   if (frame <= keyframes[0].frame) return keyframes[0];
   const last = keyframes[keyframes.length - 1];
@@ -48,14 +57,31 @@ function sampleKeyframes(
     }
   }
 
-  const easing =
-    b.easing === "easeInOut" ? Easing.inOut(Easing.ease) : Easing.linear;
+  let t: number;
+  if (b.easing === "spring") {
+    // spring() instead of interpolate()'s easing param — driven by an
+    // actual mass/damping/stiffness simulation rather than a fixed curve,
+    // so the move accelerates/settles like something with inertia rather
+    // than mechanically tracing the same easeInOut S-curve every time.
+    // durationInFrames ties it to this specific keyframe pair's window so
+    // it reaches (approximately) 1 by the time `b.frame` arrives, same
+    // contract as the interpolate()-based path below.
+    t = spring({
+      frame: frame - a.frame,
+      fps,
+      durationInFrames: b.frame - a.frame,
+      config: CAMERA_SPRING_CONFIG,
+    });
+  } else {
+    const easing =
+      b.easing === "easeInOut" ? Easing.inOut(Easing.ease) : Easing.linear;
 
-  const t = interpolate(frame, [a.frame, b.frame], [0, 1], {
-    easing,
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
+    t = interpolate(frame, [a.frame, b.frame], [0, 1], {
+      easing,
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+  }
 
   return {
     frame,
@@ -198,9 +224,9 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
   scene,
 }) => {
   const frame = useCurrentFrame();
-  const { width, height } = useVideoConfig();
+  const { width, height, fps } = useVideoConfig();
 
-  const cam = sampleKeyframes(frame, scene.camera);
+  const cam = sampleKeyframes(frame, scene.camera, fps);
 
   // Perspective wrapper gives the "tilted table" depth.
   // The inner layer is what actually pans/zooms — keeping perspective
@@ -244,8 +270,26 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
   // Cover-fit, not tiled: this is a single graded photo (4096x4096), not a
   // seamless repeating pattern, so tiling would show visible seams — same
   // reasoning as the map's own cover-fit.
+  //
+  // perspective raised 1600 -> 3200 (tested 2400 too) after actually
+  // rendering stills and comparing: at the wide opening establishing shot
+  // (low zoom/tilt, centered pan), all three values looked identical — the
+  // map/backdrop seam sat at the same row regardless of perspective, since
+  // at that framing the rotateX'd plane's own top edge, not the projection
+  // distance, is what's short of the frame. But at a tighter, off-center,
+  // steeply-tilted beat (Saunders Field, zoom 1.9/tilt 46, panned well off
+  // the x-center), 1600 showed a visible dark keystone wedge of backdrop
+  // cutting into the left edge of frame — a DIFFERENT backdrop-visibility
+  // problem than the wide-shot one the zoom-floor pass addressed, caused by
+  // the steep rotateX + off-center translate pushing that corner of the
+  // plane out past the frame at a low perspective distance. That wedge
+  // shrank noticeably at 2400 and shrank further still at 3200 (down to a
+  // sliver in the corner), without visibly flattening the tilt/depth read —
+  // text and gridline foreshortening looked just as pronounced at 3200 as
+  // at 1600. 3200 wins outright on the beats where this problem actually
+  // shows up, with no visible downside on the ones where it doesn't.
   const outerStyle: React.CSSProperties = {
-    perspective: 1600,
+    perspective: 3200,
     overflow: "hidden",
     backgroundImage:
       // Seam graze — tight, near the map's top edge.

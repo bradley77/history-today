@@ -83,12 +83,33 @@ export const wildernessEpisode1: BattleMapScene = {
     // linear zoom into two shorter eased legs with a small y-nudge at the
     // midpoint — reading as an intentional slow breath rather than a frozen
     // frame, without introducing a second location. Still the slowest
-    // movement in the episode: barely-there zoom (1.45->1.5->1.55) and a
-    // 1-point y drift across nearly 29s, versus every other beat's much
-    // faster push-ins.
-    { frame: 0, x: rapidanBend.x, y: rapidanBend.y + 6, zoom: 1.45, tilt: 18 },
-    { frame: 431, x: rapidanBend.x, y: rapidanBend.y + 5, zoom: 1.5, tilt: 18, easing: "easeInOut" },
-    { frame: 862, x: rapidanBend.x, y: rapidanBend.y + 6, zoom: 1.55, tilt: 18, easing: "easeInOut" },
+    // movement in the episode: barely-there zoom drift and a 1-point y
+    // drift across nearly 29s, versus every other beat's much faster
+    // push-ins.
+    //
+    // tilt 18 -> 14, zoom 1.45/1.5/1.55 -> 1.7/1.75/1.8 (wide-shot framing
+    // pass): rendered stills at this exact frame across tilt {18,14,10} x
+    // zoom {1.45,1.7,1.9} to find what actually shrinks the backdrop —
+    // confirmed the perspective fix from last round solved a DIFFERENT
+    // problem (steep/off-center keystone wedge) and does nothing for this
+    // shot's shortfall, which is the tilted plane's own far edge running
+    // out of map before the frame does. Measured the map/backdrop border
+    // row at each combo: tilt alone barely moved it (18->14 saved ~1%
+    // of frame height, 18->10 ~1.7%), while zoom did the real work
+    // (1.45->1.9 saved ~5% of frame height on its own). Landed on the
+    // MODERATE combo (14/1.7), not the most aggressive one (10/1.9):
+    // tilt 10 rendered visibly flat — the map's top edge went nearly
+    // level, losing the "tilted table" read entirely — while tilt 14
+    // still shows clear convergence. Zoom 1.9 would put this establishing
+    // shot at the SAME zoom as the Saunders Field arrival push-in (a
+    // beat this shot is supposed to read as wider than), so capped it at
+    // 1.7 instead — a real reduction over 1.45 without fully erasing the
+    // gap to the tighter push-in beats. Kept the beat's own "barely-there
+    // breathing zoom" shape (same +0.05/+0.05 step pattern), just shifted
+    // up.
+    { frame: 0, x: rapidanBend.x, y: rapidanBend.y + 6, zoom: 1.7, tilt: 14 },
+    { frame: 431, x: rapidanBend.x, y: rapidanBend.y + 5, zoom: 1.75, tilt: 14, easing: "easeInOut" },
+    { frame: 862, x: rapidanBend.x, y: rapidanBend.y + 6, zoom: 1.8, tilt: 14, easing: "easeInOut" },
 
     // 2. Lee's decision — pan down toward the two roads (0:28.7–0:39.7)
     // Reverted the "cut to Ewell's road, cut to Hill's road" keyframes
@@ -102,10 +123,22 @@ export const wildernessEpisode1: BattleMapScene = {
     // two-road glimpse idea to a later pass once this transform's safe
     // x-offset range is understood (see options 1/2 from the
     // camera-choreography round this reverts).
-    { frame: 1190, x: turnpikeGermannaJunction.x, y: turnpikeGermannaJunction.y, zoom: 1.0, tilt: 42, easing: "easeInOut" },
+    //
+    // zoom raised 1.0 -> 1.35 (framing pass): this was the one keyframe in
+    // the episode still functioning as a "wide resting shot" between beats
+    // that isn't one of the three deliberate wide moments (opening
+    // establishing shot, Hancock's arrival reveal, final nightfall/
+    // cliffhanger) — it just parked the camera at map-fitting zoom for an
+    // ordinary beat-to-beat transition. Tilt stays at 42 since 1.35 is
+    // comfortably above the ~1.2 threshold where steep tilt used to open a
+    // gap above the map.
+    { frame: 1190, x: turnpikeGermannaJunction.x, y: turnpikeGermannaJunction.y, zoom: 1.35, tilt: 42, easing: "easeInOut" },
 
     // 3. The collision, 7 AM — push toward Saunders Field (0:39.7–0:51.6)
-    { frame: 1548, x: saundersField.x, y: saundersField.y, zoom: 1.3, tilt: 44, easing: "easeInOut" },
+    // easing: spring (was easeInOut) — this push carries real narrative
+    // weight (armies about to collide), so it gets the physical/inertial
+    // camera move instead of the mechanical S-curve.
+    { frame: 1548, x: saundersField.x, y: saundersField.y, zoom: 1.3, tilt: 44, easing: "spring" },
 
     // 4. Saunders Field breaks open — arrive early, then hold (0:51.6–1:05.4)
     // Proportionally reaches its zoomed-in framing at the same ~58% point
@@ -117,10 +150,15 @@ export const wildernessEpisode1: BattleMapScene = {
     { frame: 1963, x: saundersField.x, y: saundersField.y, zoom: 1.9, tilt: 46, easing: "easeInOut" }, // hold (unchanged endpoint)
 
     // 5. Second collision — Plank Road — pan south (1:05.4–1:19.8)
-    { frame: 2393, x: hillStart.x + 8, y: hillStart.y, zoom: 1.4, tilt: 44, easing: "easeInOut" },
+    // easing: spring (was easeInOut) — same reasoning as Saunders Field
+    // above: another collision-beat camera move, given the physical feel.
+    { frame: 2393, x: hillStart.x + 8, y: hillStart.y, zoom: 1.4, tilt: 44, easing: "spring" },
 
     // 6. Race for Brock Road — push toward the junction (1:19.8–1:28.1)
-    { frame: 2643, x: brockRoadJunction.x, y: brockRoadJunction.y, zoom: 1.6, tilt: 45, easing: "easeInOut" },
+    // easing: spring (was easeInOut) — this is the "race" beat, so a
+    // spring's accelerate-then-settle feel suits the urgency better than
+    // a mechanical easeInOut curve.
+    { frame: 2643, x: brockRoadJunction.x, y: brockRoadJunction.y, zoom: 1.6, tilt: 45, easing: "spring" },
 
     // 7. Getty holds — static tension hold (1:28.1–1:32.7)
     { frame: 2782, x: brockRoadJunction.x, y: brockRoadJunction.y, zoom: 1.8, tilt: 45 },
@@ -129,17 +167,33 @@ export const wildernessEpisode1: BattleMapScene = {
     // Recentered/widened from a Brock-Road/Tavern-only midpoint to the
     // bounding-box center of Saunders Field + Wilderness Tavern + Brock
     // Road (x: (29.5+61.5)/2=45.5, y: (30.1+53.6)/2=41.85), at a zoom low
-    // enough to fit that whole span. tilt dropped from 40 to 18 to match:
-    // this zoom is now below the ~1.2 threshold where the steeper push-in
-    // tilt leaves a gap above the map (same rule applied to the wide shots
-    // at the start/end of the scene).
-    { frame: 3120, x: 45.5, y: 41.85, zoom: 0.95, tilt: 18, easing: "easeInOut" },
+    // enough to fit that whole span. tilt dropped from 40 to 18, now 14
+    // (wide-shot framing pass — see beat 1 above for the tilt/zoom test
+    // this came from): this zoom is now below the ~1.2 threshold where
+    // the steeper push-in tilt leaves a gap above the map (same rule
+    // applied to the wide shots at the start/end of the scene).
+    //
+    // zoom deliberately NOT raised to 1.7/1.9 here, unlike beat 1 above —
+    // this 0.95 is load-bearing: it's the specific value that fits the
+    // whole Saunders/Tavern/Brock-Road bounding box in frame, which is the
+    // entire point of this reveal. Pushing it toward the beat-1 test
+    // values would crop the bounding box and defeat the shot. Only the
+    // tilt reduction (which is location-independent) carries over here.
+    // easing: spring (was easeInOut) — Hancock's reveal is the biggest
+    // single camera move in the episode (push-in framing all the way out
+    // to the whole-battlefield wide shot); a spring's inertial settle
+    // sells the pull-back as a considered reveal rather than a mechanical
+    // zoom-out.
+    { frame: 3120, x: 45.5, y: 41.85, zoom: 0.95, tilt: 14, easing: "spring" },
 
     // 9. Nightfall — slow pull back to wide (1:44.0–1:55.7)
-    { frame: 3418, x: wildernessTavern.x, y: wildernessTavern.y, zoom: 0.95, tilt: 18, easing: "easeInOut" },
+    // tilt 18 -> 14, zoom unchanged — same reasoning as Hancock's reveal
+    // above: 0.95 is what fits wildernessTavern's wide framing, so only
+    // the tilt (location-independent) carries over from the beat-1 test.
+    { frame: 3418, x: wildernessTavern.x, y: wildernessTavern.y, zoom: 0.95, tilt: 14, easing: "easeInOut" },
 
     // 10. Cliffhanger — hold wide (1:55.7–1:59.5)
-    { frame: 3585, x: wildernessTavern.x, y: wildernessTavern.y, zoom: 0.95, tilt: 18 },
+    { frame: 3585, x: wildernessTavern.x, y: wildernessTavern.y, zoom: 0.95, tilt: 14 },
   ],
 
   units: [

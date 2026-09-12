@@ -8,7 +8,10 @@ export type CameraKeyframe = {
   y: number;            // pan position, in % of map height (0-100)
   zoom: number;          // 1 = fit width, >1 = zoomed in
   tilt: number;         // degrees of rotateX for the "table" perspective (try 35-50)
-  easing?: "linear" | "easeInOut";
+  // "spring" drives the transition into this keyframe with Remotion's
+  // spring() (mass/damping/stiffness simulation) instead of interpolate()
+  // with a fixed easing curve — see sampleKeyframes() in BattleMapScene.tsx.
+  easing?: "linear" | "easeInOut" | "spring";
 };
 
 export type UnitBlock = {
