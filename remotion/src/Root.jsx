@@ -76,6 +76,9 @@ import { totalDuration as gettysburgDuration } from './data/gettysburg';
 import { totalDuration as clarkDuration } from './data/clark';
 import { totalDuration as jamesEarlRayDuration } from './data/jamesEarlRay';
 import { totalDuration as northwoodsDuration } from './data/northwoods';
+import { BattleMapSceneComponent } from './shared/BattleMapScene';
+import { exampleFranklinScene } from './shared/BattleMapConfig';
+import { wildernessEpisode1 } from './data/WildernessScene';
 
 export const RemotionRoot = () => {
   return (
@@ -615,6 +618,24 @@ export const RemotionRoot = () => {
         fps={coldHarborVideoFPS}
         width={1080}
         height={1920}
+      />
+      <Composition
+        id="BattleMapScene"
+        component={BattleMapSceneComponent}
+        durationInFrames={exampleFranklinScene.totalDurationInFrames}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{ scene: exampleFranklinScene }}
+      />
+      <Composition
+        id="WildernessEpisode1"
+        component={BattleMapSceneComponent}
+        durationInFrames={wildernessEpisode1.totalDurationInFrames}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{ scene: wildernessEpisode1 }}
       />
     </>
   );
