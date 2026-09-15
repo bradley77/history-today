@@ -2,7 +2,7 @@
 title: "The Road to Gettysburg: How Two Armies Marched North Blind"
 date: "June 3-July 1, 1863"
 category: "Civil War"
-tag: ["Civil War", "Gettysburg", "BLUEGRAY"]
+tag: ["Gettysburg"]
 slug: "gettysburg-prelude-blind-advance"
 publishDate: "2026-09-15 00:53"
 excerpt: "Before a single shot was fired at Gettysburg, Robert E. Lee made a decision that would cost him reliable intelligence through the opening day of the battle and much of the second. This is how two armies marched north, each working from an incomplete picture of the other."
