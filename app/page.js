@@ -31,24 +31,6 @@ export default async function Home() {
         </nav>
       </header>
 
-      <div className="bg-gray-900 text-white py-2 overflow-hidden">
-        <div className="flex items-center gap-4">
-          <span className="bg-red-700 text-white text-xs font-bold px-3 py-0.5 uppercase tracking-wider shrink-0 ml-4">
-            Latest
-          </span>
-          <div className="overflow-hidden flex-1">
-            <div className="ticker-content text-sm text-gray-300 whitespace-nowrap">
-              {allArticles.map((article, i) => (
-                <span key={article.slug}>
-                  &nbsp;&nbsp;{article.date} — {article.title}&nbsp;&nbsp;
-                  {i < allArticles.length - 1 && <span className="mx-4">·</span>}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div style={{maxWidth: '1152px', margin: '0 auto'}} className="px-8 py-10">
 
         {/* Featured Story */}
