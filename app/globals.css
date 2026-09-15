@@ -118,21 +118,6 @@ a {
 .prose-content a:hover {
   text-decoration: none;
 }
-/* Ticker animation */
-.ticker-content {
-  display: inline-block;
-  animation: ticker 120s linear infinite;
-}
-
-.ticker-content:hover {
-  animation-play-state: paused;
-}
-
-@keyframes ticker {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
-}
-
 .beehiiv-embed-container .beehiiv-form-title,
 .beehiiv-embed-container .beehiiv-form-subtitle,
 [data-beehiiv-form] h1,
