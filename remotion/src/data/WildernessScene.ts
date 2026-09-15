@@ -47,6 +47,34 @@ const ewellStart = { x: 18, y: 34 };
 const hillStart = { x: 20, y: 50 };
 const rapidanBend = { x: 45, y: 8 };
 
+// Germanna Ford crossing — same coordinate already used for grant-column's
+// path start below (was inlined there; promoted to a named constant here
+// so the narration highlight and the unit path both point at the same
+// verified spot instead of two copies of the same magic numbers). Verified
+// against the map where the Germanna Plank Road and a river tributary
+// converge at the top border (see the original inline comment, preserved
+// on grant-column's path below).
+const germannaFord = { x: 61.1, y: 6 };
+
+// Road waypoints for the narration-synced road-highlight sweeps (see
+// roadHighlights below). Percentages of the 7720x6250 working map. Western
+// points are rough estimates — same confidence tier as ewellStart/
+// hillStart above, not pixel-mapped. Eastern points reuse this file's
+// already-verified named anchors (saundersField, turnpikeGermannaJunction,
+// brockRoadJunction).
+const turnpikePath = [
+  { x: 18, y: 34 }, // rough, near Ewell's start
+  { x: 29.5, y: 32.2 }, // Saunders Field — verified
+  { x: 35, y: 28.5 }, // interpolated midpoint
+  { x: 42.2, y: 25.6 }, // Wilderness Tavern/Germanna junction — verified
+];
+
+const plankRoadPath = [
+  { x: 20, y: 50 }, // rough, near Hill's start
+  { x: 49.2, y: 60 }, // rough midpoint, low confidence
+  { x: 61.5, y: 53.6 }, // Brock Road junction — verified
+];
+
 const beats: Beat[] = [
   { id: "vo-01", audioSrc: "/audio/wilderness-ep1-vo-01.mp3", startFrame: 0, durationInFrames: 862 },
   { id: "vo-02", audioSrc: "/audio/wilderness-ep1-vo-02.mp3", startFrame: 862, durationInFrames: 328 },
@@ -62,7 +90,11 @@ const beats: Beat[] = [
 
 export const wildernessEpisode1: BattleMapScene = {
   mapImageSrc: "/maps/wilderness-1864.jpg",
-  totalDurationInFrames: 3585, // matches beats[9].startFrame + beats[9].durationInFrames
+  // 3585 (beats[9].startFrame + beats[9].durationInFrames) + 120 (4s end-
+  // card tail, see endCard below) = 3705. The main content itself is
+  // still exactly 3585 frames — everything after that is the added CTA
+  // tail, not a change to the episode's own pacing.
+  totalDurationInFrames: 3705,
 
   camera: [
     // 1. Setup — Rapidan crossings (0:00–0:28.7)
@@ -212,16 +244,16 @@ export const wildernessEpisode1: BattleMapScene = {
       enterFrame: 80, // after the title card (enterFrame 0, exitFrame 776) has had a moment to establish
       exitFrame: 862, // gone by the end of beat 1, before the named-corps units start at frame 1190
       path: [
-        // Germanna Ford crossing — verified against the map where the
-        // Germanna Plank Road and a river tributary converge at the top
-        // border. y raised from the crossing's raw 1.7 to 6 — at 1.7 the
-        // unit box+label straddled the seam between the map's physical top
-        // edge and the dark backdrop above it during the wide establishing
-        // shot, rendering with part of the block floating in the backdrop
-        // void. y: 6 gives enough clearance to sit fully on the map at this
-        // beat's framing while still reading as "near the top of the map,
-        // close to the river" rather than already deep in the interior.
-        { frame: 80, x: 61.1, y: 6, rotation: -25 },
+        // Germanna Ford crossing (see germannaFord above — this was the
+        // inline literal it was promoted from). y raised from the
+        // crossing's raw 1.7 to 6 — at 1.7 the unit box+label straddled
+        // the seam between the map's physical top edge and the dark
+        // backdrop above it during the wide establishing shot, rendering
+        // with part of the block floating in the backdrop void. y: 6
+        // gives enough clearance to sit fully on the map at this beat's
+        // framing while still reading as "near the top of the map, close
+        // to the river" rather than already deep in the interior.
+        { frame: 80, x: germannaFord.x, y: germannaFord.y, rotation: -25 },
         // Marches south/southwest into the Wilderness over the rest of the
         // beat, toward roughly where turnpikeGermannaJunction sits — the
         // "moving quickly through the Wilderness toward open ground"
@@ -310,7 +342,31 @@ export const wildernessEpisode1: BattleMapScene = {
     // unit boxes+labels actually land on this exact coordinate — safely
     // exits well before that.
     { id: "saunders-field-label", text: "SAUNDERS FIELD", x: saundersField.x, y: saundersField.y, enterFrame: 1324, exitFrame: 1503, style: "town" },
-    { id: "brock-road-label", text: "BROCK ROAD", x: brockRoadJunction.x, y: brockRoadJunction.y, enterFrame: 2393, exitFrame: 3120, style: "town" },
+    // Same crowding problem as wilderness-tavern-label/saunders-field-label
+    // above, just not caught until it was actually rendered at this beat:
+    // exitFrame was 3120 — hundreds of frames past hill-corps/getty-division's
+    // own path waypoint AT this exact coordinate (frame 2643, same frame the
+    // Brock Road impact flash fires), so "BROCK ROAD" sat on screen
+    // overlapping both units' own name labels all the way through Getty's
+    // hold and right up to Hancock's arrival.
+    //
+    // UNLIKE the other two, retiming alone doesn't fix this one — verified
+    // by actually rendering, not assumed. Saunders Field worked because
+    // ewell-corps/warren-corps don't exist at all until frame 1190 (their
+    // enterFrame), giving the label a long, genuinely empty window. Here,
+    // hill-corps has been travelling toward this exact coordinate since
+    // frame 1963 (430 frames before this label can even enter — Brock Road
+    // isn't in the camera's view any earlier than beat 6's start, 2393) and
+    // is already close enough that the label overlaps it within ~12 frames
+    // of entering (confirmed at frame 2405, still mid-fade-in) — there's no
+    // clean timing window available at all at this label's original (x,y).
+    // Fixed with a small position offset instead (y +6, same kind of small
+    // nudge hill-corps/getty-division's OWN positions already use to avoid
+    // stacking on each other and the raw junction coordinate) so the label
+    // sits below the unit cluster rather than through it, combined with the
+    // same exit-before-arrival timing tightening used above (2643 - 45 =
+    // 2598) to also shorten how long it lingers once Getty's hold begins.
+    { id: "brock-road-label", text: "BROCK ROAD", x: brockRoadJunction.x, y: brockRoadJunction.y + 6, enterFrame: 2393, exitFrame: 2598, style: "town" },
   ],
 
   // Fills the backdrop space above the map during the opening establishing
@@ -332,5 +388,204 @@ export const wildernessEpisode1: BattleMapScene = {
     { x: brockRoadJunction.x, y: brockRoadJunction.y, frame: 2643 },
   ],
 
+  // Narration-synced "look here" highlights and road-highlight sweeps.
+  // Frames below come from real forced-alignment word timestamps run
+  // against each beat's actual VO clip (openai-whisper, word_timestamps=
+  // true — faster-whisper, the tool already used for Quick Strike's
+  // burned-in captions, fails to load in this environment: its `av`
+  // dependency hits a blocked native DLL under this machine's Application
+  // Control policy, same failure already documented in
+  // generateVoiceover-eisenhower-photographed-evidence.py; openai-whisper
+  // shells out to ffmpeg instead of linking `av`, so it doesn't hit that
+  // block), not estimated from reading pace. Method: transcribed each of
+  // the 10 clips with word-level timestamps, then cross-referenced the
+  // locked LINES script (see generateVoiceover-wilderness-ep1.py) against
+  // those timestamps to find each target word's start time, converted to
+  // an absolute frame via that beat's startFrame + round(start_seconds *
+  // 30fps):
+  //   - vo-01 (startFrame 0): "rapiden" [sic, Whisper's phonetic spelling
+  //     of Rapidan] at 21.200s -> frame 636; "Germana" [sic] at 21.820s
+  //     -> frame 655; "Eles Fords" [sic] at 22.460s -> frame 674
+  //   - vo-02 (startFrame 862): "Orange" (Turnpike) at 3.060s -> frame
+  //     954; "Orange" (Plank Road) at 4.880s -> frame 1008
+  //   - vo-03 (startFrame 1190): "Saunders" at 5.120s -> frame 1344
+  //   - vo-05 (startFrame 1963): "Orange" (Plank Road) at 2.740s -> frame
+  //     2045
+  //   - vo-08 (startFrame 2782): "Plank" at 7.500s -> frame 3007 (this
+  //     mention is just "the Plank Road", no "Orange" — matches the
+  //     locked script exactly, not a transcription gap)
+  narrationHighlights: [
+    // "Germanna" (vo-01) — the ford crossing itself, same verified
+    // coordinate as grant-column's path start.
+    { x: germannaFord.x, y: germannaFord.y, frame: 655 },
+    // "Ely's Fords" (vo-01, ~674) deliberately SKIPPED — per instructions,
+    // Ely's Ford is confirmed not present on this map at all, so there's
+    // no coordinate to highlight.
+    //
+    // "Rapidan" (vo-01, ~636) deliberately SKIPPED — flagging the
+    // reasoning rather than silently omitting it: the Rapidan is a river,
+    // not a point, and it's already visible winding across the top of the
+    // frame during this exact beat (the opening establishing shot) without
+    // a call-out. A single-point highlight on "the river" would have to
+    // pick an arbitrary spot along it (rapidanBend, used for the camera
+    // keyframe above, is a camera framing target, not a map location the
+    // VO is pointing at) — that felt more like a guess than the other
+    // highlights below, all of which sit on a specific named place or a
+    // real road. Judgment call: left out. Easy to add back with
+    // { x: rapidanBend.x, y: rapidanBend.y, frame: 636 } if it reads as
+    // missing once this cuts together with the VO.
+    { x: saundersField.x, y: saundersField.y, frame: 1344 }, // "Saunders Field" (vo-03)
+  ],
+
+  roadHighlights: [
+    { points: turnpikePath, highlightFrame: 954 }, // "Orange Turnpike" (vo-02)
+    // "Orange Plank Road" / "the Plank Road" — mentioned in three separate
+    // beats (vo-02, vo-05, vo-08); each gets its own sweep along the same
+    // path rather than trying to cram multiple frames into one entry.
+    { points: plankRoadPath, highlightFrame: 1008 }, // vo-02
+    { points: plankRoadPath, highlightFrame: 2045 }, // vo-05
+    { points: plankRoadPath, highlightFrame: 3007 }, // vo-08
+  ],
+
+  // Time-of-day ticker. REWORKED from an earlier stepping-clock design
+  // (exact times like "7:00 AM"/"1:00 PM" advancing through interpolated
+  // steps) — that claimed more chronological precision than the history
+  // actually supports, so this is now five flat period labels instead.
+  // Frame boundaries are the beats' own startFrame values already in the
+  // `beats` array above, not new/invented numbers — each label's range
+  // just spans however many beats it covers:
+  //   MAY 4, 1864       -> beat 1 only              (0 to beat 2's 862)
+  //   MAY 5 — MORNING    -> beats 2-3 (contact)      (862 to beat 4's 1548)
+  //   MAY 5 — MIDDAY     -> beat 4 (Saunders assault) (1548 to beat 5's 1963)
+  //   MAY 5 — AFTERNOON  -> beats 5-8 (Plank Road)    (1963 to beat 9's 3120)
+  //   MAY 5 — EVENING    -> beats 9-10 (nightfall)    (3120 to totalDurationInFrames)
+  timeTicker: [
+    { label: "MAY 4, 1864", startFrame: 0, endFrame: 862 },
+    { label: "MAY 5 — MORNING", startFrame: 862, endFrame: 1548 },
+    { label: "MAY 5 — MIDDAY", startFrame: 1548, endFrame: 1963 },
+    { label: "MAY 5 — AFTERNOON", startFrame: 1963, endFrame: 3120 },
+    { label: "MAY 5 — EVENING", startFrame: 3120, endFrame: 3585 },
+  ],
+
+  // Rolling closed captions. Same forced-alignment run as the narration
+  // highlights (Part 1 of that earlier task — openai-whisper,
+  // word_timestamps=true, against each beat's real VO clip; see the
+  // narrationHighlights comment above for why openai-whisper rather than
+  // faster-whisper in this environment), but consumed differently: every
+  // word's timestamp is used (not just the handful of named-location
+  // words), cross-referenced back against the locked LINES script in
+  // generateVoiceover-wilderness-ep1.py so the displayed text is the
+  // correct spelling (Whisper mis-transcribes several words phonetically
+  // — "Ewell" -> "UL", "Rapidan" -> "rapiden", "Germanna" -> "Germana",
+  // "corps" -> "core" — only the TIMING comes from the transcription).
+  // Words are grouped into 3-6 word rolling chunks, breaking at
+  // punctuation where the resulting chunk is already at least 3 words
+  // long (natural pauses), otherwise capped at 6 words — not evenly-sized
+  // guesses. Each chunk's startFrame/endFrame come directly from its
+  // first/last word's real timestamp (that beat's startFrame + round(
+  // seconds * 30fps)), so a few frames of natural silence between chunks
+  // is expected and correct (the caption bar simply isn't shown then —
+  // see getActiveCaption in BattleMapScene.tsx), not a bug to smooth over.
+  captions: [
+    // vo-01
+    { text: "People assume the opening clash between", startFrame: 0, endFrame: 52 },
+    { text: "Grant's and Lee's armies was a", startFrame: 52, endFrame: 100 },
+    { text: "battle of brilliant maneuver.", startFrame: 100, endFrame: 131 },
+    { text: "It was not.", startFrame: 157, endFrame: 173 },
+    { text: "It was a battle where neither", startFrame: 194, endFrame: 222 },
+    { text: "side could see the other clearly,", startFrame: 222, endFrame: 265 },
+    { text: "where cavalry and artillery were severely", startFrame: 284, endFrame: 337 },
+    { text: "limited, and where numbers and even", startFrame: 337, endFrame: 398 },
+    { text: "good generalship were harder to use", startFrame: 398, endFrame: 449 },
+    { text: "than either commander expected.", startFrame: 449, endFrame: 490 },
+    { text: "On May fourth,", startFrame: 523, endFrame: 542 },
+    { text: "eighteen sixty four,", startFrame: 553, endFrame: 617 },
+    { text: "Grant's army crosses the Rapidan at", startFrame: 617, endFrame: 674 },
+    { text: "Germanna and Ely's Fords,", startFrame: 674, endFrame: 719 },
+    { text: "moving quickly through the Wilderness toward", startFrame: 719, endFrame: 782 },
+    { text: "open ground before Lee can block", startFrame: 782, endFrame: 839 },
+    { text: "the way.", startFrame: 839, endFrame: 848 },
+    // vo-02
+    { text: "Lee lets Grant cross.", startFrame: 862, endFrame: 891 },
+    { text: "Then he sends Ewell down the", startFrame: 917, endFrame: 954 },
+    { text: "Orange Turnpike and Hill down the", startFrame: 954, endFrame: 1008 },
+    { text: "Orange Plank Road,", startFrame: 1008, endFrame: 1038 },
+    { text: "ordering them to block the Union", startFrame: 1056, endFrame: 1092 },
+    { text: "advance while Longstreet races to join", startFrame: 1092, endFrame: 1157 },
+    { text: "them.", startFrame: 1157, endFrame: 1163 },
+    // vo-03
+    { text: "Around seven in the morning,", startFrame: 1190, endFrame: 1220 },
+    { text: "May fifth, Ewell's advance makes contact", startFrame: 1226, endFrame: 1294 },
+    { text: "with Warren's Fifth Corps near Saunders", startFrame: 1294, endFrame: 1351 },
+    { text: "Field. Neither side expected to find", startFrame: 1351, endFrame: 1441 },
+    { text: "the other so soon.", startFrame: 1441, endFrame: 1472 },
+    { text: "The surprise is mutual.", startFrame: 1490, endFrame: 1521 },
+    // vo-04
+    { text: "Meade orders Warren to attack.", startFrame: 1548, endFrame: 1591 },
+    { text: "But Warren's corps is still tangled", startFrame: 1608, endFrame: 1650 },
+    { text: "in the woods,", startFrame: 1650, endFrame: 1673 },
+    { text: "stretched out over miles,", startFrame: 1673, endFrame: 1716 },
+    { text: "struggling to form a proper line.", startFrame: 1728, endFrame: 1775 },
+    { text: "When the attack finally comes,", startFrame: 1797, endFrame: 1846 },
+    { text: "thousands of Union soldiers disappear into", startFrame: 1859, endFrame: 1925 },
+    { text: "the trees.", startFrame: 1925, endFrame: 1936 },
+    // vo-05
+    { text: "At the same time,", startFrame: 1963, endFrame: 1989 },
+    { text: "Hill's column pushes east on the", startFrame: 1997, endFrame: 2045 },
+    { text: "Orange Plank Road and runs into", startFrame: 2045, endFrame: 2108 },
+    { text: "the Fifth New York Cavalry.", startFrame: 2108, endFrame: 2151 },
+    { text: "Outnumbered, the troopers fall back fighting,", startFrame: 2173, endFrame: 2243 },
+    { text: "buying just enough time for Getty's", startFrame: 2256, endFrame: 2315 },
+    { text: "division to reach the crossroads first.", startFrame: 2315, endFrame: 2367 },
+    // vo-06
+    { text: "If Hill reaches the junction first,", startFrame: 2393, endFrame: 2439 },
+    { text: "he can isolate Hancock's corps from", startFrame: 2457, endFrame: 2508 },
+    { text: "the rest of the army.", startFrame: 2508, endFrame: 2534 },
+    { text: "Getty's division is rushed to intercept", startFrame: 2563, endFrame: 2614 },
+    { text: "him.", startFrame: 2614, endFrame: 2625 },
+    // vo-07
+    { text: "Getty reaches the crossroads just ahead", startFrame: 2643, endFrame: 2699 },
+    { text: "of Hill. His division digs in.", startFrame: 2699, endFrame: 2761 },
+    // vo-08
+    { text: "Hancock's Second Corps reinforces Getty,", startFrame: 2782, endFrame: 2848 },
+    { text: "and the isolated stand becomes a", startFrame: 2868, endFrame: 2922 },
+    { text: "full Union defensive line.", startFrame: 2922, endFrame: 2972 },
+    { text: "Along the Plank Road,", startFrame: 2996, endFrame: 3023 },
+    { text: "the fighting becomes a brutal back", startFrame: 3035, endFrame: 3082 },
+    { text: "and forth.", startFrame: 3082, endFrame: 3095 },
+    // vo-09
+    { text: "After dark, the fighting finally fades.", startFrame: 3120, endFrame: 3178 },
+    { text: "Neither army has broken.", startFrame: 3201, endFrame: 3232 },
+    { text: "In the dense woods,", startFrame: 3259, endFrame: 3280 },
+    { text: "fires begin to spread through the", startFrame: 3280, endFrame: 3331 },
+    { text: "brush, burning among the dead and", startFrame: 3331, endFrame: 3387 },
+    { text: "wounded.", startFrame: 3387, endFrame: 3393 },
+    // vo-10
+    { text: "At first light,", startFrame: 3418, endFrame: 3435 },
+    { text: "both armies will attack again.", startFrame: 3435, endFrame: 3482 },
+    { text: "Neither Grant nor Lee has won", startFrame: 3500, endFrame: 3544 },
+    { text: "anything yet.", startFrame: 3544, endFrame: 3565 },
+  ],
+
   beats,
+
+  // Background music bed — same track/volume/loop convention already used
+  // across the Gettysburg Quick Strike episodes (GettysburgDay1QS,
+  // GettysburgDay2QS, GettysburgDay3QS, plus AntietamQS/
+  // BattleOfAtlantaQS) via <Audio volume={0.15} loop />.
+  musicSrc: "/audio/Gettysburg-Day1-music.mp3",
+
+  // End-card CTA tail — see EndCard's comment in BattleMapConfig.ts and
+  // EndCardTail in BattleMapScene.tsx for the visual reasoning. startFrame
+  // is the episode's own PREVIOUS totalDurationInFrames (3585, before this
+  // tail was added) — the map crossfades out into this card over the 20
+  // frames before that, per EndCardTail. 120 frames (4s at 30fps): long
+  // enough to read three short lines comfortably (fade-in finishes at
+  // frame 12, so ~3.6s of fully-visible hold before the video ends) without
+  // dragging past the point of "seen it, ready for it to end."
+  endCard: {
+    lines: ["THE WILDERNESS", "PART 2 COMING SOON", "FOLLOW FOR MORE"],
+    startFrame: 3585,
+    durationInFrames: 120,
+  },
 };

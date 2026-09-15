@@ -50,6 +50,24 @@ export type TitleCard = {
   exitFrame: number;
 };
 
+// A brief full-frame end-card CTA appended as a tail after the scene's
+// main content — reuses the ANIMATION and LAYOUT conventions of
+// QuickStrikeShared.tsx's EndCardCTA (fade-in text, a drawing accent
+// rule, centered stack) rather than inventing a new pattern, but with
+// this file's own text treatment (halo/shadow, warm off-white) instead of
+// EndCardCTA's black-background/gold Quick-Strike identity, and a plain
+// `lines` array instead of EndCardCTA's fixed "Comment [TRIGGER]" shape,
+// since this card isn't a "Comment X" prompt. `startFrame` is normally
+// the scene's PREVIOUS totalDurationInFrames (i.e. this card is the added
+// tail) — the map content fades out as this card fades in (see
+// BattleMapSceneComponent), and `totalDurationInFrames` on BattleMapScene
+// needs to be extended by at least `durationInFrames` to actually show it.
+export type EndCard = {
+  lines: string[];
+  startFrame: number;
+  durationInFrames: number;
+};
+
 // A brief flash/pulse at a map coordinate, timed to a specific frame —
 // meant for collision moments (two opposing units meeting). Duration is
 // fixed by the engine (see IMPACT_DURATION_FRAMES in BattleMapScene.tsx),
@@ -59,6 +77,64 @@ export type ImpactFlash = {
   x: number;
   y: number;
   frame: number;
+};
+
+// A brief white/gold "look here" pulse at a map coordinate, timed to when
+// the VO actually speaks that place name — same shape/timing contract as
+// ImpactFlash (duration fixed by the engine, see
+// NARRATION_HIGHLIGHT_DURATION_FRAMES in BattleMapScene.tsx), but a
+// separate type from ImpactFlash since it's visually and semantically
+// distinct: a narration cue, not a combat moment. `frame` should be
+// derived from real forced-alignment word timestamps (that beat's
+// startFrame + the word's offset within the clip), not estimated.
+export type NarrationHighlight = {
+  x: number;
+  y: number;
+  frame: number;
+};
+
+// A brief glow along a road/route (a named place mentioned in narration
+// that's a path, not a single point — "the Orange Turnpike", "the Orange
+// Plank Road") rather than a location. `points` is the road's waypoints,
+// % of map width/height, same convention as everything else here.
+// `highlightFrame` is when the VO speaks that road's name (again, from
+// real forced-alignment timestamps). A single road can appear more than
+// once in the narration (e.g. the Plank Road is mentioned in three
+// separate beats) — each mention gets its own RoadPath entry reusing the
+// same `points`, rather than the type trying to hold multiple frames.
+export type RoadPath = {
+  points: { x: number; y: number }[];
+  highlightFrame: number;
+};
+
+// One segment of the persistent time-of-day ticker (see timeTicker on
+// BattleMapScene). REWORKED from an earlier stepping-clock design (exact
+// times like "7:00 AM" interpolating through a few steps per leg) — that
+// claimed more chronological precision than the history actually
+// supports. Now just a flat period label ("MAY 5 — MORNING") held for a
+// contiguous frame range, no interpolation at all — see getTickerLabel in
+// BattleMapScene.tsx. Entries are expected to be contiguous and in order
+// (one entry's endFrame == the next's startFrame) — the engine doesn't
+// re-sort or validate this.
+export type TimeTickerEntry = {
+  label: string; // e.g. "MAY 5 — MORNING"
+  startFrame: number;
+  endFrame: number;
+};
+
+// One rolling closed-caption chunk (roughly 3-6 words), timed to real
+// forced-alignment word timestamps — NOT one giant caption per beat (a
+// beat's VO can run up to ~29s, unreadable as a single block) and not
+// evenly-spaced guesses. `text` is the locked script's actual words for
+// this chunk (not Whisper's raw phonetic transcription, which mangles
+// names like "Ewell" -> "UL" and "Rapidan" -> "rapiden" — only the
+// timestamps come from the transcription; the displayed words are
+// cross-referenced back against the real script). See WildernessScene.ts
+// for the full derivation.
+export type CaptionChunk = {
+  text: string;
+  startFrame: number;
+  endFrame: number;
 };
 
 // One per-beat Kokoro VO clip, placed on the composition's own timeline.
@@ -90,6 +166,25 @@ export type BattleMapScene = {
   // scene currently populates this (see BattleMapSceneComponent for the
   // render logic).
   impacts?: ImpactFlash[];
+  // Optional narration-synced "look here" pulses at named locations —
+  // see NarrationHighlight above.
+  narrationHighlights?: NarrationHighlight[];
+  // Optional narration-synced glows along named roads — see RoadPath
+  // above.
+  roadHighlights?: RoadPath[];
+  // Optional persistent time-of-day ticker rendered in the backdrop band
+  // — see TimeTickerEntry above.
+  timeTicker?: TimeTickerEntry[];
+  // Optional rolling closed captions, rendered as a fixed screen overlay
+  // at the bottom of the map viewport — see CaptionChunk above.
+  captions?: CaptionChunk[];
+  // Optional background music bed, looped under the whole scene — same
+  // pattern as every Quick Strike composition's own music track (e.g.
+  // TokyoFirebombing-music.mp3, Gettysburg-Day1-music.mp3): one track,
+  // volume 0.15, looped, independent of the per-beat VO Sequences.
+  musicSrc?: string;
+  // Optional full-frame end-card CTA tail — see EndCard above.
+  endCard?: EndCard;
 };
 
 // Example: Battle of Franklin opening push, ~3 camera moves

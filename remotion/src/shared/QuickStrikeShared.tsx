@@ -62,6 +62,18 @@ export type Motion = {
   tyTo: number;
   easing?: 'linear' | 'easeInOut' | 'easeInOutCubic';
   transformOrigin?: string;
+  /** Frames to subtract from durationFrames when computing this motion's
+   * scale/tx/ty interpolate range — the move completes this many frames
+   * before the slide actually ends, then HOLDS at its final scale/position
+   * (via the existing extrapolateRight: 'clamp') for the remaining tail,
+   * instead of still animating right up to the last frame. Use when a move's
+   * arrival needs to sync to an earlier moment (e.g. a VO's final clause
+   * landing with N seconds still left on the slide) rather than spreading
+   * motion evenly across the full duration (SaigonExecutionQS slide 3 — pull-
+   * back reveal timed to complete as the closing quote is spoken). Defaults
+   * to 0 (undefined), so every existing composition (every one that doesn't
+   * set this) animates across [0, durationFrames] exactly as before. */
+  holdTailFrames?: number;
 };
 
 export type SlideConfig = {
@@ -115,6 +127,9 @@ export type SlideConfig = {
   labelPosition?: 'top-left' | 'bottom-left';
   motion?: Motion | null;
   hasBlurBackground?: boolean;
+  /** KenBurnsImage's own foregroundFit — see that prop's doc comment.
+   * Defaults to 'cover' (undefined), so every existing slide is unaffected. */
+  foregroundFit?: 'cover' | 'contain';
   /** Source image's natural pixel dimensions — provide both to opt this slide
    * into the Pan-Fill System (getPanFillTransform) instead of the manual
    * `motion` above. Omit to keep manual motion-driven Ken Burns. */
@@ -122,6 +137,12 @@ export type SlideConfig = {
   sourceHeight?: number;
   panFillMode?: PanFillMode;
   panDirection?: PanDirection;
+  /** Pan-Fill's holdTailFrames — see getPanFillTransform's doc comment.
+   * Defaults to 0 (undefined), so every existing slide is unaffected. */
+  panHoldTailFrames?: number;
+  /** Pan-Fill's panStartFraction — see getPanFillTransform's doc comment.
+   * Defaults to 0 (undefined), so every existing slide is unaffected. */
+  panStartFraction?: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -931,6 +952,12 @@ export type PanFillTransform = {
   /** translateX values (px) to interpolate between across the slide's frame range. */
   txFrom: number;
   txTo: number;
+  /** The frame range (frames from slide start) KenBurnsImage's pan
+   * interpolate call should actually use — durationFrames minus any
+   * holdTailFrames (see below). Callers outside KenBurnsImage generally
+   * don't need this; it's returned so the interpolate range and the speed
+   * cap above are always computed against the SAME window. */
+  effectiveDurationFrames: number;
 };
 
 export function getPanFillTransform({
@@ -939,12 +966,39 @@ export function getPanFillTransform({
   durationFrames,
   panFillMode = 'auto',
   panDirection = 'ltr',
+  // Frames to subtract from durationFrames before computing both the speed
+  // cap above and (in KenBurnsImage) the pan's own interpolate range — the
+  // pan completes and HOLDS at its final position this many frames before
+  // the slide ends, instead of still moving right up to the last frame.
+  // Computing the speed cap against this SAME shortened window (rather than
+  // the full durationFrames) keeps the pan's on-screen speed within
+  // MAX_PAN_SPEED_PX_PER_SEC — using the full duration for the cap while
+  // animating over a shorter window would let the pan exceed that ceiling.
+  // Defaults to 0, so every existing caller (every composition that doesn't
+  // pass this) computes and animates over the full durationFrames exactly
+  // as before. Added for SaigonExecutionQS slide 1 — the establishing pan's
+  // arrival at its rightmost framing is timed to the VO's final clause,
+  // landing ~1.2s before the slide (padded) ends, then holding through it.
+  holdTailFrames = 0,
+  // Fraction (0-1) of the pan's total travel already "completed" at frame 0
+  // — shifts the START point (txFrom) toward the END point (txTo) by that
+  // fraction of the txFrom-txTo distance, WITHOUT moving txTo itself. 0 (the
+  // default) keeps the original full-travel start, so every existing caller
+  // is byte-for-byte unaffected. Added for SaigonExecutionQS slide 1: a pan
+  // that started at the speed-capped window's full leftward extreme opened
+  // on empty street with no part of the execution visible — this narrows
+  // the opening frame's crop toward the same arrival point instead, so
+  // frame 0 already reads as the photo while the pan still continues into
+  // the same final framing as before.
+  panStartFraction = 0,
 }: {
   sourceWidth: number;
   sourceHeight: number;
   durationFrames: number;
   panFillMode?: PanFillMode;
   panDirection?: PanDirection;
+  holdTailFrames?: number;
+  panStartFraction?: number;
 }): PanFillTransform {
   const aspectRatio = sourceWidth / sourceHeight;
   const baseScale = CANVAS_HEIGHT / sourceHeight;
@@ -969,6 +1023,7 @@ export function getPanFillTransform({
       panDistancePx: 0,
       txFrom: 0,
       txTo: 0,
+      effectiveDurationFrames: durationFrames,
     };
   }
 
@@ -976,7 +1031,8 @@ export function getPanFillTransform({
   const marginPerSide = Math.max((panRoomPx * (1 - PAN_FILL_RANGE_FRACTION)) / 2, PAN_FILL_EDGE_BUFFER_PX);
   const usablePanPx = Math.max(0, panRoomPx - marginPerSide * 2);
 
-  const durationSeconds = durationFrames / FPS;
+  const effectiveDurationFrames = Math.max(1, durationFrames - holdTailFrames);
+  const durationSeconds = effectiveDurationFrames / FPS;
   const maxDistanceForDuration = MAX_PAN_SPEED_PX_PER_SEC * durationSeconds;
   // If the speed cap covers less than the usable room, the pan simply falls
   // short of the far edge rather than speeding up — and because txFrom/txTo
@@ -992,9 +1048,24 @@ export function getPanFillTransform({
   // centered and overflowing — brings the LEFT side of the source into the
   // visible window; see the txFrom/txTo derivation in QuickStrikeShared for
   // the full pixel math).
-  const [txFrom, txTo] = panDirection === 'ltr' ? [half, -half] : [-half, half];
+  const [rawTxFrom, txTo] = panDirection === 'ltr' ? [half, -half] : [-half, half];
+  // panStartFraction narrows the start toward the (unchanged) end point —
+  // 0 leaves txFrom exactly as computed above (full travel), 1 would start
+  // already AT txTo (no visible motion). See this param's own doc comment
+  // above for why (SaigonExecutionQS slide 1's empty-street opening frame).
+  const txFrom = rawTxFrom - panStartFraction * (rawTxFrom - txTo);
 
-  return { mode: 'pan', baseScale, renderedWidth, panRoomPx, usablePanPx, panDistancePx, txFrom, txTo };
+  return {
+    mode: 'pan',
+    baseScale,
+    renderedWidth,
+    panRoomPx,
+    usablePanPx,
+    panDistancePx,
+    txFrom,
+    txTo,
+    effectiveDurationFrames,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -1011,6 +1082,9 @@ export function KenBurnsImage({
   sourceHeight,
   panFillMode = 'auto',
   panDirection = 'ltr',
+  panHoldTailFrames = 0,
+  panStartFraction = 0,
+  foregroundFit = 'cover',
 }: {
   image: string;
   frame: number;
@@ -1032,10 +1106,36 @@ export function KenBurnsImage({
    * auto-detected treatment should pass 'static' explicitly. */
   panFillMode?: PanFillMode;
   panDirection?: PanDirection;
+  /** Pan-Fill's own holdTailFrames — see getPanFillTransform's doc comment.
+   * Defaults to 0, so every existing caller is byte-for-byte unaffected. */
+  panHoldTailFrames?: number;
+  /** Pan-Fill's own panStartFraction — see getPanFillTransform's doc
+   * comment. Defaults to 0, so every existing caller is unaffected. */
+  panStartFraction?: number;
+  /** The non-pan (static/manual-motion) foreground image's object-fit.
+   * 'cover' (default, unchanged) fills the frame, cropping overflow —
+   * every existing caller keeps this. 'contain' shows the ENTIRE source
+   * image letterboxed within the frame instead (no cropping at all) —
+   * meant to pair with hasBlurBackground so the letterbox bars show the
+   * blurred fill rather than flat black. Added for SaigonExecutionQS
+   * slide 1's Phase A establishing beat: a wide (2664x1920) landscape
+   * source shown complete/uncropped in the 1080x1920 portrait frame,
+   * which 'cover' cannot do (it always crops a landscape source down to
+   * the portrait frame's aspect ratio). Ignored in Pan-Fill's 'pan' mode
+   * (that branch has its own fixed height:100%/width:auto sizing). */
+  foregroundFit?: 'cover' | 'contain';
 }) {
   const panFill =
     sourceWidth && sourceHeight
-      ? getPanFillTransform({ sourceWidth, sourceHeight, durationFrames, panFillMode, panDirection })
+      ? getPanFillTransform({
+          sourceWidth,
+          sourceHeight,
+          durationFrames,
+          panFillMode,
+          panDirection,
+          holdTailFrames: panHoldTailFrames,
+          panStartFraction,
+        })
       : null;
   const isPan = panFill?.mode === 'pan';
 
@@ -1056,17 +1156,25 @@ export function KenBurnsImage({
       ? Easing.inOut(Easing.ease)
       : Easing.linear;
 
-  const scale = interpolate(frame, [0, durationFrames], [m.scaleFrom, m.scaleTo], {
+  // Manual motion's own holdTailFrames (see Motion's doc comment) shortens
+  // this range so scale/tx/ty reach their final values early and then HOLD
+  // (extrapolateRight: 'clamp' below) for the remaining tail, instead of
+  // still animating right up to the last frame. Defaults to 0 for every
+  // Motion that doesn't set it, so the range is exactly [0, durationFrames]
+  // as before.
+  const motionRangeEnd = Math.max(1, durationFrames - (m.holdTailFrames ?? 0));
+
+  const scale = interpolate(frame, [0, motionRangeEnd], [m.scaleFrom, m.scaleTo], {
     easing: easingFn,
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const tx = interpolate(frame, [0, durationFrames], [m.txFrom, m.txTo], {
+  const tx = interpolate(frame, [0, motionRangeEnd], [m.txFrom, m.txTo], {
     easing: easingFn,
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const ty = interpolate(frame, [0, durationFrames], [m.tyFrom, m.tyTo], {
+  const ty = interpolate(frame, [0, motionRangeEnd], [m.tyFrom, m.tyTo], {
     easing: easingFn,
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
@@ -1075,9 +1183,13 @@ export function KenBurnsImage({
   // Pan mode moves position only (no scale animation — the zoom stays fixed
   // at baseScale, achieved here via height:100%/width:auto rather than
   // object-fit:cover, so the rendered width is the deterministic pixel value
-  // getPanFillTransform's math is based on).
+  // getPanFillTransform's math is based on). Uses panFill's own
+  // effectiveDurationFrames (durationFrames minus panHoldTailFrames) so the
+  // pan's on-screen arrival — and, via getPanFillTransform's matching
+  // speed-cap math, its on-screen speed — both respect the same shortened
+  // window rather than disagreeing with each other.
   const panTx = isPan
-    ? interpolate(frame, [0, durationFrames], [panFill!.txFrom, panFill!.txTo], {
+    ? interpolate(frame, [0, panFill!.effectiveDurationFrames], [panFill!.txFrom, panFill!.txTo], {
         easing: Easing.inOut(Easing.ease),
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
@@ -1114,7 +1226,7 @@ export function KenBurnsImage({
               : {
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
+                  objectFit: foregroundFit,
                   objectPosition: 'center center',
                   transform: `scale(${scale}) translateX(${tx}px) translateY(${ty}px)`,
                   transformOrigin: m.transformOrigin ?? 'center center',
@@ -1172,6 +1284,8 @@ export function SlidePanel({
     sourceHeight,
     panFillMode,
     panDirection,
+    panHoldTailFrames,
+    panStartFraction,
     bottomOffset,
     safeZoneBottomY,
     headlineFontSize,
@@ -1205,10 +1319,13 @@ export function SlidePanel({
             // landing on a frozen identity motion.
             motion={motion ?? undefined}
             hasBlurBackground={slide.hasBlurBackground}
+            foregroundFit={slide.foregroundFit}
             sourceWidth={sourceWidth}
             sourceHeight={sourceHeight}
             panFillMode={panFillMode}
             panDirection={panDirection}
+            panHoldTailFrames={panHoldTailFrames}
+            panStartFraction={panStartFraction}
           />
           <Vignette />
         </>
