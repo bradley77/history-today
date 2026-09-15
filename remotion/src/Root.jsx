@@ -66,6 +66,7 @@ import SpotsylvaniaBloodyAngleQS, { totalDuration as spotsylvaniaBloodyAngleQSTo
 import NorthAnnaQS, { totalDuration as northAnnaQSTotal, FPS as northAnnaQSFPS } from './compositions/NorthAnnaQS';
 import DunkirkHaltOrderQS, { totalDuration as dunkirkHaltOrderQSTotal, FPS as dunkirkHaltOrderQSFPS } from './compositions/DunkirkHaltOrderQS';
 import DentonPOWQuickStrike, { totalDuration as dentonPOWQSTotal, FPS as dentonPOWQSFPS } from './compositions/DentonPOWQuickStrike';
+import SaigonExecutionQS, { totalDuration as saigonExecutionQSTotal, FPS as saigonExecutionQSFPS } from './compositions/SaigonExecutionQS';
 import ColdHarborVideo, { totalDuration as coldHarborVideoTotal, FPS as coldHarborVideoFPS } from './compositions/ColdHarborVideo';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
@@ -608,6 +609,14 @@ export const RemotionRoot = () => {
         component={DentonPOWQuickStrike}
         durationInFrames={dentonPOWQSTotal}
         fps={dentonPOWQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="SaigonExecutionQS"
+        component={SaigonExecutionQS}
+        durationInFrames={saigonExecutionQSTotal}
+        fps={saigonExecutionQSFPS}
         width={1080}
         height={1920}
       />

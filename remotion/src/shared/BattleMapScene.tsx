@@ -23,6 +23,9 @@ import {
 import type {
   BattleMapScene,
   CameraKeyframe,
+  TimeTickerEntry,
+  CaptionChunk,
+  EndCard,
 } from "./BattleMapConfig";
 import { FilmGrain } from "../components/FilmGrain";
 
@@ -332,6 +335,201 @@ const IMPACT_PROXIMITY_PERCENT = 6;
 // How much the box scales up at the peak of its impact punch (1 + this).
 const IMPACT_PUNCH_AMOUNT = 0.35;
 
+// Narration highlight duration — longer than an impact flash (18 frames):
+// this is a "look here, the VO just said this place" cue meant to be
+// legible for a beat, not a quick violent flare, so it gets more time to
+// register.
+const NARRATION_HIGHLIGHT_DURATION_FRAMES = 30;
+
+// Road-path highlight duration — a glow along an entire path reads more
+// slowly than a point pulse (there's more to look at), so this gets even
+// longer than the point highlight above.
+const ROAD_HIGHLIGHT_DURATION_FRAMES = 45;
+
+// --- time-of-day ticker ---------------------------------------------------
+//
+// REWORKED from an earlier stepping-clock design — exact times like
+// "7:00 AM" advancing through a few interpolated steps per leg claimed
+// more chronological precision than the history actually supports. Now a
+// flat period label per contiguous frame range (see TimeTickerEntry in
+// BattleMapConfig.ts) with no interpolation: find which entry covers
+// `frame` and return its label, full stop. Frames before the first entry
+// hold at its label; frames after the last entry's endFrame hold at its
+// label; a gap between two non-contiguous entries (shouldn't normally
+// happen — see TimeTickerEntry's comment) holds at the preceding entry's
+// label.
+function getTickerLabel(
+  entries: TimeTickerEntry[] | undefined,
+  frame: number
+): string | null {
+  if (!entries || entries.length === 0) return null;
+  const first = entries[0];
+  const last = entries[entries.length - 1];
+  if (frame <= first.startFrame) return first.label;
+  if (frame >= last.endFrame) return last.label;
+
+  const entry = entries.find(
+    (e) => frame >= e.startFrame && frame <= e.endFrame
+  );
+  if (!entry) {
+    let prev = first;
+    for (const e of entries) {
+      if (e.endFrame <= frame) prev = e;
+    }
+    return prev.label;
+  }
+
+  return entry.label;
+}
+
+// --- rolling closed captions -----------------------------------------------
+//
+// Unlike the ticker (a persistent readout, always showing SOMETHING), a
+// caption chunk should only be on screen for its own exact word-timed
+// window, then disappear entirely — no chunk is "active" between them by
+// design (matches natural pauses in the VO), so this returns null in the
+// gaps rather than holding the previous/next chunk the way getTickerLabel
+// does for its entries.
+function getActiveCaption(
+  captions: CaptionChunk[] | undefined,
+  frame: number
+): string | null {
+  if (!captions) return null;
+  const active = captions.find(
+    (c) => frame >= c.startFrame && frame <= c.endFrame
+  );
+  return active ? active.text : null;
+}
+
+// --- end-card CTA tail ------------------------------------------------------
+//
+// Reuses EndCardCTA's (QuickStrikeShared.tsx) animation numbers verbatim —
+// a 12-frame text fade-in and an 8-33-frame drawing rule — rather than
+// inventing new timing, but everything else (background, colors, font,
+// halo) matches THIS file's own established look instead of copying
+// EndCardCTA's black-background/gold Quick-Strike identity, since this
+// card is part of the SAME episode, not a different series. The warm
+// lamp-glow gold (rgba(255,214,140,...)) already sampled from this map's
+// own backdrop gradients stands in for EndCardCTA's literal GOLD constant
+// — same idea (a warm accent rule), same source palette as everything
+// else in this scene.
+const END_CARD_RULE_COLOR = "rgba(255,214,140,0.9)";
+
+function EndCardTail({ card, frame }: { card: EndCard; frame: number }) {
+  // Crossfades in over the SAME 20-frame window mapContentOpacity fades
+  // out over (see the component below), so the map doesn't just vanish
+  // before this appears — the two overlap.
+  const cardOpacity = interpolate(
+    frame,
+    [card.startFrame - 20, card.startFrame],
+    [0, 1],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  );
+  if (cardOpacity <= 0) return null;
+
+  const localFrame = frame - card.startFrame;
+  const textOpacity = interpolate(localFrame, [0, 12], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const ruleWidth = interpolate(localFrame, [8, 33], [0, 100], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
+  const [line1, line2, line3] = card.lines;
+  // Shared halo, identical to the title card/ticker's own 4-layer shadow
+  // — same legibility treatment used everywhere else in this file.
+  const halo =
+    "0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.7), 0 3px 10px rgba(0,0,0,0.85)";
+
+  return (
+    <AbsoluteFill
+      style={{
+        opacity: cardOpacity,
+        justifyContent: "center",
+        alignItems: "center",
+        // Plain black — was the same wood-table/vignette recipe as
+        // backdropStyle, swapped for flat black per direct request
+        // (matches EndCardCTA's own black-background convention in
+        // QuickStrikeShared.tsx, which this component's animation/layout
+        // was already modeled on).
+        backgroundColor: "#000",
+      }}
+    >
+      <div style={{ width: "80%", maxWidth: 900, textAlign: "center" }}>
+        <div
+          style={{
+            height: 3,
+            background: END_CARD_RULE_COLOR,
+            width: `${ruleWidth}%`,
+            margin: "0 auto 28px",
+          }}
+        />
+
+        {line1 && (
+          <div
+            style={{
+              opacity: textOpacity,
+              color: "#f5f0e8",
+              fontWeight: 700,
+              fontSize: 36,
+              letterSpacing: 2,
+              textShadow: halo,
+              marginBottom: 14,
+            }}
+          >
+            {line1.toUpperCase()}
+          </div>
+        )}
+
+        {/* The actual CTA payload — biggest/boldest line, same way
+            EndCardCTA makes its trigger word the largest text on the
+            card between two thinner lines. */}
+        {line2 && (
+          <div
+            style={{
+              opacity: textOpacity,
+              color: "#f5f0e8",
+              fontWeight: 700,
+              fontSize: 46,
+              letterSpacing: 2,
+              textShadow: halo,
+              marginBottom: 14,
+            }}
+          >
+            {line2.toUpperCase()}
+          </div>
+        )}
+
+        {line3 && (
+          <div
+            style={{
+              opacity: textOpacity,
+              color: "#f5f0e8",
+              fontWeight: 700,
+              fontSize: 26,
+              letterSpacing: 1,
+              textShadow: halo,
+            }}
+          >
+            {line3.toUpperCase()}
+          </div>
+        )}
+
+        <div
+          style={{
+            height: 3,
+            background: END_CARD_RULE_COLOR,
+            width: `${ruleWidth}%`,
+            margin: "28px auto 0",
+          }}
+        />
+      </div>
+    </AbsoluteFill>
+  );
+}
+
 // --- main component ------------------------------------------------------
 
 export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
@@ -498,8 +696,27 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
     position: "relative",
   };
 
+  // End-card tail — map content fades OUT as the card fades IN, rather
+  // than just cutting or leaving the last camera frame frozen underneath
+  // a new overlay. mapContentOpacity wraps everything visual (backdrop,
+  // map, title card, ticker, captions, film grain) EXCEPT the audio
+  // elements below (beat VO Sequences, music bed) and the end card itself
+  // — audio keeps playing through the tail (per the ask, no new VO needed,
+  // existing music continues), and the end card needs its OWN fade-in,
+  // not to inherit the map's fade-out.
+  const endCard = scene.endCard;
+  const mapContentOpacity = endCard
+    ? interpolate(
+        frame,
+        [endCard.startFrame - 20, endCard.startFrame],
+        [1, 0],
+        { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+      )
+    : 1;
+
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={{ opacity: mapContentOpacity }}>
       <div style={backdropStyle} />
 
       <div style={seamShadowStyle} />
@@ -668,24 +885,33 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
                 />
                 {/* Unit name, same fade as the box above it — not rotated
                     with the box, so it stays readable regardless of unit
-                    heading. */}
+                    heading. fontSize 18 -> 24 and halo strengthened to
+                    match the title card/ticker's own 4-layer shadow (was
+                    a lighter 4-pass shadow) — the ticker's 20->30px bump
+                    made this the smallest text left in the episode by a
+                    visible margin. 24px (middle of the requested 22-26px
+                    range) read as proportionate against the UNCHANGED
+                    60x24 box in testing — the box didn't need to grow
+                    too. Note the box+label wrapper is counter-scaled by
+                    1/effectiveZoom (see that transform above), so this
+                    fontSize is the unit's actual constant on-screen size
+                    regardless of which beat's camera zoom is active. */}
                 {unit.label && (
                   <div
                     style={{
                       marginTop: 4,
                       color: "#f5f0e8",
                       fontWeight: 700,
-                      fontSize: 18,
+                      fontSize: 24,
                       letterSpacing: "0.05em",
                       whiteSpace: "nowrap",
-                      // Layered halo instead of a background plate: a solid
-                      // chip behind the text would read as a modern UI label
-                      // pasted onto a period map. Stacking several shadow
-                      // passes (tight dark core + wider soft glow) fakes a
-                      // thin outline so the text holds up against busy map
-                      // texture without adding a graphic element of its own.
+                      // Same 4-layer halo as the title card and ticker
+                      // (tight core + wider glow + directional drop),
+                      // not the lighter pass this had before — needed to
+                      // hold up against the busy map texture at the
+                      // larger size.
                       textShadow:
-                        "0 1px 2px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.65), 0 2px 5px rgba(0,0,0,0.8)",
+                        "0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.7), 0 3px 10px rgba(0,0,0,0.85)",
                     }}
                   >
                     {unit.label.toUpperCase()}
@@ -821,6 +1047,161 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
             </React.Fragment>
           );
         })}
+
+        {/* Narration-synced location highlights — a white/gold "look
+            here" pulse, timed to when the VO actually speaks that place
+            name (frame comes from real forced-alignment word timestamps,
+            not a guess — see WildernessScene.ts). Same general mechanism
+            as the impact flash above (outer ring + core, rise-then-fade),
+            reused as a starting point and restyled: white/gold instead of
+            orange-red, and a visibly gentler rise/scale so it reads as a
+            narration cue, not a combat moment. */}
+        {(scene.narrationHighlights ?? []).map((hl, i) => {
+          const t = frame - hl.frame;
+          if (t < 0 || t > NARRATION_HIGHLIGHT_DURATION_FRAMES) return null;
+          const progress = t / NARRATION_HIGHLIGHT_DURATION_FRAMES;
+          // Gentler envelope than the impact flash's quick violent rise —
+          // eases up, holds near-peak briefly, eases back down.
+          const opacity = interpolate(
+            progress,
+            [0, 0.25, 0.55, 1],
+            [0, 1, 0.85, 0],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+          );
+          const scale = interpolate(progress, [0, 1], [0.7, 1.25], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          });
+          const ringOpacity = interpolate(
+            progress,
+            [0, 0.3, 0.9],
+            [0, 0.5, 0],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+          );
+          const ringScale = interpolate(progress, [0, 1], [0.6, 1.9], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          });
+          return (
+            <React.Fragment key={`narration-${i}`}>
+              {/* Outer ring — soft gold, expands past the core, same
+                  hollow-band construction as the impact ring so it reads
+                  as a pulse passing outward rather than a bigger flash.
+                  90px (matching the impact flash's own size, not the
+                  smaller 70px first tried here) — confirmed by rendering
+                  that the Germanna highlight's map point sits close
+                  enough to the visible frame's edge during beat 1's
+                  specific camera framing that a 70px glow got clipped
+                  almost entirely (its top ~half fell above the map
+                  viewport's own edge); 90px gives enough margin to still
+                  read clearly there. See BattleMapScene fix notes for the
+                  render testing that found this. */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${hl.x}%`,
+                  top: `${hl.y}%`,
+                  width: 160,
+                  height: 160,
+                  borderRadius: "50%",
+                  transform: `translate(-50%, -50%) scale(${ringScale})`,
+                  opacity: ringOpacity,
+                  background:
+                    "radial-gradient(circle, transparent 0%, transparent 55%, rgba(255,235,180,0.75) 65%, rgba(255,215,130,0.35) 76%, rgba(255,215,130,0) 86%)",
+                  pointerEvents: "none",
+                }}
+              />
+              {/* Core — clean white-gold, no orange/red at all (that's
+                  what keeps this reading as "look here" rather than
+                  "something violent happened here"). */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${hl.x}%`,
+                  top: `${hl.y}%`,
+                  width: 160,
+                  height: 160,
+                  borderRadius: "50%",
+                  transform: `translate(-50%, -50%) scale(${scale})`,
+                  opacity,
+                  background:
+                    "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,240,200,0.9) 30%, rgba(255,220,150,0.5) 55%, rgba(255,220,150,0) 78%)",
+                  pointerEvents: "none",
+                }}
+              />
+            </React.Fragment>
+          );
+        })}
+
+        {/* Narration-synced road highlights — a full-path glow (fades in,
+            holds, fades out) rather than a moving sweep: simpler and more
+            reliable than animating a stroke-dasharray offset along an
+            SVG path whose coordinate space is stretched to a non-square
+            aspect ratio (preserveAspectRatio="none", to match how every
+            other coordinate in this file is a plain % of width/height) —
+            the spec explicitly allows either. Rendered as an SVG polyline
+            (not more absolutely-positioned divs) since a glowing line
+            along an arbitrary multi-point path isn't practical with
+            boxes. Lives in the same tilted/panned/scaled layer as
+            everything else, so it moves with the camera. */}
+        {(scene.roadHighlights ?? []).map((rh, i) => {
+          const t = frame - rh.highlightFrame;
+          if (t < 0 || t > ROAD_HIGHLIGHT_DURATION_FRAMES) return null;
+          const progress = t / ROAD_HIGHLIGHT_DURATION_FRAMES;
+          const opacity = interpolate(
+            progress,
+            [0, 0.25, 0.75, 1],
+            [0, 1, 1, 0],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+          );
+          const pointsAttr = rh.points.map((p) => `${p.x},${p.y}`).join(" ");
+          return (
+            <svg
+              key={`road-${i}`}
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                opacity,
+                pointerEvents: "none",
+                overflow: "visible",
+              }}
+            >
+              {/* Soft wide outer glow underneath the crisp core line —
+                  same "glow behind a bright core" idea as the point
+                  highlight above, just traced along the path instead of
+                  radiating from one spot. strokeWidth is 16/6 (was 2.2/
+                  0.7) — with vectorEffect="non-scaling-stroke", strokeWidth
+                  is literal screen pixels, not map-relative units, so the
+                  original values rendered as a near-invisible 2px/0.7px
+                  hairline (confirmed by rendering: barely a handful of
+                  matching pixels anywhere in frame). 16/6 actually reads
+                  as a glow at any zoom level. */}
+              <polyline
+                points={pointsAttr}
+                fill="none"
+                stroke="rgba(255,225,150,0.5)"
+                strokeWidth={16}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+              />
+              <polyline
+                points={pointsAttr}
+                fill="none"
+                stroke="rgba(255,250,225,0.95)"
+                strokeWidth={6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          );
+        })}
       </AbsoluteFill>
       </div>
 
@@ -877,6 +1258,142 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
         );
       })()}
 
+      {/* Time-of-day ticker — persistent period label in the backdrop
+          band, reinforcing the episode's time-driven tension. Bound to
+          the band via the same wrapper the title card uses (position:
+          absolute, top:0, height:BACKDROP_HEIGHT_PERCENT%) so its own
+          percentages resolve against the ~14%-tall band, not the full
+          1080x1920 frame — that mismatch was a real bug in an earlier
+          round (the ticker rendering deep in map territory instead of
+          the backdrop). Positioned bottom-right within the band; see the
+          inline comment below for why that still clears the (vertically
+          centered) title card even at the larger size below. Always on
+          (no fade in/out) once scene.timeTicker exists — a constant,
+          glanceable reference throughout, not a momentary cue like the
+          title card or narration highlights. */}
+      {(() => {
+        const label = getTickerLabel(scene.timeTicker, frame);
+        if (!label) return null;
+        return (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: `${BACKDROP_HEIGHT_PERCENT}%`,
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                // Moved from bottom:"10%" down to bottom:"5%" (closer to
+                // the map seam) now that the text itself is much bigger —
+                // the title card sits vertically CENTERED in this band
+                // (two ~36px lines occupying roughly its middle third),
+                // so pinning the ticker to the very bottom edge keeps
+                // clear vertical separation between the two even though
+                // both are right-of-center-ish in most of their active
+                // windows. Stayed with bottom-right rather than moving to
+                // a different corner — the title card is centered, not
+                // corner-anchored, so any corner clears it equally well,
+                // and bottom-right was already established as the
+                // ticker's identity.
+                bottom: "5%",
+                right: "4%",
+                color: "#f5f0e8",
+                fontWeight: 700,
+                // 20px -> 30px: the previous size was flagged as nearly
+                // illegible at normal viewing size. Landed on 30 (bigger
+                // than the 18px unit labels / 24px minor map labels, but
+                // still clearly under the title card's 36px) so it reads
+                // easily without competing with the title card for visual
+                // weight when both are on screen.
+                fontSize: 30,
+                letterSpacing: 2,
+                // Same 4-layer halo as the title card (tight core + wider
+                // glow + directional drop), not the lighter 3-layer pass
+                // this had before — at the old 20px a lighter shadow held
+                // up fine, but 30px bold text needs the stronger halo to
+                // stay legible against the wood-grain backdrop's own
+                // light/dark variation.
+                textShadow:
+                  "0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.9), 0 0 14px rgba(0,0,0,0.7), 0 3px 10px rgba(0,0,0,0.85)",
+              }}
+            >
+              {label}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Rolling closed captions — a flat, screen-fixed overlay: a
+          sibling of the title card/ticker above, rendered OUTSIDE the
+          tilted map layer (that layer closes several hundred lines above,
+          before the title card), so this never inherits the camera's
+          rotateX/scale/translate — no distortion, no drift with pan/zoom/
+          tilt, same reasoning as the ticker-position bug fixed earlier.
+          Positioned at the BOTTOM of the map viewport, not the backdrop
+          band (that's already the title card's and ticker's territory) —
+          since the map viewport always spans from BACKDROP_HEIGHT_PERCENT%
+          down to the true bottom of the frame regardless of camera, a
+          fixed `bottom` percentage here lands at a consistent spot
+          relative to the map's own rendered bottom edge on every beat,
+          confirmed by rendering across several different camera keyframes
+          (wide opening shot, tight Saunders Field push, Hancock's wide
+          reveal) — see BattleMapScene fix notes. Solid dark bar behind
+          the text (not just a shadow/halo like the unit labels) since
+          captions pass over highly variable content — dark linework,
+          light terrain, colored unit boxes, narration-highlight flashes —
+          where a halo alone wouldn't hold up. Only rendered while a
+          caption chunk is actually active (see getActiveCaption) — no
+          persistent bar, no empty box during gaps between chunks. */}
+      {(() => {
+        const text = getActiveCaption(scene.captions, frame);
+        if (!text) return null;
+        return (
+          <div
+            style={{
+              position: "absolute",
+              left: "6%",
+              right: "6%",
+              bottom: "4%",
+              display: "flex",
+              justifyContent: "center",
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                background: "rgba(10,8,6,0.72)",
+                borderRadius: 8,
+                padding: "10px 22px",
+                maxWidth: "100%",
+                color: "#f5f0e8",
+                fontWeight: 700,
+                // Same weight/letter-spacing family as the title card and
+                // ticker for consistency, but NOT uppercased like those
+                // (or the map/unit labels) — this is running multi-word
+                // sentence text meant to be read continuously beat after
+                // beat, where all-caps at length hurts legibility rather
+                // than helping it the way it does for short place-name
+                // labels. 26px: sized between the unit labels (24px) and
+                // the ticker (30px), comfortable at normal mobile viewing
+                // size without competing with the ticker for the biggest
+                // secondary text on screen.
+                fontSize: 26,
+                letterSpacing: 0.4,
+                lineHeight: 1.3,
+                textAlign: "center",
+              }}
+            >
+              {text}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Reuses the same grain overlay ArticleVideo.jsx applies site-wide
           (see components/FilmGrain.jsx) rather than a bespoke texture, so
           this composition's atmosphere matches every other video instead
@@ -888,6 +1405,23 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
           via its existing opacity prop — the default read as essentially
           invisible against this flat backdrop specifically. */}
       <FilmGrain opacity={0.16} />
+      </AbsoluteFill>
+
+      {/* End-card CTA tail — reuses EndCardCTA's (QuickStrikeShared.tsx)
+          ANIMATION and LAYOUT conventions: fade-in text and a drawing
+          accent rule, centered stack — rather than inventing a new
+          pattern. Not a literal call to EndCardCTA itself, since that
+          component's shape is a fixed "Comment [TRIGGER]" prompt (a big
+          headline word between two sublines) and this card is a plain
+          multi-line CTA with no trigger word — and it uses THIS file's
+          own text treatment (warm off-white + halo/shadow, same as the
+          title card/ticker) rather than EndCardCTA's black-background/
+          gold Quick-Strike identity, to stay visually part of the same
+          episode rather than importing a different series' branding.
+          Rendered as a full-frame sibling of the (now fading) map
+          content above, entirely outside scene.beats' per-beat audio and
+          the music bed below, so audio is untouched by this card. */}
+      {endCard && <EndCardTail card={endCard} frame={frame} />}
 
       {/* One Sequence+Audio per beat, rather than a single global track —
           each beat's Kokoro VO clip has its own measured start/duration
@@ -902,6 +1436,15 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
           <Audio src={staticFile(beat.audioSrc)} />
         </Sequence>
       ))}
+
+      {/* Background music bed — same volume/loop convention as every
+          Quick Strike composition's own music track, just optional here
+          since not every BattleMapScene caller has one yet. Spans the
+          whole scene (no Sequence wrapper) rather than per-beat, since
+          it's not tied to any single beat's timing. */}
+      {scene.musicSrc && (
+        <Audio src={staticFile(scene.musicSrc)} volume={0.15} loop />
+      )}
     </AbsoluteFill>
   );
 };
