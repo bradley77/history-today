@@ -68,6 +68,7 @@ import DunkirkHaltOrderQS, { totalDuration as dunkirkHaltOrderQSTotal, FPS as du
 import DentonPOWQuickStrike, { totalDuration as dentonPOWQSTotal, FPS as dentonPOWQSFPS } from './compositions/DentonPOWQuickStrike';
 import SaigonExecutionQS, { totalDuration as saigonExecutionQSTotal, FPS as saigonExecutionQSFPS } from './compositions/SaigonExecutionQS';
 import ColdHarborVideo, { totalDuration as coldHarborVideoTotal, FPS as coldHarborVideoFPS } from './compositions/ColdHarborVideo';
+import GrantButcherQS, { totalDuration as grantButcherQSTotal, FPS as grantButcherQSFPS } from './compositions/GrantButcherQS';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -625,6 +626,14 @@ export const RemotionRoot = () => {
         component={ColdHarborVideo}
         durationInFrames={coldHarborVideoTotal}
         fps={coldHarborVideoFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GrantButcherQS"
+        component={GrantButcherQS}
+        durationInFrames={grantButcherQSTotal}
+        fps={grantButcherQSFPS}
         width={1080}
         height={1920}
       />

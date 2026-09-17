@@ -4,5 +4,5 @@
       "@/*": ["./*"]
     }
   },
-  "exclude": ["remotion"]
+  "exclude": ["remotion", "chatterbox-env"]
 }
