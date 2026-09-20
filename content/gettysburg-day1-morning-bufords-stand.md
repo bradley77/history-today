@@ -10,6 +10,9 @@ caption: "Brigadier General John Buford, whose cavalry division held the ground 
 sourceUrl: "/documents/gettysburg-day1-morning-bufords-stand-document.pdf#page=4"
 sourceName: "Read the Official Records"
 documentCaption: "The War of the Rebellion: Official Records, Series I, Vol. 27 · U.S. War Department · pp. 920-930"
+series: gettysburg
+seriesPart: 2
+seriesTotal: 10
 ---
 
 On the morning of July 1, 1863, fewer than 3,000 Union cavalrymen faced down the leading edge of Robert E. Lee's army west of a Pennsylvania crossroads town, with no infantry support yet on the field and no guarantee it would arrive before the Confederate advance reached them. What they bought with three hours of dismounted fighting was the ground the rest of the Army of the Potomac would need.

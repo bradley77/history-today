@@ -1,8 +1,8 @@
 ---
 title: "North Anna: The Battle Lee Was Too Sick to Finish"
-date: "PUBLISH_DATE_TBD"
+date: "May 23-26, 1864"
 category: "Civil War"
-tag: "BLUEGRAY"
+tag: "Overland Campaign"
 slug: "north-anna-inverted-v"
 publishDate: "2026-09-02 00:00"
 excerpt: "Lee split Grant's army into three separated pieces and built the most promising opportunity of the Overland Campaign. Then dysentery put him in a cot, and nobody else in the Army of Northern Virginia could finish the job."
@@ -10,6 +10,9 @@ caption: "Robert E. Lee, spring 1864. Within weeks of this campaign beginning, h
 sourceUrl: "/documents/north-anna-inverted-v-document.pdf"
 sourceName: "Southern Historical Society Papers, Vol. 14 (1886), p. 535"
 documentCaption: "Colonel Charles S. Venable's firsthand account of Lee's illness at North Anna, including the 'We must strike them a blow' quotation, from his address 'The Campaign from the Wilderness to Petersburg.'"
+series: overland-campaign
+seriesPart: 3
+seriesTotal: 5
 ---
 
 Historians argue for decades about whether Lee's health cost him at Gettysburg. The evidence there is circumstantial, tangled up with Stuart's absence, Ewell's caution, Longstreet's slow start. Reasonable people disagree.

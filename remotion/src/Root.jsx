@@ -69,6 +69,8 @@ import DentonPOWQuickStrike, { totalDuration as dentonPOWQSTotal, FPS as dentonP
 import SaigonExecutionQS, { totalDuration as saigonExecutionQSTotal, FPS as saigonExecutionQSFPS } from './compositions/SaigonExecutionQS';
 import ColdHarborVideo, { totalDuration as coldHarborVideoTotal, FPS as coldHarborVideoFPS } from './compositions/ColdHarborVideo';
 import GrantButcherQS, { totalDuration as grantButcherQSTotal, FPS as grantButcherQSFPS } from './compositions/GrantButcherQS';
+import MemphisBelleQS, { totalDuration as memphisBelleQSTotal, FPS as memphisBelleQSFPS } from './compositions/MemphisBelleQS';
+import MemphisBelleQSv2, { totalDuration as memphisBelleQSv2Total, FPS as memphisBelleQSv2FPS } from './compositions/MemphisBelleQSv2';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -634,6 +636,22 @@ export const RemotionRoot = () => {
         component={GrantButcherQS}
         durationInFrames={grantButcherQSTotal}
         fps={grantButcherQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="MemphisBelleQS"
+        component={MemphisBelleQS}
+        durationInFrames={memphisBelleQSTotal}
+        fps={memphisBelleQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="MemphisBelleQSv2"
+        component={MemphisBelleQSv2}
+        durationInFrames={memphisBelleQSv2Total}
+        fps={memphisBelleQSv2FPS}
         width={1080}
         height={1920}
       />

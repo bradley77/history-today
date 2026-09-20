@@ -1,6 +1,6 @@
 ---
 title: "The Hours That Saved Petersburg"
-date: "June 15, 1864"
+date: "June 15-18, 1864"
 category: "Civil War"
 tag: "Petersburg"
 slug: "hours-that-saved-petersburg"
@@ -10,6 +10,9 @@ caption: "General P. G. T. Beauregard, C.S.A. National Archives and Records Admi
 sourceUrl: "/documents/hours-that-saved-petersburg-document.pdf"
 sourceName: "General Beauregard's Own Account, Battles and Leaders of the Civil War (1888)"
 documentCaption: "Beauregard's postwar narrative of the four days at Petersburg, written in 1887 for the North American Review and reprinted the following year in Battles and Leaders of the Civil War, Vol. 4, pp. 540-544."
+series: overland-campaign
+seriesPart: 5
+seriesTotal: 5
 ---
 
 For nine and a half months, Petersburg meant one thing: siege. That siege was never supposed to happen. On the evening of June 15, 1864, Petersburg may never have been more vulnerable than it was for a few hours. Then the moment passed.

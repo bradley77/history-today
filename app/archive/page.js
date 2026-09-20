@@ -6,11 +6,22 @@ export const metadata = {
   description: 'Every story we have ever published.',
 }
 
+// article.date is a free-text historical date, often a range
+// ("May 8-21, 1864"). Using new Date(...).getFullYear() on a range
+// misreads one of the day numbers as the year, so pull the last
+// 4-digit year out of the string directly instead.
+function yearOf(dateString) {
+  const match = dateString.match(/(\d{4})(?!.*\d{4})/)
+  if (match) return match[1]
+  const parsed = new Date(dateString).getFullYear()
+  return Number.isNaN(parsed) ? 'Undated' : String(parsed)
+}
+
 export default function ArchivePage() {
   const articles = getAllArticles()
 
   const groupedByYear = articles.reduce((acc, article) => {
-    const year = new Date(article.date).getFullYear()
+    const year = yearOf(article.date)
     if (!acc[year]) acc[year] = []
     acc[year].push(article)
     return acc

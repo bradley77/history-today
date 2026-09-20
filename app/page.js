@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getAllArticles } from './lib/articles'
+import { getSeriesTitle } from './lib/series'
 
 export default async function Home() {
   const allArticles = getAllArticles()
@@ -19,10 +20,10 @@ export default async function Home() {
           <img src="/logo.png" alt="Echo and Chronicle" style={{height: '180px', width: 'auto', margin: '0 auto', display: 'block'}} />
         </div>
         <nav className="flex items-center justify-center gap-8 pb-4 text-sm font-medium">
-          {['Home', 'Archive', 'Newsletter', 'About'].map(item => (
+          {['Home', 'Series', 'Newsletter', 'About'].map(item => (
             <a
               key={item}
-              href={item === 'Archive' ? '/archive' : item === 'About' ? '/about' : item === 'Newsletter' ? '#newsletter' : '#'}
+              href={item === 'Series' ? '/series' : item === 'About' ? '/about' : item === 'Newsletter' ? '#newsletter' : '#'}
               className="hover:text-red-700 transition-colors duration-200 pb-1 border-b-2 border-transparent hover:border-red-700"
             >
               {item}
@@ -38,38 +39,80 @@ export default async function Home() {
           <section className="mb-12">
             <div className="accent-line"></div>
             <p className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-medium">Featured Story</p>
-            <Link href={`/articles/${featured.slug}`} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center article-card cursor-pointer group">
-              <div className="aspect-[3/2] rounded-sm overflow-hidden relative bg-gray-100">
-                <img
-                  src={`/images/${featured.slug}.jpg`}
-                  alt={featured.title}
-                  className="w-full h-full object-cover"
-                  style={{objectPosition: featured.heroPosition || 'center'}}
-                />
-                <div className="absolute bottom-3 left-3 bg-red-700 text-white text-xs px-2 py-1 uppercase tracking-wider font-bold">
-                  {featured.tag}
+            {featured.series ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center article-card cursor-pointer group relative">
+                <Link href={`/articles/${featured.slug}`} className="absolute inset-0 z-0" aria-label={featured.title} />
+                <div className="aspect-[3/2] rounded-sm overflow-hidden relative bg-gray-100">
+                  <img
+                    src={`/images/${featured.slug}.jpg`}
+                    alt={featured.title}
+                    className="w-full h-full object-cover"
+                    style={{objectPosition: featured.heroPosition || 'center'}}
+                  />
+                  <div className="absolute bottom-3 left-3 bg-red-700 text-white text-xs px-2 py-1 uppercase tracking-wider font-bold">
+                    {featured.tag}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-red-700 text-xs font-bold uppercase tracking-widest">{featured.category}</span>
+                    <span className="text-gray-300">·</span>
+                    <span className="text-gray-400 text-xs">{featured.date}</span>
+                  </div>
+                  <h2 style={{fontFamily: 'var(--font-playfair)'}} className="text-4xl font-bold mb-4 leading-tight group-hover:text-red-700 transition-colors duration-200">
+                    {featured.title}
+                  </h2>
+                  <p className="text-gray-500 text-base leading-relaxed mb-6">
+                    {featured.excerpt}
+                  </p>
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <span className="text-sm font-medium border-b-2 border-gray-900 pb-0.5 group-hover:border-red-700 group-hover:text-red-700 transition-colors duration-200">
+                      Read the full story
+                    </span>
+                    <span className="text-gray-400 text-xs">{featured.readTime}</span>
+                    <Link
+                      href={`/series/${featured.series}`}
+                      className="relative z-10 text-xs font-bold uppercase tracking-widest text-red-700 border border-red-700 px-2 py-0.5 hover:bg-red-700 hover:text-white transition-colors duration-200"
+                    >
+                      {getSeriesTitle(featured.series)} · Part {featured.seriesPart} of {featured.seriesTotal}
+                    </Link>
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-red-700 text-xs font-bold uppercase tracking-widest">{featured.category}</span>
-                  <span className="text-gray-300">·</span>
-                  <span className="text-gray-400 text-xs">{featured.date}</span>
+            ) : (
+              <Link href={`/articles/${featured.slug}`} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center article-card cursor-pointer group">
+                <div className="aspect-[3/2] rounded-sm overflow-hidden relative bg-gray-100">
+                  <img
+                    src={`/images/${featured.slug}.jpg`}
+                    alt={featured.title}
+                    className="w-full h-full object-cover"
+                    style={{objectPosition: featured.heroPosition || 'center'}}
+                  />
+                  <div className="absolute bottom-3 left-3 bg-red-700 text-white text-xs px-2 py-1 uppercase tracking-wider font-bold">
+                    {featured.tag}
+                  </div>
                 </div>
-                <h2 style={{fontFamily: 'var(--font-playfair)'}} className="text-4xl font-bold mb-4 leading-tight group-hover:text-red-700 transition-colors duration-200">
-                  {featured.title}
-                </h2>
-                <p className="text-gray-500 text-base leading-relaxed mb-6">
-                  {featured.excerpt}
-                </p>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium border-b-2 border-gray-900 pb-0.5 group-hover:border-red-700 group-hover:text-red-700 transition-colors duration-200">
-                    Read the full story
-                  </span>
-                  <span className="text-gray-400 text-xs">{featured.readTime}</span>
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-red-700 text-xs font-bold uppercase tracking-widest">{featured.category}</span>
+                    <span className="text-gray-300">·</span>
+                    <span className="text-gray-400 text-xs">{featured.date}</span>
+                  </div>
+                  <h2 style={{fontFamily: 'var(--font-playfair)'}} className="text-4xl font-bold mb-4 leading-tight group-hover:text-red-700 transition-colors duration-200">
+                    {featured.title}
+                  </h2>
+                  <p className="text-gray-500 text-base leading-relaxed mb-6">
+                    {featured.excerpt}
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium border-b-2 border-gray-900 pb-0.5 group-hover:border-red-700 group-hover:text-red-700 transition-colors duration-200">
+                      Read the full story
+                    </span>
+                    <span className="text-gray-400 text-xs">{featured.readTime}</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            )}
           </section>
         )}
 
@@ -79,36 +122,62 @@ export default async function Home() {
         <section className="mt-8">
           {rest.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {rest.map((article) => (
-                <Link
-                  key={article.slug}
-                  href={`/articles/${article.slug}`}
-                  className="article-card cursor-pointer group border-t-2 border-gray-100 hover:border-red-700 pt-4 transition-all duration-200"
-                >
-                  <div className="aspect-video rounded-sm mb-4 relative overflow-hidden bg-gray-100">
-                    <img
-                      src={`/images/${article.slug}.jpg`}
-                      alt={article.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-2 left-2 bg-red-700 text-white text-xs px-2 py-0.5 uppercase tracking-wider font-bold">
-                      {article.tag}
+              {rest.map((article) => {
+                const cardBody = (
+                  <>
+                    <div className="aspect-video rounded-sm mb-4 relative overflow-hidden bg-gray-100">
+                      <img
+                        src={`/images/${article.slug}.jpg`}
+                        alt={article.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-2 left-2 bg-red-700 text-white text-xs px-2 py-0.5 uppercase tracking-wider font-bold">
+                        {article.tag}
+                      </div>
                     </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-red-700 text-xs font-bold uppercase tracking-widest">{article.category}</span>
+                      <span className="text-gray-300 text-xs">·</span>
+                      <span className="text-gray-400 text-xs">{article.date}</span>
+                    </div>
+                    <h3 style={{fontFamily: 'var(--font-playfair)'}} className="text-xl font-bold mb-2 leading-snug group-hover:text-red-700 transition-colors duration-200">
+                      {article.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-3">
+                      {article.excerpt}
+                    </p>
+                    <span className="text-xs text-gray-400">{article.readTime}</span>
+                  </>
+                )
+
+                if (!article.series) {
+                  return (
+                    <Link
+                      key={article.slug}
+                      href={`/articles/${article.slug}`}
+                      className="article-card cursor-pointer group border-t-2 border-gray-100 hover:border-red-700 pt-4 transition-all duration-200"
+                    >
+                      {cardBody}
+                    </Link>
+                  )
+                }
+
+                return (
+                  <div
+                    key={article.slug}
+                    className="article-card cursor-pointer group border-t-2 border-gray-100 hover:border-red-700 pt-4 transition-all duration-200 relative"
+                  >
+                    <Link href={`/articles/${article.slug}`} className="absolute inset-0 z-0" aria-label={article.title} />
+                    {cardBody}
+                    <Link
+                      href={`/series/${article.series}`}
+                      className="relative z-10 inline-block mt-2 text-xs font-bold uppercase tracking-widest text-red-700 border border-red-700 px-2 py-0.5 hover:bg-red-700 hover:text-white transition-colors duration-200"
+                    >
+                      {getSeriesTitle(article.series)} · Part {article.seriesPart} of {article.seriesTotal}
+                    </Link>
                   </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-red-700 text-xs font-bold uppercase tracking-widest">{article.category}</span>
-                    <span className="text-gray-300 text-xs">·</span>
-                    <span className="text-gray-400 text-xs">{article.date}</span>
-                  </div>
-                  <h3 style={{fontFamily: 'var(--font-playfair)'}} className="text-xl font-bold mb-2 leading-snug group-hover:text-red-700 transition-colors duration-200">
-                    {article.title}
-                  </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-3">
-                    {article.excerpt}
-                  </p>
-                  <span className="text-xs text-gray-400">{article.readTime}</span>
-                </Link>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="text-center py-16">

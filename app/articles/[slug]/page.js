@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import Link from 'next/link'
 import { getArticleBySlug, getAllArticles } from '../../lib/articles'
+import { getSeriesTitle } from '../../lib/series'
 import LightboxImage from './LightboxImage'
 import DocImage from '@/components/DocImage'
 import ProseContent from './ProseContent'
@@ -40,8 +41,15 @@ export async function generateMetadata({ params }) {
 export default async function ArticlePage({ params }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
-  const relatedArticles = getAllArticles().filter(a => a.slug !== slug).slice(0, 3)
+  const allArticles = getAllArticles()
+  const relatedArticles = allArticles.filter(a => a.slug !== slug).slice(0, 3)
   const readingTime = Math.ceil(article.content.split(/\s+/).filter(Boolean).length / 200)
+  const prevInSeries = article.series
+    ? allArticles.find(a => a.series === article.series && a.seriesPart === article.seriesPart - 1)
+    : null
+  const nextInSeries = article.series
+    ? allArticles.find(a => a.series === article.series && a.seriesPart === article.seriesPart + 1)
+    : null
   const docImageExt = ['jpg', 'png'].find(ext =>
     fs.existsSync(path.join(process.cwd(), 'public', 'images', `${article.slug}-document.${ext}`))
   )
@@ -156,6 +164,44 @@ export default async function ArticlePage({ params }) {
       <article className="px-8 pb-16" style={{maxWidth: '1152px', margin: '0 auto'}}>
         <ProseContent html={bodyHtml} />
       </article>
+
+      {/* Series Prev/Next */}
+      {article.series && (
+        <div className="px-8 py-6 border-t border-gray-200" style={{maxWidth: '1152px', margin: '0 auto'}}>
+          <div className="flex items-center justify-between gap-6 mb-4">
+            <p className="text-xs uppercase tracking-widest text-gray-400 font-medium">
+              <Link href={`/series/${article.series}`} className="hover:text-red-700 transition-colors">
+                {getSeriesTitle(article.series)} series
+              </Link>
+              {' · '}Part {article.seriesPart} of {article.seriesTotal}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {prevInSeries ? (
+              <Link
+                href={`/articles/${prevInSeries.slug}`}
+                className="group border-t-2 border-gray-100 hover:border-red-700 pt-4 transition-all duration-200"
+              >
+                <span className="text-xs uppercase tracking-widest text-gray-400">← Part {prevInSeries.seriesPart}</span>
+                <p style={{fontFamily: 'var(--font-playfair)'}} className="text-lg font-bold group-hover:text-red-700 transition-colors duration-200">
+                  {prevInSeries.title}
+                </p>
+              </Link>
+            ) : <div />}
+            {nextInSeries ? (
+              <Link
+                href={`/articles/${nextInSeries.slug}`}
+                className="group border-t-2 border-gray-100 hover:border-red-700 pt-4 transition-all duration-200 text-right"
+              >
+                <span className="text-xs uppercase tracking-widest text-gray-400">Part {nextInSeries.seriesPart} →</span>
+                <p style={{fontFamily: 'var(--font-playfair)'}} className="text-lg font-bold group-hover:text-red-700 transition-colors duration-200">
+                  {nextInSeries.title}
+                </p>
+              </Link>
+            ) : <div />}
+          </div>
+        </div>
+      )}
 
       {/* Newsletter CTA */}
       <div style={{maxWidth: '1152px', margin: '0 auto', padding: '2rem 2rem', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9f9f7'}}>

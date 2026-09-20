@@ -1,7 +1,7 @@
 ---
 title: "The Seven-Minute Myth at Cold Harbor"
-date: "May 31–June 12, 1864"
-category: BLUEGRAY
+date: "May 31-June 12, 1864"
+category: Civil War
 tag: Overland Campaign
 slug: cold-harbor
 publishDate: "2026-09-07 23:11"
@@ -10,6 +10,9 @@ caption: "Gen. U.S. Grant and staff at his Cold Harbor, Va., headquarters, June 
 sourceUrl: "/documents/cold-harbor-document.pdf#page=10"
 sourceName: "Official Records, Series I, Volume XXXVI, Part 3, p. 666"
 documentCaption: "Note in Letter Book, Headquarters Armies of the United States, June 7, 1864: explaining why Lee's truce confirmation missed its own deadline"
+series: overland-campaign
+seriesPart: 4
+seriesTotal: 5
 ---
 
 # The Seven-Minute Myth at Cold Harbor

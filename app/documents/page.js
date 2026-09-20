@@ -91,7 +91,6 @@ export default function DocumentsPage() {
           <p>© {new Date().getFullYear()} · All historical documents sourced from public domain archives</p>
           <div className="flex gap-6">
             <Link href="/" className="hover:text-gray-900 transition-colors">Home</Link>
-            <Link href="/archive" className="hover:text-gray-900 transition-colors">Archive</Link>
             <Link href="/about" className="hover:text-gray-900 transition-colors">About</Link>
           </div>
         </div>

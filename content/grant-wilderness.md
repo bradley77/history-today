@@ -10,6 +10,9 @@ caption: "Alfred Waud's field sketch of Wadsworth's division fighting in the Wil
 sourceUrl: "/documents/grant-wilderness-document.pdf"
 sourceName: "Ulysses S. Grant to Edwin M. Stanton, Secretary of War (May 11, 1864)"
 documentCaption: "Grant's dispatch to Secretary of War Edwin Stanton, written from the field near Spotsylvania Court House on May 11, 1864, containing the line \"I propose to fight it out on this line if it takes all summer.\" Grant sent a nearly identical dispatch to General Halleck within the same hour."
+series: overland-campaign
+seriesPart: 1
+seriesTotal: 5
 ---
 
 Every Union commander who'd faced Lee in Virginia and come away bloodied had followed the same pattern afterward. Burnside did it after Fredericksburg. Hooker did it after Chancellorsville, in this same stretch of forest, a year almost to the week earlier. Cross back over the river, lick the wounds, wait for next spring. It wasn't cowardice. It had become the Army's pattern. So on the night of May 7, 1864, with the Army of the Potomac having just taken a beating in the Wilderness that rivaled anything it had absorbed in three years of war, there was no reason for the men in the ranks to expect anything different.

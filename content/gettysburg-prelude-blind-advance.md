@@ -10,6 +10,9 @@ caption: "View of Gettysburg from the northwest, photographed July 1863. First a
 sourceUrl: "/documents/gettysburg-prelude-blind-advance-document.pdf"
 sourceName: "Sources for the Prelude: official reports and correspondence from Lee, Stuart, Meade, Buford, and Heth (Official Records, Series 1, Vol. 27)"
 documentCaption: "A compiled source packet for this article, five primary documents in full or relevant excerpt, anchored by Lee's June 23, 1863 order granting Stuart discretion to ride around the Union army."
+series: gettysburg
+seriesPart: 1
+seriesTotal: 10
 ---
 
 On June 3, 1863, the Army of Northern Virginia began pulling out of its lines opposite Fredericksburg, Virginia. Most of the men marching that day did not know where the army was headed. Neither did the Union commanders watching them leave know exactly what Robert E. Lee intended to do next.

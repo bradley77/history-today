@@ -1,8 +1,8 @@
 ---
 title: "The Dress Rehearsal for the Bloody Angle"
-date: "2026-08-31"
+date: "May 8-21, 1864"
 category: "Civil War"
-tag: "BLUEGRAY"
+tag: "Overland Campaign"
 slug: "spotsylvania-bloody-angle-dress-rehearsal"
 publishDate: "2026-08-31 08:00"
 excerpt: "Two days before the bloodiest close-quarters fighting of the Civil War, a Union colonel had already shown Grant exactly how it could fail. He sent an entire corps in anyway."
@@ -10,6 +10,9 @@ caption: "Battle of Spottsylvania, lithograph by Kurz & Allison, c. 1888, depict
 sourceUrl: "/documents/spotsylvania-bloody-angle-dress-rehearsal-document.pdf#page=4"
 sourceName: "War of the Rebellion: Official Records of the Union and Confederate Armies, Series I, Volume 36, Part 1"
 documentCaption: "Maj. Gen. Winfield Scott Hancock's official report of the II Corps' operations at Spotsylvania Court House, May 8-21, 1864, covering the Po River fighting of May 10 and the assault on the Mule Shoe salient on May 12, in which his corps captured nearly 4,000 prisoners including Confederate Generals Edward Johnson and George Steuart."
+series: overland-campaign
+seriesPart: 2
+seriesTotal: 5
 ---
 
 # The Dress Rehearsal for the Bloody Angle
