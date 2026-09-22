@@ -1,0 +1,66 @@
+{
+  "fps": 30,
+  "slides": {
+    "01": [
+      {
+        "text": "Nixon told the nation",
+        "start": 0.03,
+        "end": 0.91
+      },
+      {
+        "text": "American policy was to respect\nCambodia's neutrality.",
+        "start": 0.91,
+        "end": 5.29
+      },
+      {
+        "text": "B-52s had been bombing it",
+        "start": 5.29,
+        "end": 7.07
+      },
+      {
+        "text": "for over a year.",
+        "start": 7.07,
+        "end": 8.3
+      }
+    ],
+    "02": [
+      {
+        "text": "The reports said South Vietnam.",
+        "start": 0.0,
+        "end": 1.87
+      },
+      {
+        "text": "The bombs fell on Cambodia.",
+        "start": 2.11,
+        "end": 3.66
+      },
+      {
+        "text": "The real records were burned.",
+        "start": 4.05,
+        "end": 5.59
+      }
+    ],
+    "03": [
+      {
+        "text": "3,875 B-52 sorties.",
+        "start": 0.11,
+        "end": 3.59
+      },
+      {
+        "text": "In 1973, former Air Force major",
+        "start": 3.95,
+        "end": 6.37
+      },
+      {
+        "text": "Hal Knight told the Senate",
+        "start": 6.37,
+        "end": 7.77
+      },
+      {
+        "text": "he helped falsify the reports.",
+        "start": 7.77,
+        "end": 9.81
+      }
+    ]
+  }
+}

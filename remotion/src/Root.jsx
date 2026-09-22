@@ -36,6 +36,7 @@ import VicksburgMineQS, { totalDuration as vicksburgMineQSTotal, FPS as vicksbur
 import LeeResignationQS, { totalDuration as leeResignationQSTotal, FPS as leeResignationQSFPS } from './compositions/LeeResignationQS';
 import BataanDeathMarchToll, { totalDuration as bataanDeathMarchTollTotal, FPS as bataanDeathMarchTollFPS } from './compositions/BataanDeathMarchToll';
 import OperationFrequentWindQS, { totalDuration as operationFrequentWindQSTotal, FPS as operationFrequentWindQSFPS } from './compositions/OperationFrequentWindQS';
+import OperationMenuQuickStrike, { totalDuration as operationMenuQuickStrikeTotal, FPS as operationMenuQuickStrikeFPS } from './compositions/OperationMenuQuickStrike';
 import GettysburgRetreatQS, { totalDuration as gettysburgRetreatQSTotal, FPS as gettysburgRetreatQSFPS } from './compositions/GettysburgRetreatQS';
 import TrinityTestQS, { totalDuration as trinityTestQSTotal, FPS as trinityTestQSFPS } from './compositions/TrinityTestQS';
 import BattleOfTheBulgeQS, { totalDuration as battleOfTheBulgeQSTotal, FPS as battleOfTheBulgeQSFPS } from './compositions/BattleOfTheBulgeQS';
@@ -372,6 +373,14 @@ export const RemotionRoot = () => {
         component={OperationFrequentWindQS}
         durationInFrames={operationFrequentWindQSTotal}
         fps={operationFrequentWindQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="OperationMenuQuickStrike"
+        component={OperationMenuQuickStrike}
+        durationInFrames={operationMenuQuickStrikeTotal}
+        fps={operationMenuQuickStrikeFPS}
         width={1080}
         height={1920}
       />
