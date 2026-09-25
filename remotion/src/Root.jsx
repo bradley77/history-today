@@ -68,10 +68,12 @@ import NorthAnnaQS, { totalDuration as northAnnaQSTotal, FPS as northAnnaQSFPS }
 import DunkirkHaltOrderQS, { totalDuration as dunkirkHaltOrderQSTotal, FPS as dunkirkHaltOrderQSFPS } from './compositions/DunkirkHaltOrderQS';
 import DentonPOWQuickStrike, { totalDuration as dentonPOWQSTotal, FPS as dentonPOWQSFPS } from './compositions/DentonPOWQuickStrike';
 import SaigonExecutionQS, { totalDuration as saigonExecutionQSTotal, FPS as saigonExecutionQSFPS } from './compositions/SaigonExecutionQS';
+import McLeanTwoHousesQS, { totalDuration as mcLeanTwoHousesQSTotal, FPS as mcLeanTwoHousesQSFPS } from './compositions/McLeanTwoHousesQS';
 import ColdHarborVideo, { totalDuration as coldHarborVideoTotal, FPS as coldHarborVideoFPS } from './compositions/ColdHarborVideo';
 import GrantButcherQS, { totalDuration as grantButcherQSTotal, FPS as grantButcherQSFPS } from './compositions/GrantButcherQS';
 import MemphisBelleQS, { totalDuration as memphisBelleQSTotal, FPS as memphisBelleQSFPS } from './compositions/MemphisBelleQS';
 import MemphisBelleQSv2, { totalDuration as memphisBelleQSv2Total, FPS as memphisBelleQSv2FPS } from './compositions/MemphisBelleQSv2';
+import MemphisBelleQSv2Clean, { totalDuration as memphisBelleQSv2CleanTotal, FPS as memphisBelleQSv2CleanFPS } from './compositions/MemphisBelleQSv2Clean';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -633,6 +635,14 @@ export const RemotionRoot = () => {
         height={1920}
       />
       <Composition
+        id="McLeanTwoHousesQS"
+        component={McLeanTwoHousesQS}
+        durationInFrames={mcLeanTwoHousesQSTotal}
+        fps={mcLeanTwoHousesQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
         id="ColdHarborVideo"
         component={ColdHarborVideo}
         durationInFrames={coldHarborVideoTotal}
@@ -661,6 +671,14 @@ export const RemotionRoot = () => {
         component={MemphisBelleQSv2}
         durationInFrames={memphisBelleQSv2Total}
         fps={memphisBelleQSv2FPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="MemphisBelleQSv2Clean"
+        component={MemphisBelleQSv2Clean}
+        durationInFrames={memphisBelleQSv2CleanTotal}
+        fps={memphisBelleQSv2CleanFPS}
         width={1080}
         height={1920}
       />
