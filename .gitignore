@@ -60,3 +60,22 @@ voice-tests/
 # python bytecode cache
 __pycache__/
 *.pyc
+
+# video production (not part of the site)
+/remotion/
+/voices/
+/voice-tests/
+
+# root-level scratch: media, reports, logs, research
+/*.jpg
+/*.png
+/*.pdf
+/*.mp3
+/*.wav
+/*.log
+/*.svg
+/03-source-card.json
+/pacing_report.txt
+
+# root-level helper scripts (voiceover, video prep, tracing)
+/*.py

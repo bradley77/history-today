@@ -74,6 +74,12 @@ import GrantButcherQS, { totalDuration as grantButcherQSTotal, FPS as grantButch
 import MemphisBelleQS, { totalDuration as memphisBelleQSTotal, FPS as memphisBelleQSFPS } from './compositions/MemphisBelleQS';
 import MemphisBelleQSv2, { totalDuration as memphisBelleQSv2Total, FPS as memphisBelleQSv2FPS } from './compositions/MemphisBelleQSv2';
 import MemphisBelleQSv2Clean, { totalDuration as memphisBelleQSv2CleanTotal, FPS as memphisBelleQSv2CleanFPS } from './compositions/MemphisBelleQSv2Clean';
+import WwiiGeneralsStrategy1944QS, { totalDuration as wwiiGeneralsStrategy1944QSTotal, FPS as wwiiGeneralsStrategy1944QSFPS } from './compositions/WwiiGeneralsStrategy1944QS';
+import FortSumterSaluteQS, { totalDuration as fortSumterSaluteQSTotal, FPS as fortSumterSaluteQSFPS } from './compositions/FortSumterSaluteQS';
+import ThomasChickamaugaCornfieldQS, { totalDuration as thomasChickamaugaCornfieldQSTotal, FPS as thomasChickamaugaCornfieldQSFPS } from './compositions/ThomasChickamaugaCornfieldQS';
+import LincolnHookerLetterQS, { totalDuration as lincolnHookerLetterQSTotal, FPS as lincolnHookerLetterQSFPS } from './compositions/LincolnHookerLetterQS';
+import GrantBucknerQS, { totalDuration as grantBucknerQSTotal, FPS as grantBucknerQSFPS } from './compositions/GrantBucknerQS';
+import ButlerVideo, { totalDuration as butlerVideoTotal, FPS as butlerVideoFPS } from './compositions/ButlerVideo';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -679,6 +685,54 @@ export const RemotionRoot = () => {
         component={MemphisBelleQSv2Clean}
         durationInFrames={memphisBelleQSv2CleanTotal}
         fps={memphisBelleQSv2CleanFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="WwiiGeneralsStrategy1944QS"
+        component={WwiiGeneralsStrategy1944QS}
+        durationInFrames={wwiiGeneralsStrategy1944QSTotal}
+        fps={wwiiGeneralsStrategy1944QSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FortSumterSaluteQS"
+        component={FortSumterSaluteQS}
+        durationInFrames={fortSumterSaluteQSTotal}
+        fps={fortSumterSaluteQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="ThomasChickamaugaCornfieldQS"
+        component={ThomasChickamaugaCornfieldQS}
+        durationInFrames={thomasChickamaugaCornfieldQSTotal}
+        fps={thomasChickamaugaCornfieldQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="LincolnHookerLetterQS"
+        component={LincolnHookerLetterQS}
+        durationInFrames={lincolnHookerLetterQSTotal}
+        fps={lincolnHookerLetterQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="GrantBucknerQS"
+        component={GrantBucknerQS}
+        durationInFrames={grantBucknerQSTotal}
+        fps={grantBucknerQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="ButlerVideo"
+        component={ButlerVideo}
+        durationInFrames={butlerVideoTotal}
+        fps={butlerVideoFPS}
         width={1080}
         height={1920}
       />
