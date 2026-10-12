@@ -79,3 +79,6 @@ __pycache__/
 
 # root-level helper scripts (voiceover, video prep, tracing)
 /*.py
+
+# research index (built locally by ec_ocr.py / ec_find.py, not part of the site)
+source-index/
