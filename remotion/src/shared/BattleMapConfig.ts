@@ -185,6 +185,10 @@ export type BattleMapScene = {
   musicSrc?: string;
   // Optional full-frame end-card CTA tail — see EndCard above.
   endCard?: EndCard;
+  // Optional height of the top wood-table backdrop band, in % of frame
+  // height. Omitted = 14 (original look). 0 = no band: the map fills the
+  // whole frame and the title card / ticker are drawn over the map.
+  backdropBandPct?: number;
 };
 
 // Example: Battle of Franklin opening push, ~3 camera moves

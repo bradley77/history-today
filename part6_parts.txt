@@ -1,0 +1,28 @@
+# Gettysburg Part 6 packet. Format: Label | DOC:PDF-PAGES
+# 1. CEMETERY RIDGE, 1st MINNESOTA
+1a Gibbon (end of report) | OR-27-1:439
+1b Harrow, No. 99 | OR-27-1:440-441
+1c Coates, 1st Minnesota, No. 102 | OR-27-1:445-446
+1d Hancock, No. 76 (header, July 1 dispatch, Minnesota, Carroll to Howard, signature) | OR-27-1:387-388,392-393,398
+# 2. EAST CEMETERY HILL, UNION
+2a Howard (author inferred from text) | OR-27-1:723-727
+2b Steinwehr | OR-27-1:741-743
+2c Osborn, No. 264, and Wiedrich, No. 265 | OR-27-1:768-770,772-773
+# 3. EAST CEMETERY HILL, CONFEDERATE
+3a Lee | OR-27-2:321-322
+3b Ewell, No. 467 | OR-27-2:442,449-450,453
+3c Early | OR-27-2:473-474,476
+3d Hays, Aug 3 1863 | OR-27-2:482-485
+# 4. CULP'S HILL, UNION
+4a Greene, No. 307 (with end of Walker, 111th PA) | OR-27-1:876-880
+4b Geary, No. 293 | OR-27-1:845-851
+4c Williams, No. 272 (header, then corps report) | OR-27-1:791,793-797
+4d Ruger, No. 273 (Dec 1863) | OR-27-1:798-799
+4e Godard, Redington, Hammerstein, Ireland | OR-27-1:881-884,887
+# 5. CULP'S HILL, CONFEDERATE
+5a Johnson | OR-27-2:506-508
+5b Steuart | OR-27-2:512-514
+5c Walker, Stonewall Brigade | OR-27-2:521-522
+5d Nadenboush, 2nd Virginia | OR-27-2:524-525
+# 6. OPTIONAL: CREDIT DISPUTE, DEC 1863 TO FEB 1864
+6a Slocum addendum, Williams letter, Meade reply | OR-27-1:784-790

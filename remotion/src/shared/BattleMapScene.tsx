@@ -540,16 +540,33 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
 
   const cam = sampleKeyframes(frame, scene.camera, fps);
 
+  // Optional per-scene override of the top backdrop band height (percent of
+  // frame). Unset = the original BACKDROP_HEIGHT_PERCENT, so existing scenes
+  // render exactly as before. 0 = no band: the map viewport fills the whole
+  // frame, and the title card / ticker are drawn over the map instead.
+  const bandPct = scene.backdropBandPct ?? BACKDROP_HEIGHT_PERCENT;
+  const noBand = bandPct <= 0;
+
+  // The coverage floor above was fitted for the default 86%-tall map
+  // viewport. A taller viewport (smaller band) foreshortens the tilted
+  // plane's far edge by more pixels, so the floor is scaled up by the
+  // viewport-height ratio. At the default band this factor is exactly 1,
+  // so existing scenes are untouched.
+  const defaultToCurrentViewportRatio =
+    bandPct < BACKDROP_HEIGHT_PERCENT
+      ? MAP_VIEWPORT_HEIGHT_PERCENT / (100 - bandPct)
+      : 1;
+  const effectiveZoom = Math.max(
+    cam.zoom,
+    minCoverageScale(cam.tilt, cam.x, cam.y) /
+      (defaultToCurrentViewportRatio * defaultToCurrentViewportRatio)
+  );
+
   // The guarantee: keyframe zoom can still zoom IN past this (tighter
   // framing), it just can no longer take the plane's on-screen footprint
   // below what's needed to fill the map viewport — see minCoverageScale
   // above for the derivation and BattleMapScene fix notes for the render
   // testing that validated it.
-  const effectiveZoom = Math.max(
-    cam.zoom,
-    minCoverageScale(cam.tilt, cam.x, cam.y)
-  );
-
   // Backdrop is a dark radial gradient rather than flat black — a pure
   // #000 void behind the title card read as a rendering glitch rather
   // than atmosphere.
@@ -602,7 +619,7 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
     top: 0,
     left: 0,
     right: 0,
-    height: `${BACKDROP_HEIGHT_PERCENT}%`,
+    height: `${bandPct}%`,
     overflow: "hidden",
     backgroundImage:
       // Seam graze — tight, near the map's top edge.
@@ -639,7 +656,7 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
   // texture seam of its own.
   const mapViewportStyle: React.CSSProperties = {
     position: "absolute",
-    top: `${BACKDROP_HEIGHT_PERCENT}%`,
+    top: `${bandPct}%`,
     left: 0,
     right: 0,
     bottom: 0,
@@ -670,7 +687,7 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
   // would be.
   const seamShadowStyle: React.CSSProperties = {
     position: "absolute",
-    top: `${BACKDROP_HEIGHT_PERCENT}%`,
+    top: `${bandPct}%`,
     left: 0,
     right: 0,
     height: "6%",
@@ -717,9 +734,9 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       <AbsoluteFill style={{ opacity: mapContentOpacity }}>
-      <div style={backdropStyle} />
+      {!noBand && <div style={backdropStyle} />}
 
-      <div style={seamShadowStyle} />
+      {!noBand && <div style={seamShadowStyle} />}
 
       <div style={mapViewportStyle}>
       <AbsoluteFill style={innerStyle}>
@@ -1223,13 +1240,21 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
               top: 0,
               left: 0,
               right: 0,
-              height: `${BACKDROP_HEIGHT_PERCENT}%`,
+              // No-band mode: same 14% strip, but over the map, with a
+              // dark top-to-transparent scrim so the text stays readable.
+              height: `${noBand ? BACKDROP_HEIGHT_PERCENT : bandPct}%`,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               opacity,
               pointerEvents: "none",
+              ...(noBand
+                ? {
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0) 100%)",
+                  }
+                : {}),
             }}
           >
             {lines.map((line, i) => (
@@ -1281,7 +1306,7 @@ export const BattleMapSceneComponent: React.FC<{ scene: BattleMapScene }> = ({
               top: 0,
               left: 0,
               right: 0,
-              height: `${BACKDROP_HEIGHT_PERCENT}%`,
+              height: `${noBand ? BACKDROP_HEIGHT_PERCENT : bandPct}%`,
               pointerEvents: "none",
             }}
           >

@@ -1,4 +1,6 @@
 import { Composition } from 'remotion';
+import CarouselVideo, { calculateCarouselMetadata } from './carousel/CarouselVideo';
+import carouselSample from './carousel/sample-gettysburg-day1.json';
 import { ArticleVideo } from './ArticleVideo';
 import { totalDuration } from './data/config';
 import KorematsuVideo from './videos/KorematsuVideo';
@@ -80,6 +82,10 @@ import ThomasChickamaugaCornfieldQS, { totalDuration as thomasChickamaugaCornfie
 import LincolnHookerLetterQS, { totalDuration as lincolnHookerLetterQSTotal, FPS as lincolnHookerLetterQSFPS } from './compositions/LincolnHookerLetterQS';
 import GrantBucknerQS, { totalDuration as grantBucknerQSTotal, FPS as grantBucknerQSFPS } from './compositions/GrantBucknerQS';
 import ButlerVideo, { totalDuration as butlerVideoTotal, FPS as butlerVideoFPS } from './compositions/ButlerVideo';
+import RevereVideo, { totalDuration as revereVideoTotal, FPS as revereVideoFPS } from './compositions/RevereVideo';
+import RevereNeverReachedFX, { totalDuration as revereNeverReachedFXTotal, FPS as revereNeverReachedFXFPS } from './compositions/RevereNeverReachedFX';
+import EisenhowerOrderOfTheDayQS, { totalDuration as eisenhowerOrderOfTheDayQSTotal, FPS as eisenhowerOrderOfTheDayQSFPS } from './compositions/EisenhowerOrderOfTheDayQS';
+import SheridansRideVideo, { totalDuration as sheridansRideVideoTotal, FPS as sheridansRideVideoFPS } from './compositions/SheridansRideVideo';
 import { totalDuration as snowdenDuration } from './data/snowden';
 import { totalDuration as eisenhowerDuration } from './data/eisenhower';
 import { totalDuration as midwayDuration } from './data/midway';
@@ -92,6 +98,7 @@ import { totalDuration as northwoodsDuration } from './data/northwoods';
 import { BattleMapSceneComponent } from './shared/BattleMapScene';
 import { exampleFranklinScene } from './shared/BattleMapConfig';
 import { wildernessEpisode1 } from './data/WildernessScene';
+import { wildernessMichlerTest } from './data/WildernessMichlerTest';
 
 export const RemotionRoot = () => {
   return (
@@ -737,6 +744,39 @@ export const RemotionRoot = () => {
         height={1920}
       />
       <Composition
+        id="SheridansRideVideo"
+        component={SheridansRideVideo}
+        durationInFrames={sheridansRideVideoTotal}
+        fps={sheridansRideVideoFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="RevereVideo"
+        component={RevereVideo}
+        durationInFrames={revereVideoTotal}
+        fps={revereVideoFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="RevereNeverReachedFX"
+        component={RevereNeverReachedFX}
+        durationInFrames={revereNeverReachedFXTotal}
+        fps={revereNeverReachedFXFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="EisenhowerOrderOfTheDayQS"
+        component={EisenhowerOrderOfTheDayQS}
+        defaultProps={{ musicFile: 'audio/battle-of-midway-music.mp3', musicVolume: 0.24 }}
+        durationInFrames={eisenhowerOrderOfTheDayQSTotal}
+        fps={eisenhowerOrderOfTheDayQSFPS}
+        width={1080}
+        height={1920}
+      />
+      <Composition
         id="BattleMapScene"
         component={BattleMapSceneComponent}
         durationInFrames={exampleFranklinScene.totalDurationInFrames}
@@ -753,6 +793,25 @@ export const RemotionRoot = () => {
         width={1080}
         height={1920}
         defaultProps={{ scene: wildernessEpisode1 }}
+      />
+      <Composition
+        id="WildernessMichlerTest"
+        component={BattleMapSceneComponent}
+        durationInFrames={wildernessMichlerTest.totalDurationInFrames}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={{ scene: wildernessMichlerTest }}
+      />
+      <Composition
+        id="CarouselVideo"
+        component={CarouselVideo}
+        defaultProps={carouselSample}
+        calculateMetadata={calculateCarouselMetadata}
+        durationInFrames={150}
+        fps={30}
+        width={1080}
+        height={1920}
       />
     </>
   );
