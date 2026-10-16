@@ -3,6 +3,7 @@ import path from 'path'
 import Link from 'next/link'
 import { getArticleBySlug, getAllArticles } from '../../lib/articles'
 import { getSeriesTitle } from '../../lib/series'
+import { getArticleSeo, getArticleJsonLd, SITE_NAME } from '../../lib/seo'
 import LightboxImage from './LightboxImage'
 import DocImage from '@/components/DocImage'
 import ProseContent from './ProseContent'
@@ -17,23 +18,28 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
-  const heroImageUrl = article.heroImage
-    ? `https://echoandchronicle.today${article.heroImage}`
-    : `https://echoandchronicle.today/images/${slug}.jpg`
+  const seo = await getArticleSeo(article)
   return {
-    title: `${article.title} | Echo and Chronicle`,
-    description: article.excerpt,
+    title: { absolute: seo.pageTitle },
+    description: seo.description,
+    alternates: { canonical: seo.canonical },
     openGraph: {
-      title: article.title,
-      description: article.excerpt,
-      url: `https://echoandchronicle.today/articles/${slug}`,
-      images: [{ url: heroImageUrl }],
+      type: 'article',
+      siteName: SITE_NAME,
+      locale: 'en_US',
+      title: seo.socialTitle,
+      description: seo.description,
+      url: seo.canonical,
+      images: [seo.image],
+      ...(seo.publishedTime ? { publishedTime: seo.publishedTime } : {}),
+      section: article.category,
+      tags: article.tag ? [article.tag] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: article.title,
-      description: article.excerpt,
-      images: [heroImageUrl],
+      title: seo.socialTitle,
+      description: seo.description,
+      images: [seo.image.url],
     },
   }
 }
@@ -57,9 +63,11 @@ export default async function ArticlePage({ params }) {
   const shareBase = `https://echoandchronicle.today/articles/${article.slug}`
   const shareTitle = encodeURIComponent(article.title)
   const shareUrl = encodeURIComponent(shareBase)
+  const jsonLd = getArticleJsonLd(article, await getArticleSeo(article))
   const bodyHtml = article.contentHtml.replace(/<img\b[^>]*\bsrc="[^"]*-document\.[a-z]+"[^>]*\/?>/gi, '')
   return (
     <main className="min-h-screen bg-white text-gray-900">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
 
       {/* Top Bar */}
       <div className="border-b border-gray-200 px-8 py-2 flex items-center justify-between text-xs text-gray-400" style={{maxWidth: '1152px', margin: '0 auto'}}>

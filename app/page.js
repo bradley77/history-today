@@ -2,6 +2,10 @@ import Link from 'next/link'
 import { getAllArticles } from './lib/articles'
 import { getSeriesTitle } from './lib/series'
 
+export const metadata = {
+  alternates: { canonical: '/' },
+}
+
 export default async function Home() {
   const allArticles = getAllArticles()
   const featured = allArticles[0]

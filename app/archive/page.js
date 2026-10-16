@@ -1,9 +1,12 @@
 import Link from 'next/link'
 import { getAllArticles } from '../lib/articles'
+import { pageOpenGraph } from '../lib/seo'
 
 export const metadata = {
-  title: 'Archive | Echo and Chronicle',
+  title: 'Archive',
+  alternates: { canonical: '/archive' },
   description: 'Every story we have ever published.',
+  openGraph: pageOpenGraph({ path: '/archive', title: 'Archive', description: 'Every story we have ever published.' }),
 }
 
 // article.date is a free-text historical date, often a range

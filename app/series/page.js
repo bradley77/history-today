@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import { getAllArticles } from '../lib/articles'
 import { getAllSeriesSlugs, getSeriesTitle, getSeriesParts, getSeriesCompletion, getSeriesDescription } from '../lib/series'
+import { pageOpenGraph } from '../lib/seo'
 
 export const metadata = {
-  title: 'Series | Echo and Chronicle',
+  title: 'Series',
+  alternates: { canonical: '/series' },
   description: 'Multi-part stories, grouped and in order.',
+  openGraph: pageOpenGraph({ path: '/series', title: 'Series', description: 'Multi-part stories, grouped and in order.' }),
 }
 
 export default function SeriesIndexPage() {

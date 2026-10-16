@@ -1,13 +1,17 @@
 import Link from 'next/link'
 import { getAllArticles } from '../../lib/articles'
+import { pageOpenGraph } from '../../lib/seo'
 import { getSeriesTitle, getSeriesParts, getSeriesCompletion } from '../../lib/series'
 
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const title = getSeriesTitle(slug)
+  const description = `Every part of the ${title} series, in order.`
   return {
-    title: `${title} Series | Echo and Chronicle`,
-    description: `Every part of the ${title} series, in order.`,
+    title: `${title} Series`,
+    alternates: { canonical: `/series/${slug}` },
+    description,
+    openGraph: pageOpenGraph({ path: `/series/${slug}`, title: `${title} Series`, description }),
   }
 }
 

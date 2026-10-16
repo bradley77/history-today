@@ -40,9 +40,6 @@ export const metadata = {
     description: 'One historical story, every day. Echo & Chronicle connects the moments that shaped America to the news of today. Primary sources. No ads.',
     site: '@EchoChronicle',
   },
-  alternates: {
-    canonical: 'https://echoandchronicle.today',
-  },
 }
 
 export default function RootLayout({ children }) {

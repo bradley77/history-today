@@ -1,8 +1,11 @@
 import Link from 'next/link'
+import { pageOpenGraph } from '../lib/seo'
 
 export const metadata = {
-  title: 'About | Echo and Chronicle',
+  title: 'About',
+  alternates: { canonical: '/about' },
   description: 'Echo & Chronicle exists because history doesn\'t stay in the past.',
+  openGraph: pageOpenGraph({ path: '/about', title: 'About', description: 'Echo & Chronicle exists because history doesn\'t stay in the past.' }),
 }
 
 export default function AboutPage() {

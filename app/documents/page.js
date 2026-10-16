@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import { getAllArticles } from '../lib/articles'
+import { pageOpenGraph } from '../lib/seo'
 import DocImage from '@/components/DocImage'
 
 export const metadata = {
-  title: 'Primary Sources | Echo and Chronicle',
+  title: 'Primary Sources',
+  alternates: { canonical: '/documents' },
   description: 'Original documents from the historical record.',
+  openGraph: pageOpenGraph({ path: '/documents', title: 'Primary Sources', description: 'Original documents from the historical record.' }),
 }
 
 export default function DocumentsPage() {
