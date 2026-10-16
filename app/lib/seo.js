@@ -1,6 +1,6 @@
-import fs from 'fs'
-import path from 'path'
-import sharp from 'sharp'
+// Pure helpers only: no fs, path or sharp here, so routes importing this module
+// do not pull public/ into their serverless function trace. The og:image file
+// checks live in seo-image.js, which only the article page imports.
 
 export const SITE_URL = 'https://echoandchronicle.today'
 export const SITE_NAME = 'Echo & Chronicle'
@@ -84,39 +84,9 @@ export function toIsoUtc(value) {
   return Number.isNaN(Date.parse(iso)) ? undefined : iso
 }
 
-// Resolves a site-relative path (e.g. "/images/foo.jpg") to a file inside public/, or null.
-function publicFile(sitePath) {
-  if (!sitePath || typeof sitePath !== 'string') return null
-  const publicDir = path.join(process.cwd(), 'public')
-  const file = path.join(publicDir, sitePath)
-  if (!file.startsWith(publicDir + path.sep)) return null
-  return fs.existsSync(file) && fs.statSync(file).isFile() ? file : null
-}
-
-// Real dimensions of the file, or {} if they cannot be read (never guessed).
-async function imageSize(file) {
-  try {
-    const { width, height } = await sharp(file).metadata()
-    return width && height ? { width, height } : {}
-  } catch {
-    return {}
-  }
-}
-
-// heroImage from frontmatter, else /images/<slug>.jpg, else the default logo; only files that exist.
-async function pickOgImage(article) {
-  const candidates = [article.heroImage, `/images/${article.slug}.jpg`]
-  for (const sitePath of candidates) {
-    const file = publicFile(sitePath)
-    if (file) return { url: `${SITE_URL}${sitePath}`, ...(await imageSize(file)), alt: article.title }
-  }
-  const logo = publicFile('/images/ec-logo.png')
-  return { ...DEFAULT_OG_IMAGE, ...(logo ? await imageSize(logo) : {}), alt: article.title }
-}
-
-export async function getArticleSeo(article) {
-  const slug = article.slug
-  const canonical = `${SITE_URL}/articles/${slug}`
+// Everything about an article's SEO except the og:image, which is resolved separately.
+export function buildArticleSeo(article, image) {
+  const canonical = `${SITE_URL}/articles/${article.slug}`
 
   const baseTitle = article.seoTitle || article.title
   const withBrand = `${baseTitle} | ${SITE_NAME}`
@@ -125,8 +95,6 @@ export async function getArticleSeo(article) {
   const description =
     article.seoDescription ||
     trimDescription(article.excerpt || firstParagraph(article.content))
-
-  const image = await pickOgImage(article)
 
   return {
     canonical,
