@@ -82,3 +82,17 @@ __pycache__/
 
 # research index (built locally by ec_ocr.py / ec_find.py, not part of the site)
 source-index/
+
+# non-article material (social posts, research scratch, drafts, video/audio tooling)
+/Bastogne-Post/
+/Ia-Drang-Post/
+/image-sources/
+/reel_*.md
+/scripts_breakouts_*.md
+/part*.txt
+/queries_*.txt
+/*_DRAFT.md
+/tools/
+/studio.log
+/ADAM.mp3
+/public/videos/stuart-ride-around-mcclellan-map.mp4
